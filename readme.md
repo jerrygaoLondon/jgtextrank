@@ -94,7 +94,7 @@ feed your own pre-segmented/pre-tagged data), please see [jgTextRank wiki](https
 
 For `jgtextrank` documentation, see:
 
-* [textrank](http://htmlpreview.github.io/?https://github.com/jerrygaoLondon/jgtextrank/docs/jgtextrank.html)
+* [textrank](http://htmlpreview.github.io/?http://htmlpreview.github.io/?https://github.com/jerrygaoLondon/jgtextrank/blob/master/docs/jgtextrank.html)
 
 ### Installation ###
 
