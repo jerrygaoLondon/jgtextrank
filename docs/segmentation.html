@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module segmentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>segmentation</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cjgtextrank%5Cjgtextrank%5Cpreprocessing%5Csegmentation.py">c:\oak-project\python\jgtextrank\jgtextrank\preprocessing\segmentation.py</a></font></td></tr></table>
+    <p><tt>Text&nbsp;segmentation&nbsp;utility&nbsp;divides&nbsp;text&nbsp;into&nbsp;meaningful&nbsp;units,&nbsp;such&nbsp;as&nbsp;tokens,&nbsp;sentences&nbsp;etc.<br>
+&nbsp;<br>
+Abstracts&nbsp;from&nbsp;wikipedia:<br>
+&nbsp;<br>
+The&nbsp;process&nbsp;of&nbsp;text&nbsp;segmentation&nbsp;is&nbsp;non-trivial&nbsp;task.&nbsp;While&nbsp;some&nbsp;written&nbsp;languages&nbsp;have&nbsp;explicit&nbsp;word&nbsp;boundary&nbsp;markers,<br>
+such&nbsp;as&nbsp;the&nbsp;word&nbsp;spaces&nbsp;of&nbsp;written&nbsp;English&nbsp;and&nbsp;the&nbsp;distinctive&nbsp;initial,&nbsp;medial&nbsp;and&nbsp;final&nbsp;letter&nbsp;shapes&nbsp;of&nbsp;Arabic,<br>
+such&nbsp;signals&nbsp;are&nbsp;sometimes&nbsp;ambiguous&nbsp;and&nbsp;not&nbsp;present&nbsp;in&nbsp;all&nbsp;written&nbsp;languages.<br>
+&nbsp;<br>
+In&nbsp;English&nbsp;and&nbsp;many&nbsp;other&nbsp;languages&nbsp;using&nbsp;some&nbsp;form&nbsp;of&nbsp;the&nbsp;Latin&nbsp;alphabet,&nbsp;the&nbsp;space&nbsp;is&nbsp;a&nbsp;good&nbsp;approximation&nbsp;of&nbsp;a&nbsp;word<br>
+divider&nbsp;(word&nbsp;delimiter).&nbsp;(Some&nbsp;examples&nbsp;where&nbsp;the&nbsp;space&nbsp;character&nbsp;alone&nbsp;may&nbsp;not&nbsp;be&nbsp;sufficient&nbsp;include&nbsp;contractions<br>
+like&nbsp;can't&nbsp;for&nbsp;can&nbsp;not.).&nbsp;For&nbsp;sentence&nbsp;segmentation,&nbsp;using&nbsp;punctuation,&nbsp;particularly&nbsp;the&nbsp;full&nbsp;stop&nbsp;character&nbsp;is&nbsp;a<br>
+reasonable&nbsp;approximation&nbsp;in&nbsp;English&nbsp;and&nbsp;some&nbsp;other&nbsp;languages.&nbsp;&nbsp;However&nbsp;even&nbsp;in&nbsp;English&nbsp;this&nbsp;problem&nbsp;is&nbsp;not&nbsp;trivial<br>
+due&nbsp;to&nbsp;the&nbsp;use&nbsp;of&nbsp;the&nbsp;full&nbsp;stop&nbsp;character&nbsp;for&nbsp;abbreviations,&nbsp;which&nbsp;may&nbsp;or&nbsp;may&nbsp;not&nbsp;also&nbsp;terminate&nbsp;a&nbsp;sentence.<br>
+For&nbsp;example&nbsp;Mr.&nbsp;is&nbsp;not&nbsp;its&nbsp;own&nbsp;sentence&nbsp;in&nbsp;"Mr.&nbsp;Smith&nbsp;went&nbsp;to&nbsp;the&nbsp;shops&nbsp;in&nbsp;Jones&nbsp;Street."<br>
+When&nbsp;processing&nbsp;plain&nbsp;text,&nbsp;tables&nbsp;of&nbsp;abbreviations&nbsp;that&nbsp;contain&nbsp;periods&nbsp;can&nbsp;help&nbsp;prevent&nbsp;incorrect&nbsp;assignment&nbsp;of<br>
+sentence&nbsp;boundaries.<br>
+&nbsp;<br>
+Some&nbsp;segmentation&nbsp;process&nbsp;may&nbsp;need&nbsp;to&nbsp;analyse&nbsp;the&nbsp;structure&nbsp;of&nbsp;single&nbsp;linguistic&nbsp;unit,&nbsp;which&nbsp;is&nbsp;known&nbsp;as&nbsp;morphological<br>
+analysis&nbsp;(https://en.wikipedia.org/wiki/Morphology_(linguistics)).</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="nltk.html">nltk</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="re.html">re</a><br>
+<a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="segmentation.html#SentenceTokenizer">SentenceTokenizer</a>
+</font></dt><dt><font face="helvetica, arial"><a href="segmentation.html#WordTokenizer">WordTokenizer</a>
+</font></dt></dl>
+</dd>
+</dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="BaseTokenizer">class <strong>BaseTokenizer</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>This&nbsp;class&nbsp;is&nbsp;from&nbsp;TextBlob&nbsp;library.<br>
+refer&nbsp;to&nbsp;&lt;textblob.tokenizers.py&gt;<br>
+&nbsp;<br>
+Abstract&nbsp;base&nbsp;class&nbsp;from&nbsp;which&nbsp;all&nbsp;Tokenizer&nbsp;classes&nbsp;inherit.<br>
+Descendant&nbsp;classes&nbsp;must&nbsp;implement&nbsp;a&nbsp;``<a href="#BaseTokenizer-tokenize">tokenize</a>(text)``&nbsp;method<br>
+that&nbsp;returns&nbsp;a&nbsp;list&nbsp;of&nbsp;noun&nbsp;phrases&nbsp;as&nbsp;strings.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="BaseTokenizer-itokenize"><strong>itokenize</strong></a>(self, text, *args, **kwargs)</dt><dd><tt>Return&nbsp;a&nbsp;generator&nbsp;that&nbsp;generates&nbsp;tokens&nbsp;"on-demand"&nbsp;for&nbsp;lower&nbsp;memory&nbsp;usage.<br>
+&nbsp;<br>
+..&nbsp;versionadded::&nbsp;0.6.0<br>
+&nbsp;<br>
+:rtype:&nbsp;generator</tt></dd></dl>
+
+<dl><dt><a name="BaseTokenizer-tokenize"><strong>tokenize</strong></a>(self, text)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;tokens&nbsp;(strings)&nbsp;for&nbsp;a&nbsp;body&nbsp;of&nbsp;text.<br>
+&nbsp;<br>
+:rtype:&nbsp;list</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__abstractmethods__</strong> = frozenset({'tokenize'})</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SentenceTokenizer">class <strong>SentenceTokenizer</strong></a>(<a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>This&nbsp;class&nbsp;is&nbsp;from&nbsp;TextBlob&nbsp;library.<br>
+refer&nbsp;to&nbsp;&lt;textblob.tokenizers.py&gt;<br>
+&nbsp;<br>
+NLTK's&nbsp;sentence&nbsp;tokenizer&nbsp;(currently&nbsp;PunkSentenceTokenizer).<br>
+Uses&nbsp;an&nbsp;unsupervised&nbsp;algorithm&nbsp;to&nbsp;build&nbsp;a&nbsp;model&nbsp;for&nbsp;abbreviation&nbsp;words,<br>
+collocations,&nbsp;and&nbsp;words&nbsp;that&nbsp;start&nbsp;sentences,<br>
+then&nbsp;uses&nbsp;that&nbsp;to&nbsp;find&nbsp;sentence&nbsp;boundaries.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="segmentation.html#SentenceTokenizer">SentenceTokenizer</a></dd>
+<dd><a href="segmentation.html#BaseTokenizer">BaseTokenizer</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="SentenceTokenizer-tokenize"><strong>tokenize</strong></a>(self, text)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;sentences.</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__abstractmethods__</strong> = frozenset()</dl>
+
+<hr>
+Methods inherited from <a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>:<br>
+<dl><dt><a name="SentenceTokenizer-itokenize"><strong>itokenize</strong></a>(self, text, *args, **kwargs)</dt><dd><tt>Return&nbsp;a&nbsp;generator&nbsp;that&nbsp;generates&nbsp;tokens&nbsp;"on-demand"&nbsp;for&nbsp;lower&nbsp;memory&nbsp;usage.<br>
+&nbsp;<br>
+..&nbsp;versionadded::&nbsp;0.6.0<br>
+&nbsp;<br>
+:rtype:&nbsp;generator</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="WordTokenizer">class <strong>WordTokenizer</strong></a>(<a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>This&nbsp;class&nbsp;is&nbsp;from&nbsp;TextBlob&nbsp;library.<br>
+refer&nbsp;to&nbsp;&lt;textblob.tokenizers.py&gt;<br>
+&nbsp;<br>
+NLTK's&nbsp;recommended&nbsp;word&nbsp;tokenizer&nbsp;(currently&nbsp;the&nbsp;TreeBankTokenizer).<br>
+Uses&nbsp;regular&nbsp;expressions&nbsp;to&nbsp;tokenize&nbsp;text.&nbsp;Assumes&nbsp;text&nbsp;has&nbsp;already&nbsp;been<br>
+segmented&nbsp;into&nbsp;sentences.<br>
+&nbsp;<br>
+Performs&nbsp;the&nbsp;following&nbsp;steps:<br>
+&nbsp;<br>
+*&nbsp;split&nbsp;standard&nbsp;contractions,&nbsp;e.g.&nbsp;don't&nbsp;-&gt;&nbsp;do&nbsp;n't<br>
+*&nbsp;split&nbsp;commas&nbsp;and&nbsp;single&nbsp;quotes<br>
+*&nbsp;separate&nbsp;periods&nbsp;that&nbsp;appear&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;line<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="segmentation.html#WordTokenizer">WordTokenizer</a></dd>
+<dd><a href="segmentation.html#BaseTokenizer">BaseTokenizer</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="WordTokenizer-tokenize"><strong>tokenize</strong></a>(self, text, include_punc=True)</dt><dd><tt>Return&nbsp;a&nbsp;list&nbsp;of&nbsp;word&nbsp;tokens.<br>
+&nbsp;<br>
+:param&nbsp;text:&nbsp;string&nbsp;of&nbsp;text.<br>
+:param&nbsp;include_punc:&nbsp;(optional)&nbsp;whether&nbsp;to&nbsp;include&nbsp;punctuation&nbsp;as&nbsp;separate&nbsp;tokens.&nbsp;Default&nbsp;to&nbsp;True.</tt></dd></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>__abstractmethods__</strong> = frozenset()</dl>
+
+<hr>
+Methods inherited from <a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>:<br>
+<dl><dt><a name="WordTokenizer-itokenize"><strong>itokenize</strong></a>(self, text, *args, **kwargs)</dt><dd><tt>Return&nbsp;a&nbsp;generator&nbsp;that&nbsp;generates&nbsp;tokens&nbsp;"on-demand"&nbsp;for&nbsp;lower&nbsp;memory&nbsp;usage.<br>
+&nbsp;<br>
+..&nbsp;versionadded::&nbsp;0.6.0<br>
+&nbsp;<br>
+:rtype:&nbsp;generator</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="segmentation.html#BaseTokenizer">BaseTokenizer</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-pos_tagging"><strong>pos_tagging</strong></a>()</dt><dd><tt>Use&nbsp;NLTK's&nbsp;currently&nbsp;recommended&nbsp;part&nbsp;of&nbsp;speech&nbsp;tagger&nbsp;to&nbsp;tag&nbsp;the&nbsp;given&nbsp;list&nbsp;of&nbsp;tokens.<br>
+&nbsp;<br>
+Usage:&nbsp;&nbsp;&nbsp;&nbsp;pos_tag(<a href="#-word_tokenize">word_tokenize</a>(sent_content))<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-sent_tokenize"><strong>sent_tokenize</strong></a> = itokenize(text, *args, **kwargs)<font color="#909090"><font face="helvetica, arial"> method of <a href="segmentation.html#SentenceTokenizer">SentenceTokenizer</a> instance</font></font></dt><dd><tt>Return&nbsp;a&nbsp;generator&nbsp;that&nbsp;generates&nbsp;tokens&nbsp;"on-demand"&nbsp;for&nbsp;lower&nbsp;memory&nbsp;usage.<br>
+&nbsp;<br>
+..&nbsp;versionadded::&nbsp;0.6.0<br>
+&nbsp;<br>
+:rtype:&nbsp;generator</tt></dd></dl>
+ <dl><dt><a name="-strip_punc"><strong>strip_punc</strong></a>(s, all=False)</dt><dd><tt>Removes&nbsp;punctuation&nbsp;from&nbsp;a&nbsp;string.<br>
+&nbsp;<br>
+:param&nbsp;s:&nbsp;The&nbsp;string.<br>
+:param&nbsp;all:&nbsp;Remove&nbsp;all&nbsp;punctuation.&nbsp;If&nbsp;False,&nbsp;only&nbsp;removes&nbsp;punctuation&nbsp;from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;ends&nbsp;of&nbsp;the&nbsp;string.</tt></dd></dl>
+ <dl><dt><a name="-with_metaclass"><strong>with_metaclass</strong></a>(meta, *bases)</dt><dd><tt>This&nbsp;method&nbsp;is&nbsp;from&nbsp;TextBlob&nbsp;library.<br>
+refer&nbsp;to&nbsp;&lt;textblob.compat.py&gt;<br>
+&nbsp;<br>
+Defines&nbsp;a&nbsp;metaclass.<br>
+&nbsp;<br>
+Creates&nbsp;a&nbsp;dummy&nbsp;class&nbsp;with&nbsp;a&nbsp;dummy&nbsp;metaclass.&nbsp;When&nbsp;subclassed,&nbsp;the&nbsp;dummy<br>
+metaclass&nbsp;is&nbsp;used,&nbsp;which&nbsp;has&nbsp;a&nbsp;constructor&nbsp;that&nbsp;instantiates&nbsp;a<br>
+new&nbsp;class&nbsp;from&nbsp;the&nbsp;original&nbsp;parent.&nbsp;This&nbsp;ensures&nbsp;that&nbsp;the&nbsp;dummy&nbsp;class&nbsp;and<br>
+dummy&nbsp;metaclass&nbsp;are&nbsp;not&nbsp;in&nbsp;the&nbsp;inheritance&nbsp;tree.<br>
+&nbsp;<br>
+Credit&nbsp;to&nbsp;Armin&nbsp;Ronacher.</tt></dd></dl>
+ <dl><dt><a name="-word_2_tokenised_sentences"><strong>word_2_tokenised_sentences</strong></a>(text, include_punc=True, *args, **kwargs)</dt><dd><tt>:param&nbsp;text:<br>
+:param&nbsp;include_punc:<br>
+:param&nbsp;args:<br>
+:param&nbsp;kwargs:<br>
+:type&nbsp;generatorType<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-word_tokenize"><strong>word_tokenize</strong></a>(text, include_punc=True, *args, **kwargs)</dt><dd><tt>Convenience&nbsp;function&nbsp;for&nbsp;tokenizing&nbsp;text&nbsp;into&nbsp;words.<br>
+sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenization<br>
+&nbsp;<br>
+NOTE:&nbsp;NLTK's&nbsp;word&nbsp;tokenizer&nbsp;expects&nbsp;sentences&nbsp;as&nbsp;input,&nbsp;so&nbsp;the&nbsp;text&nbsp;will&nbsp;be<br>
+tokenized&nbsp;to&nbsp;sentences&nbsp;before&nbsp;being&nbsp;tokenized&nbsp;to&nbsp;words.<br>
+:rtype:&nbsp;generator[of&nbsp;tokens]<br>
+:return&nbsp;tokens</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>PUNCTUATION_REGEX</strong> = re.compile('[\\!\\"\\#\\$\\%\\&amp;\\\'\\(\\)\\*\\+\...\;\\&lt;\\=\\&gt;\\?\\@\\[\\\\\\]\\^_\\`\\{\\|\\}\\~]')</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Jie&nbsp;Gao&nbsp;&lt;j.gao@sheffield.ac.uk&gt;</td></tr></table>
+</body></html>

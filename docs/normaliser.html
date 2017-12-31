@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module normaliser</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>normaliser</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cjgtextrank%5Cjgtextrank%5Cpreprocessing%5Cnormaliser.py">c:\oak-project\python\jgtextrank\jgtextrank\preprocessing\normaliser.py</a></font></td></tr></table>
+    <p><tt>Text&nbsp;normalization&nbsp;utility&nbsp;that&nbsp;transforms&nbsp;text&nbsp;into&nbsp;a&nbsp;single&nbsp;canonical&nbsp;form.<br>
+&nbsp;<br>
+Normalising&nbsp;text&nbsp;before&nbsp;processing&nbsp;it&nbsp;can&nbsp;reduce&nbsp;noise&nbsp;and&nbsp;improve&nbsp;accuracy&nbsp;of&nbsp;term&nbsp;extraction&nbsp;algorithms<br>
+that&nbsp;relies&nbsp;on&nbsp;various&nbsp;frequency&nbsp;metrics.<br>
+&nbsp;<br>
+Text&nbsp;normalization&nbsp;is&nbsp;frequently&nbsp;used&nbsp;when&nbsp;converting&nbsp;the&nbsp;numbers,&nbsp;punctuations,&nbsp;acronyms,&nbsp;abbreviations,&nbsp;accents,<br>
+irregular&nbsp;and&nbsp;ungrammatic&nbsp;constructs&nbsp;in&nbsp;specialised&nbsp;domain&nbsp;that&nbsp;are&nbsp;non-standard&nbsp;"words",&nbsp;which&nbsp;need&nbsp;to&nbsp;be&nbsp;standardized<br>
+depending&nbsp;on&nbsp;the&nbsp;context.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="re.html">re</a><br>
+</td><td width="25%" valign=top><a href="six.html">six</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="unicodedata.html">unicodedata</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-lemmatize"><strong>lemmatize</strong></a>(word, pos='n')</dt><dd><tt>lemmatize&nbsp;word&nbsp;by&nbsp;using&nbsp;NLTK&nbsp;wordnet&nbsp;package<br>
+&nbsp;<br>
+if&nbsp;empty&nbsp;pos&nbsp;is&nbsp;passed,&nbsp;it&nbsp;will&nbsp;skip&nbsp;the&nbsp;lemmatization<br>
+&nbsp;<br>
+:type&nbsp;word:&nbsp;string<br>
+:param&nbsp;word:&nbsp;word&nbsp;to&nbsp;be&nbsp;lemmatised<br>
+:type&nbsp;pos:&nbsp;char<br>
+:param&nbsp;pos:&nbsp;four&nbsp;part-of-speech&nbsp;categories&nbsp;supported&nbsp;in&nbsp;NLTK&nbsp;wordnet<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEE&nbsp;options&nbsp;in&nbsp;nltk.corpus.reader.wordnet.POS_LIST<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SEE<br>
+:rtype:&nbsp;string<br>
+:return:&nbsp;lemmatized&nbsp;word&nbsp;or&nbsp;original&nbsp;word&nbsp;if&nbsp;pos=''</tt></dd></dl>
+ <dl><dt><a name="-normalize"><strong>normalize</strong></a>(text, lowercase=True, collapse=True, decompose=True, replace_categories={'M': ''}, lemma=False, pos_tag='n')</dt><dd><tt>&nbsp;Taken&nbsp;from&nbsp;Normality&nbsp;library<br>
+&nbsp;<br>
+The&nbsp;main&nbsp;normalization&nbsp;function&nbsp;for&nbsp;text.&nbsp;This&nbsp;will&nbsp;take&nbsp;a&nbsp;string<br>
+and&nbsp;apply&nbsp;a&nbsp;set&nbsp;of&nbsp;transformations&nbsp;to&nbsp;it&nbsp;so&nbsp;that&nbsp;it&nbsp;can&nbsp;be&nbsp;processed<br>
+more&nbsp;easily&nbsp;afterwards.<br>
+:type&nbsp;text:&nbsp;string<br>
+:param&nbsp;text:&nbsp;word<br>
+:type&nbsp;lowercase:&nbsp;bool<br>
+:param&nbsp;lowercase:&nbsp;lower&nbsp;case&nbsp;the&nbsp;text<br>
+:type&nbsp;collapse:&nbsp;bool<br>
+:param&nbsp;collapse:&nbsp;replace&nbsp;multiple&nbsp;whitespace-like&nbsp;characters&nbsp;with&nbsp;a&nbsp;single&nbsp;whitespace.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;especially&nbsp;useful&nbsp;with&nbsp;category&nbsp;replacement&nbsp;which&nbsp;can&nbsp;lead&nbsp;to&nbsp;a&nbsp;lot&nbsp;of&nbsp;whitespace.<br>
+:type&nbsp;decompose:&nbsp;bool<br>
+:param&nbsp;decompose:&nbsp;apply&nbsp;a&nbsp;unicode&nbsp;normalization&nbsp;(NFKD)&nbsp;to&nbsp;separate<br>
+&nbsp;&nbsp;simple&nbsp;characters&nbsp;and&nbsp;their&nbsp;diacritics.<br>
+:param&nbsp;replace_categories:&nbsp;This&nbsp;will&nbsp;perform&nbsp;a&nbsp;replacement&nbsp;of&nbsp;whole&nbsp;classes&nbsp;of&nbsp;unicode&nbsp;characters<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(e.g.&nbsp;symbols,&nbsp;marks,&nbsp;numbers)&nbsp;with&nbsp;a&nbsp;given&nbsp;character.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;used&nbsp;to&nbsp;replace&nbsp;any&nbsp;non-text&nbsp;elements&nbsp;of&nbsp;the&nbsp;input&nbsp;string.<br>
+:type&nbsp;lemma:&nbsp;bool<br>
+:param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;the&nbsp;word.&nbsp;Default&nbsp;to&nbsp;false<br>
+:type&nbsp;pos_tag:&nbsp;string<br>
+:param&nbsp;pos_tag:&nbsp;PoS&nbsp;tag&nbsp;used&nbsp;to&nbsp;lemmatize&nbsp;the&nbsp;word.&nbsp;&nbsp;the&nbsp;method&nbsp;will&nbsp;automatically&nbsp;map&nbsp;the&nbsp;tag&nbsp;to&nbsp;wordnet&nbsp;tag<br>
+:rtype:&nbsp;string<br>
+:return:&nbsp;normalised&nbsp;word</tt></dd></dl>
+ <dl><dt><strong>punctuation_filter</strong> <em>lambda</em> t</dt><dd><tt>#remove&nbsp;punctuations&nbsp;from&nbsp;a&nbsp;string</tt></dd></dl>
+ <dl><dt><a name="-punctuation_filter_for_list"><strong>punctuation_filter_for_list</strong></a>(tokens=[])</dt></dl>
+ <dl><dt><a name="-punctuation_filter_for_word_level"><strong>punctuation_filter_for_word_level</strong></a>(tokens=[])</dt><dd><tt>to&nbsp;effectively&nbsp;avoid&nbsp;errors&nbsp;caused&nbsp;by&nbsp;tokenisation<br>
+e.g.,&nbsp;"'lysis&nbsp;genes'"&nbsp;-&gt;&nbsp;["'lysis",&nbsp;'genes',&nbsp;"'"]&nbsp;-&gt;&nbsp;output:&nbsp;["lysis",&nbsp;'genes']<br>
+e.g.,&nbsp;['highli',&nbsp;'purifi',&nbsp;'monocytes/macrophag']&nbsp;-&gt;&nbsp;['highli',&nbsp;'purifi',&nbsp;'monocytes',&nbsp;'macrophag']<br>
+:param&nbsp;tokens:<br>
+:return:&nbsp;list,&nbsp;token&nbsp;lists</tt></dd></dl>
+ <dl><dt><a name="-remove_digits"><strong>remove_digits</strong></a>(raw_term)</dt></dl>
+ <dl><dt><a name="-remove_punctuations"><strong>remove_punctuations</strong></a>(raw_term)</dt></dl>
+ <dl><dt><a name="-stem"><strong>stem</strong></a>(word)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__all__</strong> = ['wordnet_lemmatizer', 'punctutations', 'punctuation_filter', 'stemmer', 'stem', 'lemmatize', 'normalize', 'punctuation_filter_for_list', 'remove_punctuations', 'remove_digits', 'punctuation_filter_for_word_level']<br>
+<strong>punctutations</strong> = '!"#$%&amp;<font color="#c040c0">\'</font>()*+,-./:;&lt;=&gt;?@[<font color="#c040c0">\\</font>]^_`{|}~'<br>
+<strong>stemmer</strong> = &lt;PorterStemmer&gt;<br>
+<strong>wordnet_lemmatizer</strong> = &lt;WordNetLemmatizer&gt;</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Jie&nbsp;Gao&nbsp;&lt;j.gao@sheffield.ac.uk&gt;</td></tr></table>
+</body></html>

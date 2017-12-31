@@ -1,0 +1,4 @@
+#jgtextrank
+
+nltk>=3.2.1
+networkx>=1.11

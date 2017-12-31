@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module jgtextrank.core</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="jgtextrank.html"><font color="#ffffff">jgtextrank</font></a>.core</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cjgtextrank%5Cjgtextrank%5Ccore.py">c:\oak-project\python\jgtextrank\jgtextrank\core.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;is&nbsp;a&nbsp;paralleled&nbsp;and&nbsp;customisable&nbsp;implementation&nbsp;of&nbsp;the&nbsp;TextRank&nbsp;algorithm.&nbsp;<br>
+The&nbsp;original&nbsp;TextRank&nbsp;applies&nbsp;to&nbsp;a&nbsp;single&nbsp;document.&nbsp;This&nbsp;implementation&nbsp;can&nbsp;be&nbsp;directly&nbsp;applied&nbsp;to&nbsp;a&nbsp;large<br>
+&nbsp;corpus.<br>
+&nbsp;<br>
+TextRank&nbsp;algorithm&nbsp;look&nbsp;into&nbsp;the&nbsp;structure&nbsp;of&nbsp;word&nbsp;co-occurrence&nbsp;networks,<br>
+where&nbsp;nodes&nbsp;are&nbsp;word&nbsp;types&nbsp;and&nbsp;edges&nbsp;are&nbsp;word&nbsp;cooccurrence.<br>
+&nbsp;<br>
+Important&nbsp;words&nbsp;can&nbsp;be&nbsp;thought&nbsp;of&nbsp;as&nbsp;being&nbsp;endorsed&nbsp;by&nbsp;other&nbsp;words,&nbsp;and&nbsp;this&nbsp;leads&nbsp;to&nbsp;an&nbsp;interesting&nbsp;<br>
+phenomenon.&nbsp;Words&nbsp;that&nbsp;are&nbsp;most&nbsp;important,&nbsp;viz.&nbsp;keywords,&nbsp;emerge&nbsp;as&nbsp;the&nbsp;most&nbsp;central&nbsp;words&nbsp;in&nbsp;the&nbsp;<br>
+resulting&nbsp;network,&nbsp;with&nbsp;high&nbsp;degree&nbsp;and&nbsp;PageRank.<br>
+&nbsp;<br>
+The&nbsp;final&nbsp;important&nbsp;step&nbsp;is&nbsp;post-filtering.&nbsp;Extracted&nbsp;phrases&nbsp;are&nbsp;disambiguated&nbsp;and&nbsp;normalized&nbsp;for&nbsp;<br>
+morpho-syntactic&nbsp;variations&nbsp;and&nbsp;lexical&nbsp;synonymy&nbsp;(Csomai&nbsp;and&nbsp;Mihalcea&nbsp;2007).&nbsp;Adjacent&nbsp;words&nbsp;are&nbsp;also&nbsp;<br>
+sometimes&nbsp;collapsed&nbsp;into&nbsp;phrases,&nbsp;for&nbsp;a&nbsp;more&nbsp;readable&nbsp;output.<br>
+&nbsp;<br>
+&nbsp;<br>
+Mihalcea,&nbsp;R.,&nbsp;&amp;&nbsp;Tarau,&nbsp;P.&nbsp;(2004,&nbsp;July).&nbsp;TextRank:&nbsp;Bringing&nbsp;order&nbsp;into&nbsp;texts.&nbsp;Association&nbsp;for&nbsp;Computational&nbsp;Linguistics.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="math.html">math</a><br>
+</td><td width="25%" valign=top><a href="multiprocessing.html">multiprocessing</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="networkx.html">networkx</a><br>
+<a href="string.html">string</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="jgtextrank.core.html#Vertex">Vertex</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Vertex">class <strong>Vertex</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Vertex-__init__"><strong>__init__</strong></a>(self, word, word_type, tag=None)</dt><dd><tt><a href="#Vertex">Vertex</a>&nbsp;(or&nbsp;nodes)&nbsp;are&nbsp;word&nbsp;type&nbsp;and&nbsp;edges&nbsp;are&nbsp;word&nbsp;collocations&nbsp;in&nbsp;the&nbsp;structure&nbsp;of&nbsp;word&nbsp;co-occurrence&nbsp;networks.<br>
+&nbsp;<br>
+the&nbsp;<a href="#Vertex">Vertex</a>&nbsp;will&nbsp;represent&nbsp;and&nbsp;be&nbsp;updated&nbsp;for&nbsp;whole&nbsp;corpus<br>
+&nbsp;<br>
+:param&nbsp;word&nbsp;is&nbsp;the&nbsp;original&nbsp;surface&nbsp;form&nbsp;of&nbsp;the&nbsp;node<br>
+:param&nbsp;word_type&nbsp;is&nbsp;the&nbsp;normalised&nbsp;form&nbsp;of&nbsp;the&nbsp;node<br>
+:param&nbsp;tag&nbsp;can&nbsp;be&nbsp;any&nbsp;tag&nbsp;assigned&nbsp;to&nbsp;the&nbsp;node&nbsp;(typically&nbsp;PoS&nbsp;category)</tt></dd></dl>
+
+<dl><dt><a name="Vertex-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="Vertex-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-_build_vertices_representations"><strong>_build_vertices_representations</strong></a>(all_tokenised_filtered_context, all_tokenised_context=None, conn_with_original_ctx=True, window_size=2)</dt><dd><tt>build&nbsp;vertices&nbsp;representations&nbsp;for&nbsp;graph&nbsp;network<br>
+&nbsp;<br>
+:type&nbsp;all_tokenised_filtered_context:&nbsp;list&nbsp;[of&nbsp;string]<br>
+:param&nbsp;all_tokenised_filtered_context:&nbsp;tokenised&nbsp;context&nbsp;text&nbsp;filtered&nbsp;by&nbsp;PoS&nbsp;based&nbsp;syntactic&nbsp;filter&nbsp;for&nbsp;co-occurrence<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;the&nbsp;input&nbsp;is&nbsp;expected&nbsp;to&nbsp;be&nbsp;pre-processed<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
+:type&nbsp;window_size:&nbsp;int<br>
+:param&nbsp;window_size:&nbsp;a&nbsp;window&nbsp;of&nbsp;N&nbsp;words&nbsp;-&gt;&nbsp;TODO:&nbsp;forward&nbsp;cooccurence&nbsp;and&nbsp;backward&nbsp;coocurrence&nbsp;can&nbsp;be&nbsp;implemented<br>
+:rtype:&nbsp;list&nbsp;[of&nbsp;<a href="#Vertex">Vertex</a>]<br>
+:return:&nbsp;list&nbsp;of&nbsp;Vertices</tt></dd></dl>
+ <dl><dt><a name="-_collapse_adjacent_keywords"><strong>_collapse_adjacent_keywords</strong></a>(weighted_keywords, original_tokenised_text)</dt><dd><tt>:type&nbsp;weighted_keywords:&nbsp;list&nbsp;[of&nbsp;tuple]<br>
+:param&nbsp;weighted_keywords:&nbsp;keywords&nbsp;(key&nbsp;head&nbsp;words),&nbsp;weight&nbsp;pair<br>
+:type&nbsp;original_tokenised_text:&nbsp;list&nbsp;[of&nbsp;string]<br>
+:param&nbsp;original_tokenised_text:&nbsp;tokenised&nbsp;original&nbsp;raw&nbsp;text<br>
+:rtype:&nbsp;set&nbsp;[of&nbsp;string]<br>
+:return:&nbsp;keywords&nbsp;including&nbsp;single-word&nbsp;term&nbsp;and&nbsp;multi-word&nbsp;term</tt></dd></dl>
+ <dl><dt><a name="-_compute_vertex"><strong>_compute_vertex</strong></a>(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_context_tokens=None, window_size=2)</dt><dd><tt>:type&nbsp;syntactic_unit:&nbsp;String<br>
+:param&nbsp;syntactic_unit:&nbsp;syntactic&nbsp;filtered&nbsp;(selected)&nbsp;token&nbsp;unit<br>
+:param&nbsp;vertices_cooccur_context_corpus:&nbsp;a&nbsp;list&nbsp;of&nbsp;tokens&nbsp;representing&nbsp;every&nbsp;single&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;word&nbsp;cooccur&nbsp;can&nbsp;be&nbsp;computed&nbsp;from<br>
+:param&nbsp;syntactic_filtered_context:&nbsp;a&nbsp;list&nbsp;of&nbsp;tokens&nbsp;representing&nbsp;every&nbsp;single&nbsp;context&nbsp;of&nbsp;corpus<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;word&nbsp;cooccur&nbsp;can&nbsp;be&nbsp;computed&nbsp;from<br>
+:rtype:&nbsp;<a href="#Vertex">Vertex</a><br>
+:return:&nbsp;<a href="#Vertex">Vertex</a>&nbsp;with&nbsp;co-occurrences</tt></dd></dl>
+ <dl><dt><a name="-_draw_edges"><strong>_draw_edges</strong></a>(vertices)</dt><dd><tt>draw&nbsp;edges&nbsp;to&nbsp;make&nbsp;connections&nbsp;between&nbsp;co-occurred&nbsp;word&nbsp;types&nbsp;(i.e.,&nbsp;normalised&nbsp;word&nbsp;surface&nbsp;form)<br>
+&nbsp;<br>
+see&nbsp;also&nbsp;&lt;link&nbsp;href="<a href="http://stackoverflow.com/questions/9136539/how-do-weighted-edges-affect-pagerank-in-networkx&quot;/">http://stackoverflow.com/questions/9136539/how-do-weighted-edges-affect-pagerank-in-networkx&quot;/</a>&gt;<br>
+&nbsp;<br>
+:param&nbsp;vertices:&nbsp;vertices&nbsp;to&nbsp;be&nbsp;loaded<br>
+:return:&nbsp;edges&nbsp;tuple&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-_get_cooccurs"><strong>_get_cooccurs</strong></a>(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_context_tokens=None, window_size=2)</dt><dd><tt>get&nbsp;word&nbsp;co-occurrence&nbsp;from&nbsp;filtered&nbsp;context<br>
+&nbsp;<br>
+:param&nbsp;syntactic_unit:&nbsp;word&nbsp;(i.e.,&nbsp;vertex)&nbsp;surface&nbsp;form<br>
+:param&nbsp;vertices_cooccur_context_corpus:&nbsp;a&nbsp;list&nbsp;of&nbsp;tokens&nbsp;representing&nbsp;every&nbsp;single&nbsp;context&nbsp;of&nbsp;corpus<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;word&nbsp;cooccur&nbsp;can&nbsp;be&nbsp;computed&nbsp;from<br>
+:param&nbsp;window_size:&nbsp;default&nbsp;with&nbsp;2&nbsp;for&nbsp;forward&nbsp;context&nbsp;and&nbsp;backward&nbsp;context<br>
+:rtype:&nbsp;set<br>
+:return:&nbsp;all&nbsp;co-occurrences&nbsp;of&nbsp;the&nbsp;input</tt></dd></dl>
+ <dl><dt><a name="-_get_cooccurs_from_single_context"><strong>_get_cooccurs_from_single_context</strong></a>(syntactic_unit, tokenised_context, window_size=2)</dt><dd><tt>get&nbsp;co-occurred&nbsp;syntactic&nbsp;units&nbsp;within&nbsp;specific&nbsp;context&nbsp;window&nbsp;by&nbsp;the&nbsp;given&nbsp;unit<br>
+&nbsp;<br>
+This&nbsp;implementation&nbsp;is&nbsp;default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context.<br>
+&nbsp;<br>
+:type&nbsp;syntactic_unit:&nbsp;string<br>
+:param&nbsp;syntactic_unit:&nbsp;syntactic&nbsp;unit(e.g.,&nbsp;token)<br>
+:type&nbsp;tokenised_context:&nbsp;list&nbsp;[of&nbsp;string]<br>
+:param&nbsp;tokenised_context:&nbsp;tokensed&nbsp;context&nbsp;with&nbsp;a&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;syntactic&nbsp;units<br>
+:type&nbsp;window_size:&nbsp;int<br>
+:param&nbsp;window_size:&nbsp;context&nbsp;forward&nbsp;and&nbsp;backward&nbsp;window&nbsp;size&nbsp;that&nbsp;is&nbsp;used&nbsp;to&nbsp;compute&nbsp;co-occurrences<br>
+:rtype:&nbsp;list&nbsp;[of&nbsp;string]<br>
+:return:&nbsp;co-occurrences&nbsp;of&nbsp;given&nbsp;syntactic&nbsp;unit</tt></dd></dl>
+ <dl><dt><a name="-_is_multiple_context"><strong>_is_multiple_context</strong></a>(corpus_context)</dt></dl>
+ <dl><dt><a name="-_is_top_t_vertices_connection"><strong>_is_top_t_vertices_connection</strong></a>(collapsed_term, top_t_vertices)</dt><dd><tt>:type&nbsp;collapsed_term:&nbsp;string<br>
+:param&nbsp;collapsed_term:&nbsp;Single-word&nbsp;term&nbsp;or&nbsp;Multi-word&nbsp;Term<br>
+:param&nbsp;top_t_vertices:&nbsp;top&nbsp;T&nbsp;weighted&nbsp;vertices<br>
+:return:&nbsp;True&nbsp;if&nbsp;the&nbsp;input&nbsp;contains&nbsp;any&nbsp;of&nbsp;top&nbsp;T&nbsp;vertex</tt></dd></dl>
+ <dl><dt><a name="-_log_normalise"><strong>_log_normalise</strong></a>(base_score, mu, unit_size)</dt></dl>
+ <dl><dt><a name="-_pos_tagging_tokenised_corpus_context"><strong>_pos_tagging_tokenised_corpus_context</strong></a>(tokenised_corpus_context, lemma=False)</dt><dd><tt>:type&nbsp;tokenised_corpus_context:&nbsp;generator&nbsp;or&nbsp;iterable&nbsp;<a href="builtins.html#object">object</a><br>
+:param&nbsp;tokenised_corpus_context:&nbsp;generator&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;as&nbsp;sentences)<br>
+:rtype:&nbsp;generator&nbsp;[of&nbsp;tuple]<br>
+:return:&nbsp;tuple&lt;tokenised&nbsp;sentences,&nbsp;pos&nbsp;tagged&nbsp;tokenised&nbsp;sentences&gt;</tt></dd></dl>
+ <dl><dt><a name="-_reweight_filtered_terms"><strong>_reweight_filtered_terms</strong></a>(collapsed_terms, top_t_vertices, all_vertices, weight_comb='norm_max', mu=5)</dt><dd><tt>weight&nbsp;key&nbsp;terms&nbsp;with&nbsp;page&nbsp;rank&nbsp;weights&nbsp;of&nbsp;vertices<br>
+&nbsp;<br>
+get&nbsp;max&nbsp;value&nbsp;of&nbsp;syntactic&nbsp;units&nbsp;for&nbsp;multi-word&nbsp;terms&nbsp;and&nbsp;penalise&nbsp;repeated&nbsp;vertice&nbsp;with&nbsp;maximum&nbsp;value&nbsp;if&nbsp;any<br>
+&nbsp;<br>
+repeated&nbsp;vertex&nbsp;(i.e.,&nbsp;syntactic&nbsp;unit&nbsp;or&nbsp;single&nbsp;word)&nbsp;will&nbsp;be&nbsp;normalised&nbsp;by&nbsp;occurrence<br>
+&nbsp;<br>
+:type&nbsp;collapsed_terms:&nbsp;set&nbsp;[of&nbsp;string]<br>
+:param&nbsp;collapsed_terms:&nbsp;collection&nbsp;of&nbsp;Single-Word&nbsp;or&nbsp;Multi-Word&nbsp;candidate&nbsp;terms<br>
+:type&nbsp;top_t_vertices:&nbsp;list&nbsp;[of&nbsp;tuple]<br>
+:param&nbsp;top_t_vertices:&nbsp;weighted&nbsp;top&nbsp;T&nbsp;vertices<br>
+:type&nbsp;all_vertices:&nbsp;list&nbsp;[of&nbsp;tuple]<br>
+:param&nbsp;all_vertices:&nbsp;all&nbsp;the&nbsp;weighted&nbsp;top&nbsp;T&nbsp;vertices<br>
+:type&nbsp;weight_comb:&nbsp;str<br>
+:param&nbsp;weight_comb:&nbsp;&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;MWT&nbsp;candidate&nbsp;terms<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;avg,&nbsp;norm_avg,&nbsp;log_norm_avg,&nbsp;gaussian_norm_avg,&nbsp;sum,&nbsp;norm_sum,&nbsp;log_norm_sum,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gaussian_norm_sum,&nbsp;max,&nbsp;norm_max,&nbsp;log_norm_max,&nbsp;gaussian_norm_max<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:rtype:&nbsp;dict&nbsp;[of&nbsp;term:weight]<br>
+:return:&nbsp;dict&nbsp;with&nbsp;key&nbsp;as&nbsp;term&nbsp;string&nbsp;and&nbsp;value&nbsp;is&nbsp;the&nbsp;weight</tt></dd></dl>
+ <dl><dt><a name="-_syntactic_filter"><strong>_syntactic_filter</strong></a>(pos_tagged_tokenised_sents, pos_filter=None, stop_words_filter=None)</dt><dd><tt>all&nbsp;lexical&nbsp;units&nbsp;that&nbsp;pass&nbsp;the&nbsp;syntactic&nbsp;filter&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;graph<br>
+&nbsp;<br>
+Best&nbsp;result&nbsp;is&nbsp;observed&nbsp;for&nbsp;nouns&nbsp;and&nbsp;adjective&nbsp;only&nbsp;in&nbsp;the&nbsp;paper<br>
+&nbsp;<br>
+:type&nbsp;pos_tagged_tokenised_sents:&nbsp;list<br>
+:param&nbsp;pos_tagged_tokenised_sents:&nbsp;example&nbsp;input,&nbsp;[[(token,&nbsp;pos_tag),&nbsp;...],&nbsp;[(token,&nbsp;pos_tag),&nbsp;...],&nbsp;...]<br>
+:param&nbsp;pos_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;unwanted&nbsp;tokens&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;token&nbsp;tuple&nbsp;list&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;PoS&nbsp;tag<br>
+:param&nbsp;stop_words_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;token&nbsp;tuple&nbsp;list<br>
+:rtype:&nbsp;generator&nbsp;[of&nbsp;list&nbsp;[of&nbsp;tuple]]<br>
+:return:&nbsp;filtered&nbsp;context&nbsp;taggged&nbsp;with&nbsp;pos&nbsp;categories</tt></dd></dl>
+ <dl><dt><a name="-_syntactic_filter_context"><strong>_syntactic_filter_context</strong></a>(pos_tagged_tokens, pos_filter=None, stop_words_filter=None, punc_filter=&lt;function &lt;lambda&gt; at 0x000001DDD05D8730&gt;)</dt><dd><tt>syntactic&nbsp;filtering&nbsp;for&nbsp;single&nbsp;context(default&nbsp;as&nbsp;single&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;sentence)<br>
+&nbsp;<br>
+all&nbsp;lexical&nbsp;units&nbsp;that&nbsp;pass&nbsp;the&nbsp;syntactic&nbsp;filter&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;graph<br>
+&nbsp;<br>
+Best&nbsp;result&nbsp;is&nbsp;observed&nbsp;for&nbsp;nouns&nbsp;and&nbsp;adjective&nbsp;only&nbsp;in&nbsp;the&nbsp;paper<br>
+&nbsp;<br>
+:type&nbsp;pos_tagged_tokens:&nbsp;tuple&nbsp;list<br>
+:param&nbsp;pos_tagged_tokens:&nbsp;PoS&nbsp;tagged&nbsp;tokens,&nbsp;e.g.,&nbsp;[(token,&nbsp;pos_tag),&nbsp;...]<br>
+:param&nbsp;pos_filter:&nbsp;PoS&nbsp;filter&nbsp;function&nbsp;to&nbsp;define&nbsp;acceptable&nbsp;syntactic&nbsp;context,&nbsp;default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;words<br>
+:param&nbsp;stop_words_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;token&nbsp;tuple&nbsp;list<br>
+:param&nbsp;punc_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;punctuation&nbsp;from&nbsp;the&nbsp;syntactic&nbsp;context&nbsp;in&nbsp;the&nbsp;case&nbsp;of&nbsp;mistagged&nbsp;PoS&nbsp;category<br>
+:return:&nbsp;filtered&nbsp;context&nbsp;taggged&nbsp;with&nbsp;pos&nbsp;categories</tt></dd></dl>
+ <dl><dt><a name="-_term_size_normalize"><strong>_term_size_normalize</strong></a>(base_score, unit_size)</dt></dl>
+ <dl><dt><a name="-build_cooccurrence_graph"><strong>build_cooccurrence_graph</strong></a>(preprocessed_context, directed=False, conn_with_original_ctx=True, window=2)</dt><dd><tt>build&nbsp;cooccurrence&nbsp;graph&nbsp;from&nbsp;filtered&nbsp;context<br>
+and&nbsp;only&nbsp;consider&nbsp;single&nbsp;words&nbsp;as&nbsp;candidates&nbsp;for&nbsp;addition&nbsp;to&nbsp;the&nbsp;graph<br>
+&nbsp;<br>
+prepare&nbsp;vertex&nbsp;representation&nbsp;-&gt;&nbsp;add&nbsp;vertex&nbsp;&gt;&nbsp;add&nbsp;edges<br>
+&nbsp;<br>
+For&nbsp;directed&nbsp;or&nbsp;undirected,&nbsp;the&nbsp;conclusion&nbsp;of&nbsp;the&nbsp;paper&nbsp;is&nbsp;that&nbsp;"no&nbsp;'direction'&nbsp;that&nbsp;can&nbsp;be&nbsp;established&nbsp;between<br>
+co-occurring&nbsp;words."<br>
+&nbsp;<br>
+:type&nbsp;preprocessed_context:&nbsp;generator&nbsp;or&nbsp;list/iterable<br>
+:param&nbsp;preprocessed_context:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;and&nbsp;PoS&nbsp;tagged&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter<br>
+:type&nbsp;directed:&nbsp;bool<br>
+:param&nbsp;directed:&nbsp;default&nbsp;as&nbsp;False,&nbsp;best&nbsp;results&nbsp;observed&nbsp;with&nbsp;undirected&nbsp;graph;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:TODO:&nbsp;for&nbsp;directed&nbsp;graph,&nbsp;need&nbsp;to&nbsp;define&nbsp;forward&nbsp;co-occurrence&nbsp;and&nbsp;backward&nbsp;co-occurrence<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;directed&nbsp;graph,&nbsp;a&nbsp;direction&nbsp;should&nbsp;be&nbsp;set&nbsp;following&nbsp;the&nbsp;natural&nbsp;flow&nbsp;of&nbsp;the&nbsp;text<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More&nbsp;vertices&nbsp;connection&nbsp;can&nbsp;be&nbsp;built&nbsp;if&nbsp;'conn_with_original_ctx'&nbsp;is&nbsp;set&nbsp;to&nbsp;False<br>
+:type&nbsp;window_size:&nbsp;int<br>
+:param&nbsp;window_size:&nbsp;a&nbsp;window&nbsp;of&nbsp;N&nbsp;words<br>
+:rtype:&nbsp;tuple[of&nbsp;[nx.graph,&nbsp;list]]<br>
+:return:&nbsp;(networkx)&nbsp;graph&nbsp;<a href="builtins.html#object">object</a>&nbsp;readily&nbsp;to&nbsp;score&nbsp;along&nbsp;with&nbsp;all&nbsp;tokenised&nbsp;raw&nbsp;text&nbsp;splitted&nbsp;by&nbsp;context</tt></dd></dl>
+ <dl><dt><a name="-keywords_extraction_from_corpus_directory"><strong>keywords_extraction_from_corpus_directory</strong></a>(corpus_dir, encoding='utf-8', window=2, top_p=0.3, top_t=100, directed=False, weighted=False, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', workers=1)</dt><dd><tt>:type&nbsp;corpus_dir:&nbsp;string<br>
+:param&nbsp;corpus_dir:&nbsp;corpus&nbsp;directory&nbsp;where&nbsp;text&nbsp;files&nbsp;are&nbsp;located&nbsp;and&nbsp;will&nbsp;be&nbsp;read&nbsp;and&nbsp;processed<br>
+:type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
+:param&nbsp;encoding:&nbsp;encoding&nbsp;of&nbsp;the&nbsp;text,&nbsp;default&nbsp;as&nbsp;'utf-8',<br>
+:type&nbsp;window:&nbsp;int,&nbsp;required<br>
+:param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
+:type&nbsp;top_p:&nbsp;float,&nbsp;required<br>
+:param&nbsp;top_p:&nbsp;the&nbsp;top&nbsp;Percentage&nbsp;of&nbsp;vertices&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing,&nbsp;Default&nbsp;as&nbsp;1/3&nbsp;of&nbsp;all&nbsp;vertices<br>
+:type&nbsp;top_t:&nbsp;int|None(default),&nbsp;optional<br>
+:param&nbsp;top_t:&nbsp;the&nbsp;top&nbsp;T&nbsp;vertices&nbsp;in&nbsp;the&nbsp;ranking&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;None&nbsp;is&nbsp;provided,&nbsp;top&nbsp;T&nbsp;will&nbsp;be&nbsp;computed&nbsp;from&nbsp;top&nbsp;P.&nbsp;Otherwise,&nbsp;top&nbsp;T&nbsp;will&nbsp;be&nbsp;used&nbsp;to&nbsp;filter&nbsp;vertices<br>
+&nbsp;<br>
+:type&nbsp;directed:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph,&nbsp;best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;undirected&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper.&nbsp;Default&nbsp;as&nbsp;False<br>
+:type&nbsp;weighted:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+:type&nbsp;syntactic_categories:&nbsp;set[string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;is&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(essentially&nbsp;word-based&nbsp;tokens).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set[string&nbsp;{‘english’}]&nbsp;|&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:type&nbsp;lemma:&nbsp;bool<br>
+:param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
+:type&nbsp;weight_comb:&nbsp;str<br>
+:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:type&nbsp;export:&nbsp;bool<br>
+:param&nbsp;export:&nbsp;True&nbsp;if&nbsp;export&nbsp;result&nbsp;else&nbsp;False<br>
+:type&nbsp;export_format:&nbsp;string<br>
+:param&nbsp;export_format:&nbsp;export&nbsp;file&nbsp;format.Support&nbsp;options:&nbsp;"csv"|"json".&nbsp;Default&nbsp;with&nbsp;"csv"<br>
+:type&nbsp;export_path:&nbsp;string<br>
+:param&nbsp;export_path:&nbsp;file&nbsp;path&nbsp;where&nbsp;the&nbsp;result&nbsp;will&nbsp;be&nbsp;exported&nbsp;to<br>
+:type&nbsp;workers:&nbsp;int<br>
+:param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores&nbsp;that&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;parallelize&nbsp;co-occurrence&nbsp;computation<br>
+:rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
+:return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
+ <dl><dt><a name="-keywords_extraction_from_segmented_corpus"><strong>keywords_extraction_from_segmented_corpus</strong></a>(segmented_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;context&nbsp;of&nbsp;tokenised&nbsp;textual&nbsp;corpus.<br>
+This&nbsp;method&nbsp;allows&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
+or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
+&nbsp;<br>
+:type&nbsp;tokenised_corpus_context:&nbsp;list|generator,&nbsp;required<br>
+:param&nbsp;tokenised_corpus_context:&nbsp;pre-tokenised&nbsp;corpus&nbsp;formatted&nbsp;in&nbsp;pre-defined&nbsp;context&nbsp;list.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tokenised&nbsp;sentence&nbsp;list&nbsp;is&nbsp;the&nbsp;recommended(and&nbsp;default)&nbsp;context&nbsp;corpus&nbsp;in&nbsp;TextRank.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You&nbsp;can&nbsp;also&nbsp;choose&nbsp;your&nbsp;own&nbsp;pre-defined&nbsp;co-occurrence&nbsp;context&nbsp;(e.g.,&nbsp;paragraph,&nbsp;entire&nbsp;document,&nbsp;a&nbsp;user-defined&nbsp;segment).<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:Example:&nbsp;input:<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;context_1&nbsp;=&nbsp;["The",&nbsp;"quick",&nbsp;"brown",&nbsp;"fox",&nbsp;"jumped",&nbsp;"over",&nbsp;"the",&nbsp;"lazy",&nbsp;"dog",&nbsp;".",&nbsp;"hey","diddle",&nbsp;"diddle",&nbsp;",",&nbsp;"the",&nbsp;"cat",&nbsp;"and",&nbsp;"the",&nbsp;"fiddle","."]<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;context_2&nbsp;=&nbsp;["The",&nbsp;"cow",&nbsp;"jumped",&nbsp;"over",&nbsp;"the",&nbsp;"moon",".",&nbsp;"The",&nbsp;"little",&nbsp;"dog",&nbsp;"laughted",&nbsp;"to",&nbsp;"see","such",&nbsp;"fun",&nbsp;"."]<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;segmented_corpus_context&nbsp;=&nbsp;[context_1,&nbsp;context_2]<br>
+:type&nbsp;window:&nbsp;int,&nbsp;required<br>
+:param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
+:type&nbsp;top_p:&nbsp;float,&nbsp;optional<br>
+:param&nbsp;top_p:&nbsp;the&nbsp;top&nbsp;Percentage&nbsp;of&nbsp;vertices&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing,&nbsp;Default&nbsp;as&nbsp;1/3&nbsp;of&nbsp;all&nbsp;vertices<br>
+:type&nbsp;top_t:&nbsp;int|None(default),&nbsp;optional<br>
+:param&nbsp;top_t:&nbsp;the&nbsp;top&nbsp;T&nbsp;vertices&nbsp;in&nbsp;the&nbsp;ranking&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing<br>
+:type&nbsp;directed:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph,&nbsp;best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;undirected&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper.&nbsp;Default&nbsp;as&nbsp;False<br>
+:type&nbsp;weighted:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More&nbsp;vertices&nbsp;connection&nbsp;can&nbsp;be&nbsp;built&nbsp;if&nbsp;'conn_with_original_ctx'&nbsp;is&nbsp;set&nbsp;to&nbsp;False<br>
+:type&nbsp;syntactic_categories:&nbsp;set[string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;is&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(essentially&nbsp;word-based&nbsp;tokens).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set[string&nbsp;{‘english’}]&nbsp;|&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:type&nbsp;lemma:&nbsp;bool<br>
+:param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
+:type&nbsp;weight_comb:&nbsp;str<br>
+:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:type&nbsp;export:&nbsp;bool<br>
+:param&nbsp;export:&nbsp;True&nbsp;if&nbsp;export&nbsp;result&nbsp;else&nbsp;False<br>
+:type&nbsp;export_format:&nbsp;string<br>
+:param&nbsp;export_format:&nbsp;export&nbsp;file&nbsp;format.&nbsp;Support&nbsp;options:&nbsp;"csv"|"json".&nbsp;Default&nbsp;with&nbsp;"csv"<br>
+:type&nbsp;export_path:&nbsp;string<br>
+:param&nbsp;export_path:&nbsp;file&nbsp;path&nbsp;where&nbsp;the&nbsp;result&nbsp;will&nbsp;be&nbsp;exported&nbsp;to<br>
+:type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
+:param&nbsp;encoding:&nbsp;encoding&nbsp;of&nbsp;the&nbsp;text,&nbsp;default&nbsp;as&nbsp;'utf-8',<br>
+:type&nbsp;workers:&nbsp;int<br>
+:param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
+:rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
+:return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
+ <dl><dt><a name="-keywords_extraction_from_tagged_corpus"><strong>keywords_extraction_from_tagged_corpus</strong></a>(tagged_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;pos&nbsp;tagged&nbsp;corpus&nbsp;context&nbsp;list<br>
+&nbsp;<br>
+This&nbsp;method&nbsp;allows&nbsp;to&nbsp;use&nbsp;external&nbsp;Part-of-Speech&nbsp;tagging,&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
+or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
+&nbsp;<br>
+:type&nbsp;tagged_corpus_context:&nbsp;list[list[tuple[string,&nbsp;string]]]&nbsp;or&nbsp;generator<br>
+:param&nbsp;tagged_corpus_context:&nbsp;pre-tagged&nbsp;corpus&nbsp;in&nbsp;the&nbsp;form&nbsp;of&nbsp;tuple<br>
+:type&nbsp;window:&nbsp;int,&nbsp;required<br>
+:param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
+:type&nbsp;top_p:&nbsp;float,&nbsp;optional<br>
+:param&nbsp;top_p:&nbsp;the&nbsp;top&nbsp;Percentage&nbsp;of&nbsp;vertices&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing,&nbsp;Default&nbsp;as&nbsp;1/3&nbsp;of&nbsp;all&nbsp;vertices<br>
+:type&nbsp;top_t:&nbsp;int|None(default),&nbsp;optional<br>
+:param&nbsp;top_t:&nbsp;the&nbsp;top&nbsp;T&nbsp;vertices&nbsp;in&nbsp;the&nbsp;ranking&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing<br>
+:type&nbsp;directed:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph,&nbsp;best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;undirected&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper.&nbsp;Default&nbsp;as&nbsp;False<br>
+:type&nbsp;weighted:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;connections&nbsp;from&nbsp;original&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More&nbsp;vertices&nbsp;connection&nbsp;can&nbsp;be&nbsp;built&nbsp;if&nbsp;'conn_with_original_ctx'&nbsp;is&nbsp;set&nbsp;to&nbsp;False<br>
+:type&nbsp;syntactic_categories:&nbsp;set[string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;is&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(essentially&nbsp;word-based&nbsp;tokens).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set[string&nbsp;{‘english’}]&nbsp;|&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:type&nbsp;lemma:&nbsp;bool<br>
+:param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
+:type&nbsp;weight_comb:&nbsp;str<br>
+:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:type&nbsp;export:&nbsp;bool<br>
+:param&nbsp;export:&nbsp;True&nbsp;if&nbsp;export&nbsp;result&nbsp;else&nbsp;False<br>
+:type&nbsp;export_format:&nbsp;string<br>
+:param&nbsp;export_format:&nbsp;export&nbsp;file&nbsp;format.Support&nbsp;options:&nbsp;"csv"|"json".&nbsp;Default&nbsp;with&nbsp;"csv"<br>
+:type&nbsp;export_path:&nbsp;string<br>
+:param&nbsp;export_path:&nbsp;file&nbsp;path&nbsp;where&nbsp;the&nbsp;result&nbsp;will&nbsp;be&nbsp;exported&nbsp;to<br>
+:type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
+:param&nbsp;encoding:&nbsp;encoding&nbsp;of&nbsp;export&nbsp;file,&nbsp;default&nbsp;as&nbsp;'utf-8',<br>
+:type&nbsp;workers:&nbsp;int<br>
+:param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
+:rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
+:return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
+ <dl><dt><a name="-preprocessing"><strong>preprocessing</strong></a>(text, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;pipeline:&nbsp;sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenisation&nbsp;-&gt;<br>
+Part-of-Speech(PoS)&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
+&nbsp;<br>
+Text&nbsp;segmentation:&nbsp;using&nbsp;NLTK's&nbsp;recommended&nbsp;English&nbsp;word&nbsp;tokenizer&nbsp;(currently&nbsp;an&nbsp;improved&nbsp;:class:`.TreebankWordTokenizer`<br>
+along&nbsp;with&nbsp;:class:`.PunktSentenceTokenizer`<br>
+&nbsp;<br>
+PoS&nbsp;tagging:&nbsp;Use&nbsp;NLTK's&nbsp;currently&nbsp;recommended&nbsp;part&nbsp;of&nbsp;speech&nbsp;tagger&nbsp;('taggers/averaged_perceptron_tagger/english.pickle')<br>
+&nbsp;<br>
+You&nbsp;can&nbsp;download&nbsp;both&nbsp;via<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;import&nbsp;nltk<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;nltk.download('punkt')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;nltk.download('averaged_perceptron_tagger')<br>
+&nbsp;<br>
+:type&nbsp;text:&nbsp;string<br>
+:param&nbsp;text:&nbsp;plain&nbsp;text<br>
+:type&nbsp;syntactic_categories:&nbsp;set&nbsp;[of&nbsp;string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;is&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(default&nbsp;with&nbsp;word-based&nbsp;tokens&nbsp;as&nbsp;single&nbsp;syntactic&nbsp;unit).<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set&nbsp;of&nbsp;[string&nbsp;{‘english’}],&nbsp;or&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:rtype:&nbsp;generatorType&nbsp;(of&nbsp;tuple)<br>
+:return:&nbsp;result:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;in&nbsp;sentence&nbsp;level)&nbsp;text<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;the&nbsp;corresponding&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter</tt></dd></dl>
+ <dl><dt><a name="-preprocessing_tokenised_context"><strong>preprocessing_tokenised_context</strong></a>(tokenised_context, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;tokenised&nbsp;corpus&nbsp;context&nbsp;(recommend&nbsp;as&nbsp;sentences)<br>
+&nbsp;<br>
+pipeline:&nbsp;&nbsp;Part-of-Speech&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
+&nbsp;<br>
+:type&nbsp;tokenised_context:&nbsp;generator&nbsp;or&nbsp;iterable&nbsp;<a href="builtins.html#object">object</a><br>
+:param&nbsp;tokenised_context:&nbsp;generator&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;with&nbsp;sentences)<br>
+:type&nbsp;syntactic_categories:&nbsp;set&nbsp;[of&nbsp;string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;are&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(default&nbsp;with&nbsp;word-based&nbsp;tokens&nbsp;as&nbsp;single&nbsp;syntactic&nbsp;unit).<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set&nbsp;of&nbsp;[string&nbsp;{‘english’}],&nbsp;or&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:rtype:&nbsp;generator[of&nbsp;tuple]<br>
+:return:&nbsp;pre-processed&nbsp;raw&nbsp;text&nbsp;tokens&nbsp;splitted&nbsp;with&nbsp;context&nbsp;and&nbsp;filtered&nbsp;text&nbsp;tokens&nbsp;splitted&nbsp;with&nbsp;context</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__all__</strong> = ['Vertex', 'preprocessing', 'preprocessing_tokenised_context', '_pos_tagging_tokenised_corpus_context', '_syntactic_filter', '_syntactic_filter_context', '_is_multiple_context', '_get_cooccurs', '_get_cooccurs_from_single_context', '_build_vertices_representations', '_compute_vertex', 'build_cooccurrence_graph', '_draw_edges', '_is_top_t_vertices_connection', '_reweight_filtered_terms', '_term_size_normalize', '_log_normalise', '_gaussian_normalise_keywords_extraction_from_preprocessed_context', '_collapse_adjacent_keywords', '_load_preprocessed_corpus_contextkeywords_extraction', ...]</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Jie&nbsp;Gao&nbsp;&lt;j.gao@sheffield.ac.uk&gt;</td></tr></table>
+</body></html>
