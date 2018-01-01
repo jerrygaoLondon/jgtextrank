@@ -6,7 +6,6 @@ dist: trusty
 python:
   - "3.6"
   - "3.6-dev"  # 3.6 development branch
-  - "3.7-dev"  # 3.7 development branch
   - nightly
 
 matrix:
@@ -16,9 +15,10 @@ matrix:
 before_install:
   - python -m pip install --upgrade pip
   - sudo apt-get build-dep python-scipy
-  - sudo apt-get install -qq python-numpy python-scipy python-matplotlib
+  - sudo apt-get install -qq python-scipy
   - pip install .
   - pip install -r requirements.txt
+  - pip install scipy
   - pip install matplotlib
   - python -c "exec(\"import nltk\nnltk.download('stopwords')\")"
 # command to install dependencies
