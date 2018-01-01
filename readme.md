@@ -1,6 +1,5 @@
 [![license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
-
-[![Build Status](https://travis-ci.org/jerrygaoLondon/jgtextrank.svg)](https://travis-ci.org/jerrygaoLondon/jgtextrank)
+ [![Build Status](https://travis-ci.org/jerrygaoLondon/jgtextrank.svg)](https://travis-ci.org/jerrygaoLondon/jgtextrank)
 
 jgTextRank : Yet another Python implementation of TextRank
 ==========================================================
