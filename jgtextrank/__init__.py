@@ -50,4 +50,4 @@ __all__=["preprocessing", "preprocessing_tokenised_context", "build_cooccurrence
          "keywords_extraction_from_tagged_corpus",
          "keywords_extraction_from_corpus_directory"]
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'

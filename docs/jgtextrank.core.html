@@ -8,7 +8,7 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="jgtextrank.html"><font color="#ffffff">jgtextrank</font></a>.core</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cjgtextrank%5Cjgtextrank%5Ccore.py">c:\oak-project\python\jgtextrank\jgtextrank\core.py</a></font></td></tr></table>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cgithub%5Cjgtextrank%5Cjgtextrank%5Ccore.py">c:\oak-project\python\github\jgtextrank\jgtextrank\core.py</a></font></td></tr></table>
     <p><tt>This&nbsp;is&nbsp;a&nbsp;paralleled&nbsp;and&nbsp;customisable&nbsp;implementation&nbsp;of&nbsp;the&nbsp;TextRank&nbsp;algorithm.&nbsp;<br>
 The&nbsp;original&nbsp;TextRank&nbsp;applies&nbsp;to&nbsp;a&nbsp;single&nbsp;document.&nbsp;This&nbsp;implementation&nbsp;can&nbsp;be&nbsp;directly&nbsp;applied&nbsp;to&nbsp;a&nbsp;large<br>
 &nbsp;corpus.<br>
@@ -183,7 +183,7 @@ Best&nbsp;result&nbsp;is&nbsp;observed&nbsp;for&nbsp;nouns&nbsp;and&nbsp;adjecti
 :param&nbsp;stop_words_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;token&nbsp;tuple&nbsp;list<br>
 :rtype:&nbsp;generator&nbsp;[of&nbsp;list&nbsp;[of&nbsp;tuple]]<br>
 :return:&nbsp;filtered&nbsp;context&nbsp;taggged&nbsp;with&nbsp;pos&nbsp;categories</tt></dd></dl>
- <dl><dt><a name="-_syntactic_filter_context"><strong>_syntactic_filter_context</strong></a>(pos_tagged_tokens, pos_filter=None, stop_words_filter=None, punc_filter=&lt;function &lt;lambda&gt; at 0x000001DDD05D8730&gt;)</dt><dd><tt>syntactic&nbsp;filtering&nbsp;for&nbsp;single&nbsp;context(default&nbsp;as&nbsp;single&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;sentence)<br>
+ <dl><dt><a name="-_syntactic_filter_context"><strong>_syntactic_filter_context</strong></a>(pos_tagged_tokens, pos_filter=None, stop_words_filter=None, punc_filter=&lt;function &lt;lambda&gt; at 0x000001ADC33FAA60&gt;)</dt><dd><tt>syntactic&nbsp;filtering&nbsp;for&nbsp;single&nbsp;context(default&nbsp;as&nbsp;single&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;sentence)<br>
 &nbsp;<br>
 all&nbsp;lexical&nbsp;units&nbsp;that&nbsp;pass&nbsp;the&nbsp;syntactic&nbsp;filter&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;graph<br>
 &nbsp;<br>
@@ -219,7 +219,7 @@ co-occurring&nbsp;words."<br>
 :param&nbsp;window_size:&nbsp;a&nbsp;window&nbsp;of&nbsp;N&nbsp;words<br>
 :rtype:&nbsp;tuple[of&nbsp;[nx.graph,&nbsp;list]]<br>
 :return:&nbsp;(networkx)&nbsp;graph&nbsp;<a href="builtins.html#object">object</a>&nbsp;readily&nbsp;to&nbsp;score&nbsp;along&nbsp;with&nbsp;all&nbsp;tokenised&nbsp;raw&nbsp;text&nbsp;splitted&nbsp;by&nbsp;context</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_corpus_directory"><strong>keywords_extraction_from_corpus_directory</strong></a>(corpus_dir, encoding='utf-8', window=2, top_p=0.3, top_t=100, directed=False, weighted=False, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', workers=1)</dt><dd><tt>:type&nbsp;corpus_dir:&nbsp;string<br>
+ <dl><dt><a name="-keywords_extraction_from_corpus_directory"><strong>keywords_extraction_from_corpus_directory</strong></a>(corpus_dir, encoding='utf-8', window=2, top_p=0.3, top_t=100, directed=False, weighted=False, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', workers=1)</dt><dd><tt>:type&nbsp;corpus_dir:&nbsp;string<br>
 :param&nbsp;corpus_dir:&nbsp;corpus&nbsp;directory&nbsp;where&nbsp;text&nbsp;files&nbsp;are&nbsp;located&nbsp;and&nbsp;will&nbsp;be&nbsp;read&nbsp;and&nbsp;processed<br>
 :type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
 :param&nbsp;encoding:&nbsp;encoding&nbsp;of&nbsp;the&nbsp;text,&nbsp;default&nbsp;as&nbsp;'utf-8',<br>
@@ -272,7 +272,7 @@ co-occurring&nbsp;words."<br>
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores&nbsp;that&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;parallelize&nbsp;co-occurrence&nbsp;computation<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_segmented_corpus"><strong>keywords_extraction_from_segmented_corpus</strong></a>(segmented_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;context&nbsp;of&nbsp;tokenised&nbsp;textual&nbsp;corpus.<br>
+ <dl><dt><a name="-keywords_extraction_from_segmented_corpus"><strong>keywords_extraction_from_segmented_corpus</strong></a>(segmented_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;context&nbsp;of&nbsp;tokenised&nbsp;textual&nbsp;corpus.<br>
 This&nbsp;method&nbsp;allows&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
 or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
 &nbsp;<br>
@@ -341,7 +341,7 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_tagged_corpus"><strong>keywords_extraction_from_tagged_corpus</strong></a>(tagged_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;pos&nbsp;tagged&nbsp;corpus&nbsp;context&nbsp;list<br>
+ <dl><dt><a name="-keywords_extraction_from_tagged_corpus"><strong>keywords_extraction_from_tagged_corpus</strong></a>(tagged_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;pos&nbsp;tagged&nbsp;corpus&nbsp;context&nbsp;list<br>
 &nbsp;<br>
 This&nbsp;method&nbsp;allows&nbsp;to&nbsp;use&nbsp;external&nbsp;Part-of-Speech&nbsp;tagging,&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
 or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
@@ -401,7 +401,7 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-preprocessing"><strong>preprocessing</strong></a>(text, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;pipeline:&nbsp;sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenisation&nbsp;-&gt;<br>
+ <dl><dt><a name="-preprocessing"><strong>preprocessing</strong></a>(text, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;pipeline:&nbsp;sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenisation&nbsp;-&gt;<br>
 Part-of-Speech(PoS)&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
 &nbsp;<br>
 Text&nbsp;segmentation:&nbsp;using&nbsp;NLTK's&nbsp;recommended&nbsp;English&nbsp;word&nbsp;tokenizer&nbsp;(currently&nbsp;an&nbsp;improved&nbsp;:class:`.TreebankWordTokenizer`<br>
@@ -433,7 +433,7 @@ You&nbsp;can&nbsp;download&nbsp;both&nbsp;via<br>
 :rtype:&nbsp;generatorType&nbsp;(of&nbsp;tuple)<br>
 :return:&nbsp;result:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;in&nbsp;sentence&nbsp;level)&nbsp;text<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;the&nbsp;corresponding&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter</tt></dd></dl>
- <dl><dt><a name="-preprocessing_tokenised_context"><strong>preprocessing_tokenised_context</strong></a>(tokenised_context, syntactic_categories={'NN', 'NNP', 'JJ', 'NNS'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;tokenised&nbsp;corpus&nbsp;context&nbsp;(recommend&nbsp;as&nbsp;sentences)<br>
+ <dl><dt><a name="-preprocessing_tokenised_context"><strong>preprocessing_tokenised_context</strong></a>(tokenised_context, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;tokenised&nbsp;corpus&nbsp;context&nbsp;(recommend&nbsp;as&nbsp;sentences)<br>
 &nbsp;<br>
 pipeline:&nbsp;&nbsp;Part-of-Speech&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
 &nbsp;<br>
