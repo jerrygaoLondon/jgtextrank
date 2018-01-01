@@ -23,7 +23,7 @@ Mihalcea, R., & Tarau, P. (2004, July). TextRank: Bringing order into texts. Ass
 
 ### Usage ###
 
-#### Simple examples
+Simple examples:
 
 Extract weighted keywords with an undirected graph:
 
