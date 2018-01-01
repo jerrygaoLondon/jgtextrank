@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install as _install
 
 def readme():
-    with open('readme.md') as f:
+    with open('readme.txt') as f:
         return f.read()
 
 
@@ -21,7 +21,7 @@ setup(
 
     # Versions should comply with PEP440.
     # see https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.1.1',
 
     description='Yet another Python implementation of TextRank: package for the creation, manipulation, '
                 'and study of TextRank algorithm based keywords extraction and summarisation',
