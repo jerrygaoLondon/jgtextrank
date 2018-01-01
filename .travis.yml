@@ -1,0 +1,29 @@
+language: python
+cache: pip
+sudo: required
+dist: trusty
+
+python:
+  - "3.6"
+  - "3.6-dev"  # 3.6 development branch
+  - "3.7-dev"  # 3.7 development branch
+  - nightly
+
+matrix:
+  allow_failures:
+    - python: nightly
+
+before_install:
+  - pip install .
+  - pip install -r requirements.txt
+# command to install dependencies
+install:
+  - python setup.py -q install
+# command to run tests
+script:
+  - if [[ $TRAVIS_PYTHON_VERSION >= '3.4' ]]; then python -m unittest discover; fi
+
+notifications:
+    on_success: change
+    on_failure: change  # `always` will be the setting once code changes slow down
+
