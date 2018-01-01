@@ -21,7 +21,7 @@ install:
   - python setup.py -q install
 # command to run tests
 script:
-  - if [[ $TRAVIS_PYTHON_VERSION >= '3.4' ]]; then python -m unittest discover; fi
+  - py.test
 
 notifications:
     on_success: change
