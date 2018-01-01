@@ -98,7 +98,7 @@ For `jgtextrank` documentation, see:
 
 ### Installation ###
 
-To install from PyPi:
+To install from [PyPi](https://pypi.python.org/pypi/jgtextrank):
 
     pip install jgtextrank
 
