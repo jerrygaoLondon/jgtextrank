@@ -10,6 +10,12 @@ import warnings
 
 from collections import Counter
 import networkx as nx
+import matplotlib as mpl
+
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    mpl.use('Agg')
+
 import matplotlib.pyplot as plt
 
 from jgtextrank.utility import sort_dict_by_value, flatten

@@ -73,7 +73,7 @@ setup(
 
     extras_require={
         'dev': ['check-manifest', 'matplotlib'],
-        'test': ['coverage', 'matplotlib'],
+        'test': ['coverage', 'matplotlib', 'scipy'],
     },
 
     zip_safe=False)
