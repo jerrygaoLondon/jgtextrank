@@ -16,6 +16,8 @@ matrix:
 before_install:
   - pip install .
   - pip install -r requirements.txt
+  - pip install matplotlib
+  - python -c "exec(\"import nltk\nnltk.download('stopwords')\")"
 # command to install dependencies
 install:
   - python setup.py -q install
