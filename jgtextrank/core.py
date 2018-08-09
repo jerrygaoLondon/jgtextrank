@@ -51,9 +51,9 @@ Mihalcea, R., & Tarau, P. (2004, July). TextRank: Bringing order into texts. Ass
 """
 
 import logging
-import string
 import math
-import multiprocessing
+import string
+import warnings
 from itertools import repeat
 from multiprocessing import Pool
 
@@ -62,7 +62,7 @@ import numpy as np
 
 from jgtextrank.preprocessing.normaliser import normalize
 from jgtextrank.preprocessing.segmentation import pos_tagging, word_2_tokenised_sentences
-from jgtextrank.utility import CorpusContent2RawSentences, get_top_n_from_dict, flatten, is_list_of_list, \
+from jgtextrank.utility import avg_dicts, CorpusContent2RawSentences, get_top_n_from_dict, flatten, is_list_of_list, \
     sort_dict_by_value, isSubStringOf, export_list_of_tuple_into_csv, export_list_of_tuples_into_json
 
 __author__ = 'Jie Gao <j.gao@sheffield.ac.uk>'
@@ -72,12 +72,12 @@ __all__ = ["Vertex", "preprocessing", "preprocessing_tokenised_context",
            "_syntactic_filter_context", "_is_multiple_context", "_get_cooccurs",
            "_get_cooccurs_from_single_context", "_build_vertices_representations", "_compute_vertex",
            "build_cooccurrence_graph", "_draw_edges", "_is_top_t_vertices_connection",
-           "_reweight_filtered_terms", "_term_size_normalize", "_log_normalise", "_gaussian_normalise"
+           "_reweight_filtered_terms", "_term_size_normalize", "_log_normalise", "_gaussian_normalise",
            "_keywords_extraction_from_preprocessed_context",
-           "_collapse_adjacent_keywords", "_load_preprocessed_corpus_context"
+           "_collapse_adjacent_keywords", "_load_preprocessed_corpus_context",
            "keywords_extraction", "keywords_extraction_from_segmented_corpus",
            "keywords_extraction_from_tagged_corpus",
-           "keywords_extraction_from_corpus_directory"]
+           "keywords_extraction_from_corpus_directory", "compute_TeRGraph", "compute_neighborhood_size"]
 
 _logger = logging.getLogger("textrank")
 
@@ -89,7 +89,7 @@ MAX_PROCESSES = 1
 # convient functions
 pos_tag = pos_tagging()
 
-#default noun and adjective syntactic filter
+# default noun and adjective syntactic filter
 noun_adjective_filter = lambda t: filter(lambda a: a[1] == 'NNS' or a[1] == 'NNP'
                                                    or a[1] == 'NN' or a[1] == 'JJ', t)
 
@@ -125,7 +125,7 @@ class Vertex(object):
 
 
 def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                   stop_words=None, lemma=False):
+                  stop_words=None, lemma=False):
     """
     pre-processing pipeline: sentence splitting -> tokenisation ->
     Part-of-Speech(PoS) tagging -> syntactic filtering (default with sentential context)
@@ -167,7 +167,7 @@ def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
                                            stop_words=stop_words, lemma=lemma)
 
 
-def preprocessing_tokenised_context(tokenised_context, syntactic_categories = {"NNS", "NNP", "NN", "JJ"},
+def preprocessing_tokenised_context(tokenised_context, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
                                     stop_words=None, lemma=False):
     """
     pre-processing tokenised corpus context (recommend as sentences)
@@ -200,7 +200,8 @@ def preprocessing_tokenised_context(tokenised_context, syntactic_categories = {"
     tagged_tokenised_context_collection = _pos_tagging_tokenised_corpus_context(tokenised_context, lemma=lemma)
 
     for tokenised_context, pos_tagged_context in tagged_tokenised_context_collection:
-        yield tokenised_context, _syntactic_filter_context(pos_tagged_context, pos_filter=pos_filter, stop_words_filter=stop_words_filter)
+        yield tokenised_context, _syntactic_filter_context(pos_tagged_context, pos_filter=pos_filter,
+                                                           stop_words_filter=stop_words_filter)
 
 
 def _pos_tagging_tokenised_corpus_context(tokenised_corpus_context, lemma=False):
@@ -215,11 +216,8 @@ def _pos_tagging_tokenised_corpus_context(tokenised_corpus_context, lemma=False)
         sentence_token_list = list(tokenised_sentence)
         tagged_sentence_token_list = pos_tag(sentence_token_list)
 
-        #print(tagged_sentence_token_list)
-        #normed_tagged_sentence_token_list = [(normalize(tagged_token[0], lemma=lemma, pos_tag=tagged_token[1]), tagged_token[1])for tagged_token in tagged_sentence_token_list]
-
-        #sentence_token_list = [norm_token[0] for norm_token in normed_tagged_sentence_token_list]
-        sentence_token_list, normed_tagged_sentence_token_list = _normalise_tagged_token_list(tagged_sentence_token_list, lemma=lemma)
+        sentence_token_list, normed_tagged_sentence_token_list = _normalise_tagged_token_list(
+            tagged_sentence_token_list, lemma=lemma)
 
         yield (sentence_token_list, normed_tagged_sentence_token_list)
 
@@ -232,9 +230,10 @@ def _normalise_tagged_token_list(tagged_token_list, lemma=False):
     :return: normalised token list and normalised tagged token list
     """
 
-    normed_tagged_token_list = [(normalize(tagged_token[0], lemma=lemma, pos_tag=tagged_token[1]), tagged_token[1])for tagged_token in tagged_token_list]
+    normed_tagged_token_list = [(normalize(tagged_token[0], lemma=lemma, pos_tag=tagged_token[1]), tagged_token[1]) for
+                                tagged_token in tagged_token_list]
     normed_token_list = [norm_token[0] for norm_token in normed_tagged_token_list]
-    return  normed_token_list, normed_tagged_token_list
+    return normed_token_list, normed_tagged_token_list
 
 
 def _syntactic_filter(pos_tagged_tokenised_sents, pos_filter=None, stop_words_filter=None):
@@ -436,7 +435,8 @@ def _compute_vertex(syntactic_unit, vertices_cooccur_context_corpus, all_filtere
     return vertex
 
 
-def build_cooccurrence_graph(preprocessed_context, directed=False, conn_with_original_ctx=True, window=2):
+def build_cooccurrence_graph(preprocessed_context, directed=False, weighted=False,
+                             conn_with_original_ctx=True, window=2):
     """
     build cooccurrence graph from filtered context
     and only consider single words as candidates for addition to the graph
@@ -449,9 +449,9 @@ def build_cooccurrence_graph(preprocessed_context, directed=False, conn_with_ori
     :type preprocessed_context: generator or list/iterable
     :param preprocessed_context: a tuple list of tokenised and PoS tagged text filtered by syntactic filter
     :type directed: bool
+    :type weighted: bool. Not supported yet
     :param directed: default as False, best results observed with undirected graph;
-
-            :TODO: for directed graph, need to define forward co-occurrence and backward co-occurrence
+            :TODO: for directed graph, not fully supported yet and need to define forward co-occurrence and backward co-occurrence
                 For directed graph, a direction should be set following the natural flow of the text
     :type conn_with_original_ctx: bool
     :param conn_with_original_ctx: True if checking two vertices co-occurrence link from original context
@@ -486,9 +486,10 @@ def build_cooccurrence_graph(preprocessed_context, directed=False, conn_with_ori
         return cooccurence_graph.to_undirected(), all_tokenised_context
 
 
-def _draw_edges(vertices):
+def _draw_edges(vertices, weight=1.0):
     """
     draw edges to make connections between co-occurred word types (i.e., normalised word surface form)
+    the co-occur edge weight is default to 1.0
 
     see also <link href="http://stackoverflow.com/questions/9136539/how-do-weighted-edges-affect-pagerank-in-networkx"/>
 
@@ -500,8 +501,6 @@ def _draw_edges(vertices):
     edges = []
     for vertex in vertices:
         for co_occur in vertex.co_occurs:
-            # set to an initial value of 1.0
-            weight = 1.0
             edges.append((vertex.word_type, co_occur, weight))
     return edges
 
@@ -532,10 +531,24 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
     :type all_vertices: list [of tuple]
     :param all_vertices: all the weighted top T vertices
     :type weight_comb: str
-    :param weight_comb:  weight combination method for MWT candidate terms
+    :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+            The weight combination method for multi-word candidate terms weighing.
 
-            Options: avg, norm_avg, log_norm_avg, gaussian_norm_avg, sum, norm_sum, log_norm_sum,
-                gaussian_norm_sum, max, norm_max, log_norm_max, gaussian_norm_max
+            - 'max' : maximum value of vertices weights
+            - 'avg' : avarage vertices weight
+            - 'sum' : sum of vertices weights
+            - 'norm_max' : MWT unit size normalisation of 'max' weight
+            - 'norm_avg' : MWT unit size normalisation of 'avg' weight
+            - 'norm_sum' : MWT unit size normalisation of 'sum' weight
+            - 'log_norm_max' : logarithm based normalisation of 'max' weight
+            - 'log_norm_avg' : logarithm based normalisation of 'avg' weight
+            - 'log_norm_sum' : logarithm based normalisation of 'sum' weight
+            - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
+            - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
+            - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+
+            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required for normalisation based MWT weighting method
@@ -629,11 +642,12 @@ def _probability_density(x_value, mu, sigma):
     :param sigma:
     :return:
     """
-    pd = (1/(sigma * np.sqrt(2 * math.pi))) * math.exp(- math.pow((x_value - mu),2) / (2 * math.pow(sigma, 2)))
+    pd = (1 / (sigma * np.sqrt(2 * math.pi))) * math.exp(- math.pow((x_value - mu), 2) / (2 * math.pow(sigma, 2)))
     return pd
 
 
-def _get_plus_score(all_syntactic_units, boosted_term_size_range, boosted_word_length_range, combined_weight, unit_size):
+def _get_plus_score(all_syntactic_units, boosted_term_size_range, boosted_word_length_range, combined_weight,
+                    unit_size):
     """
     Experimental weighting method to provide extra small fraction weight to the final score
 
@@ -658,14 +672,14 @@ def _get_plus_score(all_syntactic_units, boosted_term_size_range, boosted_word_l
     avg_word_length = sum(all_syntactic_units_lengths) / unit_size
     plus_weight = combined_weight
     if boosted_word_length_range is not None and boosted_term_size_range is not None \
-                and unit_size in boosted_term_size_range and min_word_length in boosted_word_length_range \
-                and max_word_length in boosted_word_length_range:
+            and unit_size in boosted_term_size_range and min_word_length in boosted_word_length_range \
+            and max_word_length in boosted_word_length_range:
         # add a small fraction to the final weight when all the syntactic unit length in in a normal range
         plus_weight = combined_weight * math.log(avg_word_length, 2)
     elif boosted_word_length_range is None and boosted_term_size_range is not None and unit_size in boosted_term_size_range:
         plus_weight = combined_weight * math.log(avg_word_length, 2)
     elif boosted_word_length_range is not None and boosted_term_size_range is None and \
-                    min_word_length in boosted_word_length_range and max_word_length in boosted_word_length_range:
+            min_word_length in boosted_word_length_range and max_word_length in boosted_word_length_range:
         plus_weight = combined_weight * math.log(avg_word_length, 2)
 
     return plus_weight
@@ -690,15 +704,112 @@ def _get_average_score(all_syntactic_units, all_vertices, unit_size):
     return avg_score
 
 
-def _get_sum_score(all_syntactic_units, all_vertices) :
+def _get_sum_score(all_syntactic_units, all_vertices):
     return sum(
         [all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
+
+
+def _weight_nodes_with_centrality_metrics(scoring_method, cooccurrence_graph):
+    """
+    Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+        does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+
+    This method is to adapt those centrality algorithms to run on loosely connected graph by iterating over connected subgraphs and ignore isolated nodes.
+    The weighted nodes in every separated subgraph will be combined.
+
+    :param scoring_method: centrality measurement method
+    :param cooccurrence_graph:
+    :return: dict, weighted nodes combined from subgraphs if graph is not (strongly) connected
+    """
+    if nx.is_connected(cooccurrence_graph):
+        weighted_nodes = scoring_method(cooccurrence_graph)
+    else:
+        warnings.warn("Graph is not (strongly) connected. Nodes will be measured in connected subgraphs.")
+        weighted_nodes = {}
+        # iteratively score connected sub-graph
+        for c in nx.connected_components(cooccurrence_graph):
+            connected_graph = cooccurrence_graph.subgraph(c)
+            try:
+                weighted_nodes.update(scoring_method(connected_graph))
+            except ZeroDivisionError:
+                # ignore the error caused by isolated nodes
+                continue
+
+    # remove isolated nodes which weights will be inf value
+    weighted_nodes = {k: v for k, v in weighted_nodes.items() if v != float("inf")}
+    return weighted_nodes
+
+
+def compute_TeRGraph(term_graph):
+    """
+    compute graph vertices with TeRGraph algorithms
+
+    This algorithm is based on the assumption that term representativeness in a graph for a specific domain depends on
+    the number of neighbors that it has, and the number of neighbors of its neighbors. A term with more neighbors is
+    less representative of the specific domain.
+
+    Original paper requires a connected graph and this method will set isolated nodes to 0 (by default).
+
+    Lossio-Ventura, J. A., Jonquet, C., Roche, M., & Teisseire, M. (2014, September).
+        Yet another ranking function for automatic multiword term extraction.
+        In International Conference on Natural Language Processing (pp. 52-64). Springer, Cham.
+
+    :param term_graph: NetworkX graph
+    :return: dict, all nodes weighted with TeRGraph metric
+    """
+    all_nodes = term_graph.nodes()
+    node_weights = dict()
+
+    _logger.debug("total nodes: %s", len(all_nodes))
+
+    total_isolated_nodes = 0
+    for node in all_nodes:
+        list_of_neighbors = list(term_graph.neighbors(node))
+        # num_of_neighbors
+        n_a = len(list_of_neighbors)
+        if n_a == 0:
+            total_isolated_nodes += 1
+
+        # print("---> list_of_neighbors: ", list_of_neighbors)
+        n_t_i = 0 if n_a == 0 else sum(
+            [len(list(term_graph.neighbors(neighbor_node))) for neighbor_node in list_of_neighbors])
+        # print("total number of neighbors of neighbors: ", n_t_i)
+        # 0.5 is the smooth value to avoid zero division when it happens with isolated nodes
+        node_weight = 0 if n_a == 0 else math.log2(1.5 + 1 / (n_a + n_t_i))
+        node_weights[node] = node_weight
+
+    _logger.debug("total isolated nodes: %s", total_isolated_nodes)
+    _logger.debug("total weighted nodes: %s", len(node_weights))
+    return node_weights
+
+
+def compute_neighborhood_size(term_cooccur_graph):
+    """
+    Number of immediate neighbors to a node
+
+    a version of node degree that disregards self-loops (e.g., "again, again, again")
+
+    :param term_graph: NetworkX graph
+    :return: dict, all nodes weighted with neighborhood size
+    """
+    node_weights = dict()
+    num_of_selfloops = nx.number_of_selfloops(term_cooccur_graph)
+    if num_of_selfloops > 0:
+        _logger.warning("remove %s selfloops.", num_of_selfloops)
+        term_cooccur_graph.remove_edges_from(nx.selfloop_edges(term_cooccur_graph))
+
+    all_nodes = term_cooccur_graph.nodes()
+    for node in all_nodes:
+        neighbors = nx.all_neighbors(term_cooccur_graph, node)
+        node_weights[node] = len(list(neighbors))
+
+    return node_weights
 
 
 def _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
                                                    top_p=0.3, top_t=None, window=2, directed=False,
                                                    weighted=False, conn_with_original_ctx=True,
-                                                   num_iterations=100, tol=0.0001, solver="pagerank",
+                                                   max_iter=100, tol=1.0e-6, solver="pagerank",
                                                    weight_comb="norm_max", mu=5):
     """
     :type preprocessed_corpus_context: generator or list/iterable
@@ -713,18 +824,54 @@ def _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
     :type directed: bool, optional
     :param directed: directed or undirected graph (a preserved parameters)
     :type weighted: bool, optional
-    :param weighted: default as unweighted graph #todd weighted graph is not supported yet
+    :param weighted: default as unweighted graph, Custom weighted graph is not supported yet, Default as False
+            Best result is found with unweighted graph in the original paper
     :type conn_with_original_ctx: bool, optional
     :param conn_with_original_ctx: True if checking two vertices co-occurrence link from original context
                                 else checking connections from filtered context
             More vertices connection can be built if 'conn_with_original_ctx' is set to False
-    :type num_iterations: int, optional
-    :param num_iterations: number of maximum iteration of pagerank
+    :type max_iter: int, optional
+    :param max_iter: number of maximum iteration of pagerank, katz_centrality
+                Note: number of iteration and error tolerance can affect the performance and top N precision of the ranking
+    :type tol: float, optional, default 1.0e-6
+    :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type solver: string, optional
-    :param solver: PageRank Algorithms supported in networkx to use in the vertices ranking.
+    :param solver: {'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', 'degree_centrality',
+                    'hits', 'closeness_centrality', 'edge_betweenness_centrality', 'eigenvector_centrality',
+                    'katz_centrality', 'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                    'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient',
+                    'TeRGraph','coreness', 'neighborhood_size'}, default 'pagerank'
+        PageRank Algorithms supported in networkx to use in the vertices ranking.
 
-        Options:{'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'google_matrix'}
-        Default as 'pagerank'
+        - 'betweenness_centrality' computes the shortest-path betweenness centrality of a node
+        - 'degree_centrality' computes the degree centrality for nodes.
+        - 'hits' computes HITS algorithm for a node. The Avg(Authority, Hub) is computed
+        - 'closeness_centrality' computes closeness centrality for nodes.
+        - 'edge_betweenness_centrality' computes betweenness centrality for edges.
+                                Maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+        - 'eigenvector_centrality' computes the eigenvector centrality for the cooocurrence graph.
+        - 'katz_centrality' computes the Katz centrality for the nodes based on the centrality of its neighbors.
+        - 'communicability_betweenness' computes subgraph communicability for all pairs of nodes
+        - 'current_flow_closeness' computes current-flow closeness centrality for nodes.
+        - 'current_flow_betweenness' computes current-flow betweenness centrality for nodes.
+        - 'edge_current_flow_betweenness' computes current-flow betweenness centrality for edges.
+        - 'load_centrality' computes edge load. This is a experimental algorithm in nextworkx
+                                    that counts the number of shortest paths which cross each edge.
+        - 'clustering_coefficient' computes the clustering coefficient for nodes. Only undirected graph is supported.
+        - 'TeRGraph' (Lossio-Ventura, 2014) computes the TeRGraph weights for nodes.
+                        The solver requires a connected graph and isolated nodes will be set to 0.
+        - 'coreness' (Batagelj & Zaversnik, 2003) measures how "deep" a node(word/phrase) is in the co-occurrence network.
+                This indicates how strongly the node is connected to the network. The "deeper" a word, the more it is important.
+                The metric is not suitable for ranking terms directly, but it is proved as useful feature for keywords extraction.
+                Note: self-loops edges (e.g.,"again, again and again") will be removed.
+        - 'neighborhood_size' computes the number of immediate neighbors to a node.
+                    This is a version of node degree that disregards self-loops
+
+        Note: Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+            does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+             It is recommended to re-consider the graph construction method or increase context window size to
+             ensure a (strongly) connected graph.
+
     :type weight_comb: str, optional
     :param weight_comb: weight combination method for multi-word candidate terms.
                 Options: avg, norm_avg, log_norm_avg, gaussian_norm_avg, sum, norm_sum, log_norm_sum,
@@ -738,42 +885,113 @@ def _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
     :return: weighted terms, top vertices
     """
     cooccurrence_graph, original_tokenised_context = build_cooccurrence_graph(preprocessed_corpus_context,
-                                                                               directed=directed,
-                                                                               conn_with_original_ctx=conn_with_original_ctx,
-                                                                               window=window)
-    # print("cooccurrence graph nodes: ", cooccurrence_graph.nodes(data=True))
-    # print("cooccurrence graph edges: ", cooccurrence_graph.edges(data=True))
-    # print("is directed graph:", cooccurrence_graph.is_directed())
+                                                                              directed=directed,
+                                                                              weighted=weighted,
+                                                                              conn_with_original_ctx=conn_with_original_ctx,
+                                                                              window=window)
+
     if solver == "pagerank":
-        pr = nx.pagerank(cooccurrence_graph, weight='weight', max_iter=num_iterations, tol=tol)
+        weighted_nodes = nx.pagerank(cooccurrence_graph, weight='weight', max_iter=max_iter, tol=tol)
     elif solver == "pagerank_numpy":
-        pr = nx.pagerank_numpy(cooccurrence_graph)
+        weighted_nodes = nx.pagerank_numpy(cooccurrence_graph)
     elif solver == "pagerank_scipy":
-        pr = nx.pagerank_scipy(cooccurrence_graph, max_iter=num_iterations, tol=tol)
-    elif solver == "google_matrix":
-        pr = nx.pagerank_scipy(cooccurrence_graph, max_iter=num_iterations, tol=tol)
+        weighted_nodes = nx.pagerank_scipy(cooccurrence_graph, max_iter=max_iter, tol=tol)
+    elif solver == "betweenness_centrality":
+        weighted_nodes = nx.betweenness_centrality(cooccurrence_graph)
+    elif solver == "edge_betweenness_centrality":
+        weighted_nodes = nx.edge_betweenness_centrality(cooccurrence_graph)
+        weighted_nodes = _flatten_nodes_betweenness_weights(weighted_nodes)
+    elif solver == "degree_centrality":
+        weighted_nodes = nx.degree_centrality(cooccurrence_graph)
+    elif solver == "closeness_centrality":
+        weighted_nodes = nx.closeness_centrality(cooccurrence_graph)
+    elif solver == "hits":
+        # importance of a vertex as a hub and as an authority
+        # Avg(Authority, Hub) is computed
+        hits_values = nx.hits(cooccurrence_graph, max_iter=max_iter, tol=tol)
+        hub_nodes = hits_values[0]
+        authorities_nodes = hits_values[1]
+        weighted_nodes = avg_dicts(hub_nodes, authorities_nodes)
+    elif solver == "eigenvector_centrality":
+        weighted_nodes = nx.eigenvector_centrality(cooccurrence_graph, max_iter=max_iter, tol=tol)
+    elif solver == "katz_centrality":
+        #  max_iter=max_iter, tol=tol
+        weighted_nodes = nx.katz_centrality_numpy(cooccurrence_graph)
+    elif solver == "communicability_betweenness":
+        weighted_nodes = _weight_nodes_with_centrality_metrics(nx.communicability_betweenness_centrality,
+                                                               cooccurrence_graph)
+    elif solver == "current_flow_closeness":
+        weighted_nodes = _weight_nodes_with_centrality_metrics(nx.current_flow_closeness_centrality, cooccurrence_graph)
+    elif solver == "current_flow_betweenness":
+        weighted_nodes = _weight_nodes_with_centrality_metrics(nx.current_flow_betweenness_centrality,
+                                                               cooccurrence_graph)
+    elif solver == "edge_current_flow_betweenness":
+        weighted_nodes = _weight_nodes_with_centrality_metrics(nx.edge_current_flow_betweenness_centrality,
+                                                               cooccurrence_graph)
+        weighted_nodes = _flatten_nodes_betweenness_weights(weighted_nodes)
+    elif solver == "load_centrality":
+        weighted_nodes = nx.load_centrality(cooccurrence_graph)
+    elif solver == "clustering_coefficient":
+        weighted_nodes = nx.clustering(cooccurrence_graph)
+    elif solver == "TeRGraph":
+        weighted_nodes = compute_TeRGraph(cooccurrence_graph)
+    elif solver == "coreness":
+        #remove self-loops
+        cooccurrence_graph.remove_edges_from(nx.selfloop_edges(cooccurrence_graph))
+        weighted_nodes = nx.core_number(cooccurrence_graph)
+    elif solver == "neighborhood_size":
+        weighted_nodes = compute_neighborhood_size(cooccurrence_graph)
     else:
-        ValueError("PageRank solver supports only pagerank, "
-                   "pagerank_numpy, pagerank_scipy, and google_matrix, got %s"
+        ValueError("The node weighting solver supports only pagerank, "
+                   "pagerank_numpy, pagerank_scipy, betweenness_centrality, "
+                   "edge_betweenness_centrality, degree_centrality, closeness_centrality, hits, "
+                   "eigenvector_centrality, katz_centrality, communicability_betweenness, "
+                   "current_flow_closeness, current_flow_betweenness, edge_current_flow_betweenness, "
+                   "load_centrality,clustering_coefficient,TeRGraph,coreness,neighborhood_size got '%s'"
                    % solver)
 
-    # print("page rank:", pr)
-
     if top_t is None:
-        top_t = round(len(pr) * top_p)
+        top_t = round(len(weighted_nodes) * top_p)
 
     # top T vertices in the ranking are retained for post-processing
-    top_t_vertices = get_top_n_from_dict(pr, top_t)
-    _logger.debug("top T(t=%s) vertices: %s ...", top_t, top_t_vertices[:10])
-    # print("top T(t=%s) vertices: %s ..." %(top_t, top_t_vertices[:10]))
+    top_t_vertices = get_top_n_from_dict(weighted_nodes, top_t)
 
+    _logger.debug("top T(t=%s) vertices: %s ...", top_t, top_t_vertices[:10])
     # post-processing
     # collapse sequence of adjacent keywords into a multi-word keyword
-    collapsed_terms = _collapse_adjacent_keywords(pr, flatten(original_tokenised_context))
+    collapsed_terms = _collapse_adjacent_keywords(weighted_nodes, flatten(original_tokenised_context))
 
-    weighted_terms = _reweight_filtered_terms(collapsed_terms, top_t_vertices, pr, weight_comb=weight_comb, mu=mu)
+    weighted_terms = _reweight_filtered_terms(collapsed_terms, top_t_vertices, weighted_nodes, weight_comb=weight_comb,
+                                              mu=mu)
 
     return weighted_terms, top_t_vertices
+
+
+def _flatten_nodes_betweenness_weights(weighted_nodes):
+    """
+    Betweenness metrics weights the nodes betweenness.
+
+    Example result is :
+        [(('systems', 'linear'), 0.30303030303030337), (('systems', 'systems'), 0.257575757575758), ...]
+
+    The method is to flatten edge betweenness and maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+
+    :param weighted_nodes:
+    :return:
+    """
+    max_edge_dict = {}
+    for edge_tuple, value in weighted_nodes.items():
+        edge_node_1 = edge_tuple[0]
+        edge_node_2 = edge_tuple[1]
+        if edge_node_1 not in max_edge_dict or \
+                (edge_node_1 in max_edge_dict and max_edge_dict[edge_node_1] < value):
+            max_edge_dict[edge_node_1] = value
+
+        if edge_node_2 not in max_edge_dict or \
+                (edge_node_2 in max_edge_dict and max_edge_dict[edge_node_2] < value):
+            max_edge_dict[edge_node_2] = value
+    weighted_nodes = max_edge_dict
+    return weighted_nodes
 
 
 def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
@@ -794,7 +1012,7 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
     mark_keyword = lambda token, keyword_dict: keyword_tag if token in keywords_tmp else ''
     marked_text_tokens = [(token, mark_keyword(token, keywords_tmp)) for token in original_tokenised_text]
 
-    #print("keywords marked text", marked_text_tokens)
+    # print("keywords marked text", marked_text_tokens)
 
     _key_terms = set()
     _current_term = ""
@@ -823,9 +1041,9 @@ def _check_required_values(weighted, syntactic_categories):
 
 def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, weighted=False,
                         conn_with_original_ctx=True, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                        stop_words=None, lemma = False,
-                        solver="pagerank",
-                        weight_comb="max", mu=5,
+                        stop_words=None, lemma=False,
+                        solver="pagerank", max_iter=100, tol=1.0e-6,
+                        weight_comb="norm_max", mu=5,
                         workers=1):
     """
     TextRank keywords extraction for unstructured text
@@ -843,7 +1061,9 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     :type directed: bool, required
     :param directed: directed or undirected graph (a preserved parameters)
     :type weighted: bool, optional
-    :param weighted: weighted or unweighted, TODO: to support weighted graph in the future
+    :param weighted: weighted or unweighted, Custom weighted graph is not supported yet, Default as False
+                    Best result is found with unweighted graph in the original paper
+
     :type conn_with_original_ctx: bool, optional
     :param conn_with_original_ctx: whether build vertices connections from original context or filtered context,
                     True if checking two vertices co-occurrence link from original context,
@@ -866,19 +1086,66 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     :type lemma: bool
     :param lemma: if lemmatize text
     :type solver: string, optional
-    :param solver: PageRank Algorithms supported in networkx to use in the vertices ranking.
+    :param solver: {'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', 'degree_centrality',
+                    'hits', 'closeness_centrality', 'edge_betweenness_centrality', 'eigenvector_centrality',
+                    'katz_centrality', 'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                    'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient', 'TeRGraph',
+                    'coreness', 'neighborhood_size'}, default 'pagerank'
+        PageRank Algorithms supported in networkx to use in the vertices ranking.
 
-        Options:{'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'google_matrix'}
-        Default as 'pagerank'
+        - 'pagerank' networkx pagerank implementation
+        - 'pagerank_numpy' numpy pagerank implementation
+        - 'pagerank_scipy' scipy pagerank implementation
+        - 'betweenness_centrality' computes the shortest-path betweenness centrality of a node
+        - 'degree_centrality' computes the degree centrality for nodes.
+        - 'hits' computes HITS algorithm for a node. The avg. of Authority value and Hub value is computed
+        - 'closeness_centrality' computes closeness centrality for nodes.
+        - 'edge_betweenness_centrality' computes betweenness centrality for edges.
+                                Maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+        - 'eigenvector_centrality' computes the eigenvector centrality for the cooocurrence graph.
+        - 'katz_centrality' computes the Katz centrality for the nodes based on the centrality of its neighbors.
+        - 'communicability_betweenness' computes subgraph communicability for all pairs of nodes
+        - 'current_flow_closeness' computes current-flow closeness centrality for nodes.
+        - 'current_flow_betweenness' computes current-flow betweenness centrality for nodes.
+        - 'edge_current_flow_betweenness' computes current-flow betweenness centrality for edges.
+        - 'load_centrality' computes edge load. This is a experimental algorithm in nextworkx
+                                    that counts the number of shortest paths which cross each edge.
+        - 'clustering_coefficient' computes the clustering coefficient for nodes. Only undirected graph is supported.
+        - 'TeRGraph': computes the TeRGraph (Lossio-Ventura, 2014) weights for nodes.
+                        The solver requires a connected graph and isolated nodes will be set to 0.
+        - 'coreness' (Batagelj & Zaversnik, 2003) measures how "deep" a node(word/phrase) is in the co-occurrence network.
+                This indicates how strongly the node is connected to the network. The "deeper" a word, the more it is important.
+                The metric is not suitable for ranking terms directly, but it is proved as useful feature for keywords extraction
+        - 'neighborhood_size' computes the number of immediate neighbors to a node.
+                    This is a version of node degree that disregards self-loops
 
-        see also https://networkx.github.io/documentation/networkx-1.10/reference/algorithms.link_analysis.html
+        Note: Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+            does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+             It is recommended to re-consider the graph construction method or increase context window size to
+             ensure a (strongly) connected graph.
+    :type max_iter: int, optional
+    :param max_iter: number of maximum iteration of pagerank, katz_centrality
+    :type tol: float, optional, default 1.0e-6
+    :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type weight_comb: str
-    :param weight_comb: weight combination method for multi-word candidate terms.
+    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+            The weight combination method for multi-word candidate terms weighing.
 
-               Options: 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'
+            - 'max' : maximum value of vertices weights
+            - 'avg' : avarage vertices weight
+            - 'sum' : sum of vertices weights
+            - 'norm_max' : MWT unit size normalisation of 'max' weight
+            - 'norm_avg' : MWT unit size normalisation of 'avg' weight
+            - 'norm_sum' : MWT unit size normalisation of 'sum' weight
+            - 'log_norm_max' : logarithm based normalisation of 'max' weight
+            - 'log_norm_avg' : logarithm based normalisation of 'avg' weight
+            - 'log_norm_sum' : logarithm based normalisation of 'sum' weight
+            - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
+            - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
+            - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
 
-            '\*_norm_\*' penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the MWT candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting methods
@@ -890,6 +1157,14 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     :raise: ValueError
     """
     _check_solver_option(solver)
+
+    if solver in ['communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                  'edge_current_flow_betweenness'] \
+            and window < 5:
+        _logger.warning("'%s' requires highly connected graph. "
+                        "Please consider to increase context window size. "
+                        "Isolated nodes would be removed by most of centrality "
+                        "and betweeness metrics otherwise. ", solver)
 
     _check_required_values(weighted, syntactic_categories)
     _check_weight_comb_option(weight_comb)
@@ -903,23 +1178,34 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     preprocessed_corpus_context = preprocessing(text, syntactic_categories=syntactic_categories,
                                                 stop_words=stop_words, lemma=lemma)
 
-    weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context, window=window,
-                                                                       top_p=top_p, top_t=top_t, directed=directed,
-                                                                       weighted=weighted,
-                                                                       conn_with_original_ctx=conn_with_original_ctx,
-                                                                       solver=solver,
-                                                                       weight_comb=weight_comb, mu=mu)
+    weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
+                                                                                       window=window,
+                                                                                       top_p=top_p, top_t=top_t,
+                                                                                       directed=directed,
+                                                                                       weighted=weighted,
+                                                                                       conn_with_original_ctx=conn_with_original_ctx,
+                                                                                       solver=solver,max_iter=max_iter, tol=tol,
+                                                                                       weight_comb=weight_comb, mu=mu)
 
     return list(sort_dict_by_value(weighted_keywords).items()), top_t_vertices
 
 
 def _check_solver_option(solver):
-    if solver not in ['pagerank', 'pagerank_numpy', 'pagerank_scipy', 'google_matrix']:
+    if solver not in ['pagerank', 'pagerank_numpy', 'pagerank_scipy',
+                      'betweenness_centrality', 'degree_centrality', 'hits', 'closeness_centrality',
+                      'edge_betweenness_centrality', 'eigenvector_centrality', 'katz_centrality',
+                      'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                      'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient',
+                      'TeRGraph', 'coreness', 'neighborhood_size']:
         raise ValueError("PageRank solver supports only 'pagerank', "
-                         "'pagerank_numpy', 'pagerank_scipy', and 'google_matrix', got %s"
+                         "'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', "
+                         "'edge_betweenness_centrality', 'degree_centrality', "
+                         "'closeness_centrality', 'hits', 'eigenvector_centrality', 'katz_centrality', "
+                         "'communicability_betweenness','current_flow_closeness',"
+                         " 'current_flow_betweenness', 'edge_current_flow_betweenness', 'load_centrality', "
+                         "'clustering_coefficient','TeRGraph','coreness','neighborhood_size' got '%s'"
                          % solver)
-
-    if solver == "pagerank_numpy" or solver == "google_matrix":
+    if solver == "pagerank_numpy" or solver== "katz_centrality":
         import pkg_resources
         pkg_resources.require("numpy")
 
@@ -928,14 +1214,16 @@ def _check_solver_option(solver):
         pkg_resources.require("scipy")
 
 
-def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2, top_p=0.3, top_t=None,
-                                               directed=False, weighted=False,
-                                               conn_with_original_ctx=True,
-                                               syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                               stop_words=None, lemma=False,
-                                               weight_comb="norm_max", mu=5,
-                                               export=False, export_format="csv", export_path="", encoding="utf-8",
-                                               workers=1):
+def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="pagerank",
+                                              max_iter=100, tol=1.0e-6,
+                                              window=2, top_p=0.3, top_t=None,
+                                              directed=False, weighted=False,
+                                              conn_with_original_ctx=True,
+                                              syntactic_categories={"NNS", "NNP", "NN", "JJ"},
+                                              stop_words=None, lemma=False,
+                                              weight_comb="norm_max", mu=5,
+                                              export=False, export_format="csv", export_path="", encoding="utf-8",
+                                              workers=1):
     """
     TextRank keywords extraction for a list of context of tokenised textual corpus.
     This method allows any pre-defined keyword co-occurrence context criteria (e.g., sentence, or paragraph,
@@ -953,6 +1241,45 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2
             >>> context_2 = ["The", "cow", "jumped", "over", "the", "moon",".", "The", "little", "dog", "laughted", "to", "see","such", "fun", "."]
 
             >>> segmented_corpus_context = [context_1, context_2]
+    :type solver: string, optional
+    :param solver: {'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', 'degree_centrality',
+                    'hits', 'closeness_centrality', 'edge_betweenness_centrality', 'eigenvector_centrality',
+                    'katz_centrality', 'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                    'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient', 'TeRGraph',
+                    'coreness'}, default 'pagerank'
+        PageRank Algorithms supported in networkx to use in the vertices ranking.
+
+        - 'betweenness_centrality' computes the shortest-path betweenness centrality of a node
+        - 'degree_centrality' computes the degree centrality for nodes.
+        - 'hits' computes HITS algorithm for a node. The avg. of Authority value and Hub value is computed
+        - 'closeness_centrality' computes closeness centrality for nodes.
+        - 'edge_betweenness_centrality' computes betweenness centrality for edges.
+                                Maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+        - 'eigenvector_centrality' computes the eigenvector centrality for the cooocurrence graph.
+        - 'katz_centrality' computes the Katz centrality for the nodes based on the centrality of its neighbors.
+        - 'communicability_betweenness' computes subgraph communicability for all pairs of nodes
+        - 'current_flow_closeness' computes current-flow closeness centrality for nodes.
+        - 'current_flow_betweenness' computes current-flow betweenness centrality for nodes.
+        - 'edge_current_flow_betweenness' computes current-flow betweenness centrality for edges.
+        - 'load_centrality' computes edge load. This is a experimental algorithm in nextworkx
+                                    that counts the number of shortest paths which cross each edge.
+        - 'clustering_coefficient' computes the clustering coefficient for nodes. Only undirected graph is supported.
+        - 'TeRGraph': computes the TeRGraph (Lossio-Ventura, 2014) weights for nodes.
+                        The solver requires a connected graph and isolated nodes will be set to 0.
+        - 'coreness' (Batagelj & Zaversnik, 2003) measures how "deep" a node(word/phrase) is in the co-occurrence network.
+                This indicates how strongly the node is connected to the network. The "deeper" a word, the more it is important.
+                The metric is not suitable for ranking terms directly, but it is proved as useful feature for keywords extraction
+        - 'neighborhood_size' computes the number of immediate neighbors to a node.
+                    This is a version of node degree that disregards self-loops
+
+        Note: Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+            does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+             It is recommended to re-consider the graph construction method or increase context window size to
+             ensure a (strongly) connected graph.
+    :type max_iter: int, optional
+    :param max_iter: number of maximum iteration of pagerank, katz_centrality
+    :type tol: float, optional, default 1.0e-6
+    :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type window: int, required
     :param window: co-occurrence window size (default with forward and backward context). Default value: 2
     :type top_p: float, optional
@@ -962,8 +1289,13 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2
     :type directed: bool, required
     :param directed: directed or undirected graph, best result is found with undirected graph in the original paper. Default as False
     :type weighted: bool, required
-    :param weighted: weighted or unweighted, weighted graph is not supported yet, Default as False
+    :param weighted: weighted or unweighted, Custom weighted graph is not supported yet, Default as False
                     Best result is found with unweighted graph in the original paper
+            When this is set to True, graph construction component will try to construct a fully-connected graph
+            by connecting isolated nodes (due to small context window) with low weight (default to 0.001)
+            Please check if the ranking algorithm supports weighted graph
+            Note: custom weights is not supported yet.
+
     :type conn_with_original_ctx: bool, optional
     :param conn_with_original_ctx: True if checking two vertices co-occurrence link from original context
                                 else checking connections from filtered context
@@ -985,12 +1317,24 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: weight combination method for multi-word candidate terms.
+    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+            The weight combination method for multi-word candidate terms weighing.
 
-                Options: 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'
+            - 'max' : maximum value of vertices weights
+            - 'avg' : avarage vertices weight
+            - 'sum' : sum of vertices weights
+            - 'norm_max' : MWT unit size normalisation of 'max' weight
+            - 'norm_avg' : MWT unit size normalisation of 'avg' weight
+            - 'norm_sum' : MWT unit size normalisation of 'sum' weight
+            - 'log_norm_max' : logarithm based normalisation of 'max' weight
+            - 'log_norm_avg' : logarithm based normalisation of 'avg' weight
+            - 'log_norm_sum' : logarithm based normalisation of 'sum' weight
+            - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
+            - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
+            - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
 
-                '\*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method
@@ -1019,9 +1363,13 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2
                                                                       stop_words=stop_words, lemma=lemma)
 
     weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(pre_processed_tokenised_context,
-                                                          top_p=top_p, top_t=top_t, directed=directed, window=window,
-                                                          weighted=weighted, conn_with_original_ctx=conn_with_original_ctx,
-                                                          weight_comb=weight_comb, mu=mu)
+                                                                                       solver=solver,
+                                                                                       max_iter=max_iter,
+                                                                                       tol=tol, top_p=top_p, top_t=top_t,
+                                                                                       directed=directed, window=window,
+                                                                                       weighted=weighted,
+                                                                                       conn_with_original_ctx=conn_with_original_ctx,
+                                                                                       weight_comb=weight_comb, mu=mu)
 
     sorted_weighted_keywords = list(sort_dict_by_value(weighted_keywords).items())
 
@@ -1031,7 +1379,7 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, window=2
     return sorted_weighted_keywords, top_t_vertices
 
 
-def _export_result(weighted_term_results, export=False,export_format="csv", export_path="", encoding="utf-8"):
+def _export_result(weighted_term_results, export=False, export_format="csv", export_path="", encoding="utf-8"):
     if export:
         _logger.info("exporting sorted keywords into [%s]", export_path)
         if export_format.lower() == "csv":
@@ -1053,17 +1401,17 @@ def _load_preprocessed_corpus_context(tagged_corpus_context, pos_filter=None, st
     """
     for tagged_context in tagged_corpus_context:
         normed_token_list, normed_tagged_context = _normalise_tagged_token_list(tagged_context, lemma=lemma)
-        yield normed_token_list, _syntactic_filter_context(normed_tagged_context,pos_filter, stop_words_filter)
-        #yield [tagged_token[0] for tagged_token in tagged_context], \
+        yield normed_token_list, _syntactic_filter_context(normed_tagged_context, pos_filter, stop_words_filter)
+        # yield [tagged_token[0] for tagged_token in tagged_context], \
         #      _syntactic_filter_context(tagged_context, pos_filter, stop_words_filter)
 
 
-def keywords_extraction_from_tagged_corpus(tagged_corpus_context, window=2, top_p=0.3, top_t=None,
-                                           directed=False, weighted=False,
+def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
+                                           solver="pagerank", max_iter=100,tol=1.0e-6,
+                                           window=2, top_p=0.3, top_t=None, directed=False, weighted=False,
                                            conn_with_original_ctx=True,
                                            syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                           stop_words=None, lemma=False,
-                                           weight_comb="norm_max", mu=5,
+                                           stop_words=None, lemma=False,weight_comb="norm_max", mu=5,
                                            export=False, export_format="csv", export_path="", encoding="utf-8",
                                            workers=1):
     """
@@ -1074,6 +1422,45 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context, window=2, top_
 
     :type tagged_corpus_context: list[list[tuple[string, string]]] or generator
     :param tagged_corpus_context: pre-tagged corpus in the form of tuple
+    :type solver: string, optional
+    :param solver: {'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', 'degree_centrality',
+                    'hits', 'closeness_centrality', 'edge_betweenness_centrality', 'eigenvector_centrality',
+                    'katz_centrality', 'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                    'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient', 'TeRGraph',
+                    'coreness'}, default 'pagerank'
+        PageRank Algorithms supported in networkx to use in the vertices ranking.
+
+        - 'betweenness_centrality' computes the shortest-path betweenness centrality of a node
+        - 'degree_centrality' computes the degree centrality for nodes.
+        - 'hits' computes HITS algorithm for a node. The avg. of Authority value and Hub value is computed
+        - 'closeness_centrality' computes closeness centrality for nodes.
+        - 'edge_betweenness_centrality' computes betweenness centrality for edges.
+                                Maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+        - 'eigenvector_centrality' computes the eigenvector centrality for the cooocurrence graph.
+        - 'katz_centrality' computes the Katz centrality for the nodes based on the centrality of its neighbors.
+        - 'communicability_betweenness' computes subgraph communicability for all pairs of nodes
+        - 'current_flow_closeness' computes current-flow closeness centrality for nodes.
+        - 'current_flow_betweenness' computes current-flow betweenness centrality for nodes.
+        - 'edge_current_flow_betweenness' computes current-flow betweenness centrality for edges.
+        - 'load_centrality' computes edge load. This is a experimental algorithm in nextworkx
+                                    that counts the number of shortest paths which cross each edge.
+        - 'clustering_coefficient' computes the clustering coefficient for nodes. Only undirected graph is supported.
+        - 'TeRGraph': computes the TeRGraph (Lossio-Ventura, 2014) weights for nodes.
+                        The solver requires a connected graph and isolated nodes will be set to 0.
+        - 'coreness' (Batagelj & Zaversnik, 2003) measures how "deep" a node(word/phrase) is in the co-occurrence network.
+                This indicates how strongly the node is connected to the network. The "deeper" a word, the more it is important.
+                The metric is not suitable for ranking terms directly, but it is proved as useful feature for keywords extraction
+        - 'neighborhood_size' computes the number of immediate neighbors to a node.
+                    This is a version of node degree that disregards self-loops
+
+        Note: Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+            does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+             It is recommended to re-consider the graph construction method or increase context window size to
+             ensure a (strongly) connected graph.
+    :type max_iter: int, optional
+    :param max_iter: number of maximum iteration of pagerank, katz_centrality
+    :type tol: float, optional, default 1e4
+    :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type window: int, required
     :param window: co-occurrence window size (default with forward and backward context). Default value: 2
     :type top_p: float, optional
@@ -1106,19 +1493,32 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context, window=2, top_
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: weight combination method for multi-word candidate terms.
+    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+            The weight combination method for multi-word candidate terms weighing.
 
-               Options: 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'
+            - 'max' : maximum value of vertices weights
+            - 'avg' : avarage vertices weight
+            - 'sum' : sum of vertices weights
+            - 'norm_max' : MWT unit size normalisation of 'max' weight
+            - 'norm_avg' : MWT unit size normalisation of 'avg' weight
+            - 'norm_sum' : MWT unit size normalisation of 'sum' weight
+            - 'log_norm_max' : logarithm based normalisation of 'max' weight
+            - 'log_norm_avg' : logarithm based normalisation of 'avg' weight
+            - 'log_norm_sum' : logarithm based normalisation of 'sum' weight
+            - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
+            - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
+            - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
 
-                '\*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method
     :type export: bool
     :param export: True if export result else False
     :type export_format: string
-    :param export_format: export file format.Support options: "csv"|"json". Default with "csv"
+    :param export_format: {'csv', 'json'}, default 'csv'
+                    export file format
     :type export_path: string
     :param export_path: file path where the result will be exported to
     :type encoding: string, required
@@ -1136,17 +1536,20 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context, window=2, top_
 
     # tokenised_context, context_syntactic_units in preprocessed_context
     preprocessed_corpus_context = _load_preprocessed_corpus_context(tagged_corpus_context,
-                                                                    pos_filter=lambda t: filter(lambda a: a[1] in syntactic_categories, t),
+                                                                    pos_filter=lambda t: filter(
+                                                                        lambda a: a[1] in syntactic_categories, t),
                                                                     stop_words_filter=None if stop_words is None else
-                                                                    lambda t: filter(lambda a: a[0] not in stop_words, t),
+                                                                    lambda t: filter(lambda a: a[0] not in stop_words,
+                                                                                     t),
                                                                     lemma=lemma)
 
-    weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context, window=window,
-                                                                       top_p=top_p, top_t=top_t, directed=directed,
-                                                                       weighted=weighted,
-                                                                       conn_with_original_ctx=conn_with_original_ctx,
-                                                                       solver="pagerank",
-                                                                       weight_comb=weight_comb, mu=mu)
+    weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
+                                                                                       window=window, top_p=top_p, top_t=top_t,
+                                                                                       directed=directed,weighted=weighted,
+                                                                                       conn_with_original_ctx=conn_with_original_ctx,
+                                                                                       solver=solver,
+                                                                                       max_iter=max_iter, tol=tol,
+                                                                                       weight_comb=weight_comb, mu=mu)
 
     sorted_weighted_keywords = list(sort_dict_by_value(weighted_keywords).items())
 
@@ -1184,18 +1587,57 @@ def _check_weight_comb_option(weight_comb):
                          " 'log_norm_max', 'gaussian_norm_max'. " % weight_comb)
 
 
-def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", window=2, top_p=0.3, top_t=100, directed=False,
-                                              weighted=False, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                              stop_words=None, lemma=False,
-                                              weight_comb="norm_max", mu=5,
-                                              export=False, export_format="csv", export_path="",
-                                              workers=1):
+def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solver="pagerank",
+                                              max_iter=100, tol=1e-4, window=2,
+                                              top_p=0.3, top_t=None, directed=False, weighted=False,
+                                              syntactic_categories={"NNS", "NNP", "NN", "JJ"},
+                                              stop_words=None, lemma=False, weight_comb="norm_max", mu=5,
+                                              export=False, export_format="csv", export_path="", workers=1):
     """
 
     :type corpus_dir: string
     :param corpus_dir: corpus directory where text files are located and will be read and processed
     :type encoding: string, required
     :param encoding: encoding of the text, default as 'utf-8',
+    :type solver: string, optional
+    :param solver: {'pagerank', 'pagerank_numpy', 'pagerank_scipy', 'betweenness_centrality', 'degree_centrality',
+                    'hits', 'closeness_centrality', 'edge_betweenness_centrality', 'eigenvector_centrality',
+                    'katz_centrality', 'communicability_betweenness', 'current_flow_closeness', 'current_flow_betweenness',
+                    'edge_current_flow_betweenness', 'load_centrality', 'clustering_coefficient', 'TeRGraph',
+                    'coreness'}, default 'pagerank'
+        PageRank Algorithms supported in networkx to use in the vertices ranking.
+
+        - 'betweenness_centrality' computes the shortest-path betweenness centrality of a node
+        - 'degree_centrality' computes the degree centrality for nodes.
+        - 'hits' computes HITS algorithm for a node. The avg. of Authority value and Hub value is computed
+        - 'closeness_centrality' computes closeness centrality for nodes.
+        - 'edge_betweenness_centrality' computes betweenness centrality for edges.
+                                Maximum edge betweenness value in all the possible edge pairs is adopted for each vertex
+        - 'eigenvector_centrality' computes the eigenvector centrality for the cooocurrence graph.
+        - 'katz_centrality' computes the Katz centrality for the nodes based on the centrality of its neighbors.
+        - 'communicability_betweenness' computes subgraph communicability for all pairs of nodes
+        - 'current_flow_closeness' computes current-flow closeness centrality for nodes.
+        - 'current_flow_betweenness' computes current-flow betweenness centrality for nodes.
+        - 'edge_current_flow_betweenness' computes current-flow betweenness centrality for edges.
+        - 'load_centrality' computes edge load. This is a experimental algorithm in nextworkx
+                                    that counts the number of shortest paths which cross each edge.
+        - 'clustering_coefficient' computes the clustering coefficient for nodes. Only undirected graph is supported.
+        - 'TeRGraph': computes the TeRGraph (Lossio-Ventura, 2014) weights for nodes.
+                        The solver requires a connected graph and isolated nodes will be set to 0.
+        - 'coreness' (Batagelj & Zaversnik, 2003) measures how "deep" a node(word/phrase) is in the co-occurrence network.
+                This indicates how strongly the node is connected to the network. The "deeper" a word, the more it is important.
+                The metric is not suitable for ranking terms directly, but it is proved as useful feature for keywords extraction
+        - 'neighborhood_size' computes the number of immediate neighbors to a node.
+                    This is a version of node degree that disregards self-loops
+
+        Note: Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
+            does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
+             It is recommended to re-consider the graph construction method or increase context window size to
+             ensure a (strongly) connected graph.
+    :type max_iter: int, optional
+    :param max_iter: number of maximum iteration of pagerank, katz_centrality
+    :type tol: float, optional, default 1e-4
+    :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type window: int, required
     :param window: co-occurrence window size (default with forward and backward context). Default value: 2
     :type top_p: float, required
@@ -1226,12 +1668,24 @@ def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", wind
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: weight combination method for multi-word candidate terms.
+    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+            The weight combination method for multi-word candidate terms weighing.
 
-                Options: 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'
+            - 'max' : maximum value of vertices weights
+            - 'avg' : avarage vertices weight
+            - 'sum' : sum of vertices weights
+            - 'norm_max' : MWT unit size normalisation of 'max' weight
+            - 'norm_avg' : MWT unit size normalisation of 'avg' weight
+            - 'norm_sum' : MWT unit size normalisation of 'sum' weight
+            - 'log_norm_max' : logarithm based normalisation of 'max' weight
+            - 'log_norm_avg' : logarithm based normalisation of 'avg' weight
+            - 'log_norm_sum' : logarithm based normalisation of 'sum' weight
+            - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
+            - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
+            - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
 
-                '\*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method
@@ -1251,11 +1705,12 @@ def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", wind
 
     tokenised_sentences = CorpusContent2RawSentences(corpus_dir, encoding=encoding)
 
-    return keywords_extraction_from_segmented_corpus(tokenised_sentences, window=window, top_p=top_p, top_t=top_t,
-                                                      directed=directed, weighted=weighted,
+    return keywords_extraction_from_segmented_corpus(tokenised_sentences, solver=solver,
+                                                     max_iter=max_iter, tol=tol,
+                                                     window=window, top_p=top_p, top_t=top_t,
+                                                     directed=directed, weighted=weighted,
                                                      syntactic_categories=syntactic_categories, stop_words=stop_words,
-                                                     lemma=lemma,
-                                                     weight_comb=weight_comb, mu=mu,
-                                                     export=export, export_format=export_format, export_path=export_path,
-                                                     encoding=encoding,
+                                                     lemma=lemma, weight_comb=weight_comb, mu=mu,
+                                                     export=export, export_format=export_format,
+                                                     export_path=export_path, encoding=encoding,
                                                      workers=workers)

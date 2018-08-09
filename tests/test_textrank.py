@@ -590,15 +590,192 @@ class TestTextRank(unittest.TestCase):
 
         assert len(results) == 13
 
-        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="google_matrix", weight_comb="sum")
-        print("ranked terms computed with 'google_matrix': ", results)
-        print("top_vertices computed with 'google_matrix': ", top_vertices)
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="betweenness_centrality", weight_comb="sum")
+        print("ranked terms computed with 'betweenness_centrality': ", results)
+        print("top_vertices computed with 'betweenness_centrality': ", top_vertices)
+        assert len(results) == 11
 
-        assert len(results) == 13
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="degree_centrality", weight_comb="sum")
+        print("ranked terms computed with 'degree_centrality': ", results)
+        print("top_vertices computed with 'degree_centrality': ", top_vertices)
+        assert top_vertices[0][0] == 'systems'
+        assert top_vertices[1][0] == 'linear'
+        assert top_vertices[2][0] == 'minimal' or top_vertices[2][0] == 'set'
+        # top 30% results is not stable for degree_centrality
+        # assert len(results) == 11 or len(results) == 12
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="hits", weight_comb="sum")
+        print("ranked terms computed with 'hits': ", results)
+        print("top_vertices computed with 'hits': ", top_vertices)
+        assert top_vertices[0][0] == 'systems'
+        assert top_vertices[1][0] == 'linear'
+        assert top_vertices[2][0] == 'mixed' or top_vertices[2][0] == 'types'
+        assert top_vertices[4][0] == 'equations'
+        assert len(results) == 7 or len(results) == 8
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="closeness_centrality", weight_comb="sum")
+        print("ranked terms computed with 'closeness_centrality': ", results)
+        print("top_vertices computed with 'closeness_centrality': ", top_vertices)
+        assert len(results) == 10 or len(results) == 11
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="edge_betweenness_centrality", weight_comb="sum")
+        print("ranked terms computed with 'edge_betweenness_centrality': ", results)
+        print("top_vertices computed with 'edge_betweenness_centrality': ", top_vertices)
+        assert len(results) == 8 or len(results) == 10
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="eigenvector_centrality", max_iter=1000, weight_comb="sum")
+        print("ranked terms computed with 'eigenvector_centrality': ", results)
+        print("top_vertices computed with 'eigenvector_centrality': ", top_vertices)
+        assert len(results) == 7 or len(results) == 8
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="katz_centrality", weight_comb="sum")
+        print("ranked terms computed with 'katz_centrality': ", results)
+        print("top_vertices computed with 'katz_centrality': ", top_vertices)
+        assert len(results) == 11
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="communicability_betweenness",
+                            window=5, weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'communicability_betweenness': ", results)
+        print("top_vertices computed with 'communicability_betweenness': ", top_vertices)
+        print(len(results))
+        assert results[0][0] == 'minimal supporting set'
+        assert results[1][0] == 'minimal set'
+        assert results[2][0] == 'linear diophantine equations'
+        assert len(results) == 12
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="current_flow_closeness",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'current_flow_closeness': ", results)
+        print("top_vertices computed with 'current_flow_closeness': ", top_vertices)
+        print(len(results))
+        assert len(results) == 9
+        assert results[0][0] == 'minimal supporting set'
+        assert results[1][0] == 'minimal set'
+        assert top_vertices[0][0] == 'set'
+        assert top_vertices[1][0] == 'minimal'
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="current_flow_betweenness",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'current_flow_betweenness': ", results)
+        print("top_vertices computed with 'current_flow_betweenness': ", top_vertices)
+        print(len(results))
+        assert len(results) == 11
+        assert top_vertices[0][0] == 'systems'
+        assert top_vertices[1][0] == 'linear'
+        assert top_vertices[2][0] == 'set'
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="edge_current_flow_betweenness",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'edge_current_flow_betweenness': ", results)
+        print("top_vertices computed with 'edge_current_flow_betweenness': ", top_vertices)
+        print(len(results))
+        assert len(results) == 10 or len(results) == 11
+        assert top_vertices[0][0] == 'systems' or top_vertices[0][0] == 'linear'
+        assert top_vertices[1][0] == 'linear' or top_vertices[1][0] == 'systems'
+        assert top_vertices[2][0] == 'strict' or top_vertices[2][0] == 'equations'
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="load_centrality",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'load_centrality': ", results)
+        print("top_vertices computed with 'load_centrality': ", top_vertices)
+        print(len(results))
+        assert len(results) == 11
+        assert results[0][0] == 'linear diophantine equations'
+        assert results[1][0] == 'linear constraints'
+        assert results[2][0] == 'systems' or results[2][0] == 'types systems'
+        assert top_vertices[0][0] == 'linear'
+        assert top_vertices[1][0] == 'systems'
+        assert top_vertices[2][0] == 'equations'
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="clustering_coefficient",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'clustering_coefficient': ", results)
+        print("top_vertices computed with 'clustering_coefficient': ", top_vertices)
+        assert results[0][0] == 'mixed types'
+        assert results[1][0] == 'linear diophantine equations'
+        assert results[2][0] == 'minimal supporting set'
+        assert len(results) == 9
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, solver="TeRGraph",
+                            weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'TeRGraph': ", results)
+        print("top_vertices computed with 'TeRGraph': ", top_vertices)
+        assert len(results) == 7
+        assert results[0][0] == 'nonstrict inequations'
+        assert results[1][0] == 'natural numbers'
+        assert results[2][0] == 'corresponding algorithms'
+
+        coreness_results, coreness_top_vertices = keywords_extraction(example_abstract, top_p = 1, solver="coreness",
+                                                    weighted=False, weight_comb="sum")
+        print("ranked terms computed with 'coreness': ", coreness_results)
+        print("top_vertices computed with 'coreness': ", coreness_top_vertices)
+        coreness_results_dict = {k:v for k, v in coreness_results}
+        coreness_top_vertices_dict = {k:v for k, v in coreness_top_vertices}
+
+        assert  len(coreness_results) == 23
+        assert coreness_results_dict['minimal supporting set'] == 6
+        assert coreness_results_dict['linear diophantine equations'] == 6
+        assert coreness_results_dict['types systems'] == 4
+        assert coreness_results_dict['minimal set'] == 4
+        assert coreness_top_vertices_dict['minimal'] == 2
+        assert coreness_top_vertices_dict['sets'] == 2
+        assert coreness_top_vertices_dict['diophantine'] == 2
+        assert coreness_top_vertices_dict['equations'] == 2
+        assert coreness_top_vertices_dict['criteria'] == 1
+        assert coreness_top_vertices_dict['upper'] == 0
+        assert coreness_top_vertices_dict['components'] == 0
+
+        mean_coreness_results, coreness_top_vertices = keywords_extraction(example_abstract, top_p = 1, solver="coreness",
+                                                                      weighted=False, weight_comb="avg")
+        print("ranked term phrases computed with Mean coreness: ", mean_coreness_results)
+        mean_coreness_results_dict = {k:v for k, v in mean_coreness_results}
+        assert mean_coreness_results_dict['types'] == 2
+        assert mean_coreness_results_dict['minimal supporting set'] == 2
+        assert mean_coreness_results_dict['components'] == 0
+        assert mean_coreness_results_dict['linear diophantine equations'] == 2
+
+
+
         with self.assertRaises(ValueError) as context:
             keywords_extraction(example_abstract, top_p = 0.3, solver="my_pagerank")
-            self.assertTrue("PageRank solver supports only 'pagerank', 'pagerank_numpy', "
-                            "'pagerank_scipy', and 'google_matrix', got my_pagerank" in context.exception)
+
+            self.assertTrue("The node weighting solver supports only pagerank, "
+                            "pagerank_numpy, pagerank_scipy, betweenness_centrality, "
+                            "edge_betweenness_centrality, degree_centrality, closeness_centrality, hits, "
+                            "eigenvector_centrality, katz_centrality, communicability_betweenness, "
+                            "current_flow_closeness, current_flow_betweenness, edge_current_flow_betweenness, "
+                            "load_centrality,clustering_coefficient,TeRGraph,coreness got 'my_pagerank'" in context.exception)
+
+    def test_neighborhood_size(self):
+        example_abstract = "Compatibility of systems of linear constraints over the set of natural numbers. " \
+                           "Criteria of compatibility of a system of linear Diophantine equations, strict inequations, " \
+                           "and nonstrict inequations are considered. Upper bounds for components of a minimal set of " \
+                           "solutions and algorithms of construction of minimal generating sets of solutions for all " \
+                           "types of systems are given. These criteria and the corresponding algorithms for " \
+                           "constructing a minimal supporting set of solutions can be used in solving all the " \
+                           "considered types systems and systems of mixed types."
+
+        mean_neighbors_results, mean_neighbors_vertices = keywords_extraction(example_abstract, top_p = 1, solver="neighborhood_size",
+                                                                              weighted=False, weight_comb="avg")
+        print("ranked term phrases computed with Mean neighborhood size: ", mean_neighbors_results)
+        mean_neighbors_results_dict = {k:v for k, v in mean_neighbors_results}
+        mean_neighbors_vertices_dict = {k:v for k, v in mean_neighbors_vertices}
+        print(len(mean_neighbors_results))
+        assert len(mean_neighbors_results) == 23
+        assert mean_neighbors_results_dict["set"] == 4.0
+        assert mean_neighbors_results_dict["minimal"] == 4.0
+        assert mean_neighbors_results_dict["minimal set"] == 4.0
+        assert mean_neighbors_results_dict["linear constraints"] == 3.0
+        assert mean_neighbors_results_dict["solutions"] == 3.0
+        assert mean_neighbors_results_dict["nonstrict inequations"] == 1.5
+        assert mean_neighbors_results_dict["linear diophantine equations"] == 3.33333
+        print(mean_neighbors_vertices_dict)
+        assert mean_neighbors_vertices_dict["linear"] == 5
+        assert mean_neighbors_vertices_dict["set"] == 4
+        assert mean_neighbors_vertices_dict["systems"] == 4
+        assert mean_neighbors_vertices_dict["minimal"] == 4
+        assert mean_neighbors_vertices_dict["algorithms"] == 3
+        assert mean_neighbors_vertices_dict["compatibility"] == 2
 
     def test_keywords_extraction_with_mwt_scoring(self):
         example_abstract = "Compatibility of systems of linear constraints over the set of natural numbers. " \
@@ -854,7 +1031,7 @@ class TestTextRank(unittest.TestCase):
         print("top_vertices: ", top_vertices)
 
         print("len(results): ", len(results))
-        assert 10 == len(results)
+        assert 10 == len(results), "check possible changes/errors in solver and hyperparameter, e.g., num_iter, tol"
 
         term_list = [term[0] for term in results]
         assert "linear diophantine equations" in term_list
@@ -923,5 +1100,5 @@ class TestTextRank(unittest.TestCase):
 
         pos = nx.spring_layout(cooccurrence_graph,k=0.20,iterations=20)
         nx.draw_networkx(cooccurrence_graph, pos=pos, arrows=True, with_labels=True)
-        #plt.show()
+        plt.show()
         plt.savefig("test_sample_cooccurrence_graph.png") # save as png

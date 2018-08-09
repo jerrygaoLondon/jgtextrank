@@ -78,8 +78,10 @@ class CorpusContent2RawSentences(object):
         for fname in os.listdir(self.dirname):
             doc_content = ""
 
-            for line in open(os.path.join(self.dirname, fname), encoding=self.encoding):
-                doc_content += line
+            with open(os.path.join(self.dirname, fname), encoding=self.encoding) as f:
+            #for line in open(os.path.join(self.dirname, fname), encoding=self.encoding):
+                for line in f:
+                    doc_content += line
 
             for sentence in sent_tokenize(doc_content):
                 original_tokens = list(word_tokenize(sentence.lower()))
@@ -107,6 +109,23 @@ def concat(ngram_tuple):
     for i in range(len(ngram_tuple)):
         ngram_str +=" "+ngram_tuple[i]
     return ngram_str.strip()
+
+
+def avg_dicts(dict1, dict2):
+    """
+    merge two dictionaries and avg their values
+    :param dict1:
+    :param dict2:
+    :return:
+    """
+    from collections import Counter
+    sums = Counter()
+    counters = Counter()
+    for itemset in [dict1, dict2]:
+        sums.update(itemset)
+        counters.update(itemset.keys())
+
+    return {x: float(sums[x])/counters[x] for x in sums.keys()}
 
 
 def isSubStringOf(term1, term2):

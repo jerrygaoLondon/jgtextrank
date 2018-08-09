@@ -44,10 +44,11 @@ Copyright (C) 2017, JIE GAO <j.gao@sheffield.ac.uk>
 
 from jgtextrank.core import preprocessing, preprocessing_tokenised_context, build_cooccurrence_graph, \
     keywords_extraction, keywords_extraction_from_segmented_corpus, \
-    keywords_extraction_from_tagged_corpus, keywords_extraction_from_corpus_directory
-__all__=["preprocessing", "preprocessing_tokenised_context", "build_cooccurrence_graph"
+    keywords_extraction_from_tagged_corpus, keywords_extraction_from_corpus_directory,compute_TeRGraph,\
+    compute_neighborhood_size
+__all__=["preprocessing", "preprocessing_tokenised_context", "build_cooccurrence_graph",
          "keywords_extraction", "keywords_extraction_from_segmented_corpus",
          "keywords_extraction_from_tagged_corpus",
-         "keywords_extraction_from_corpus_directory"]
+         "keywords_extraction_from_corpus_directory", "compute_TeRGraph", "compute_neighborhood_size"]
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'

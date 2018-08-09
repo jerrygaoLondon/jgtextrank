@@ -1,3 +1,6 @@
+[![license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
+ [![Build Status](https://travis-ci.org/jerrygaoLondon/jgtextrank.svg)](https://travis-ci.org/jerrygaoLondon/jgtextrank)
+
 jgTextRank : Yet another Python implementation of TextRank
 ==========================================================
 This is a parallelisable and highly customisable implementation of the TextRank algorithm [Mihalcea et al., 2004].
@@ -19,11 +22,14 @@ normalized for morpho-syntactic variations and lexical synonymy
 (Csomai and Mihalcea 2007). Adjacent words are also sometimes
 collapsed into phrases, for a more readable output.
 
+![Alt text](sample_cooccurrence_graph.png)
+
+
 Mihalcea, R., & Tarau, P. (2004, July). TextRank: Bringing order into texts. Association for Computational Linguistics.
 
 ### Usage ###
 
-Simple examples:
+#### Simple examples
 
 Extract weighted keywords with an undirected graph:
 
@@ -68,6 +74,14 @@ The co-occurrence window size is 2 by default. You can try with a different numb
                             stop_words=stop_list, lemma=True)[0][:15]
     [('linear diophantine equation', 0.19172), ('linear constraint', 0.13484), ('type system', 0.1347), ('strict inequations', 0.12532), ('system', 0.10514), ('nonstrict inequations', 0.09483), ('solution', 0.06903), ('natural number', 0.06711), ('minimal', 0.06346), ('algorithm', 0.05762), ('compatibility', 0.05089), ('construction', 0.04541), ('component', 0.04418), ('criterion', 0.04086), ('type', 0.02956)]
 
+Try with a centrality measures:
+
+    >>> keywords_extraction(example_abstract, solver="current_flow_betweenness",
+                            window=5, top_p = 1, top_t=None,
+                            directed=False, stop_words=stop_list,
+                            lemma=True)[0][:15]
+    [('type system', 0.77869), ('system', 0.77869), ('solution', 0.32797), ('linear diophantine equation', 0.30657), ('linear constraint', 0.30657), ('minimal', 0.26052), ('algorithm', 0.21463), ('criterion', 0.19821), ('strict inequations', 0.19651), ('nonstrict inequations', 0.19651), ('compatibility', 0.1927), ('natural number', 0.11111), ('component', 0.11111), ('type', 0.10718), ('construction', 0.10039)]
+
 Tuning your graph model as a black box can be problematic.
 You can try to visualize your co-occurrence network with your sample dataset in order to manually validate your custom parameters:
 
@@ -93,7 +107,7 @@ For `jgtextrank` documentation, see:
 
 ### Installation ###
 
-To install from PyPi:
+To install from [PyPi](https://pypi.python.org/pypi/jgtextrank):
 
     pip install jgtextrank
 
@@ -117,13 +131,15 @@ To install from source
 
 ### Status
 
-* Alpha release
+* Beta release (update)
 
     * Python implementation of TextRank algorithm for keywords extraction
 
     * Support directed/undirected and unweighted graph
 
     * 12 MWTs weighting methods
+
+    * 4 pagerank implementations and 14 additional graph ranking algorithms
 
     * Parallelisation  of vertices co-occurrence computation (allow to set number of available worker instances)
 
@@ -141,7 +157,7 @@ To install from source
 
 ### Contributions ###
 
-This project welcomes contributions, feature requets and suggestions.
+This project welcomes contributions, feature requests and suggestions.
 Please feel free to create issues or send me your
 [pull requests](https://help.github.com/articles/creating-a-pull-request/).
 
@@ -162,3 +178,14 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
 ### Who do I talk to? ###
 
 * Jie Gao <j.gao@sheffield.ac.uk>
+
+### history ###
+* 0.1.2 Beta version - Aug 2018
+    * bug fixes
+    * 14 additional graph ranking algorithms
+* 0.1.1 Alpha version - 1st Jan 2018
+
+### Donation ###
+If this project help you reduce time to develop, you can buy me a cup of coffee :)
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=82K4GF9ZFCD9U)

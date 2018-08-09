@@ -35,10 +35,10 @@ Mihalcea,&nbsp;R.,&nbsp;&amp;&nbsp;Tarau,&nbsp;P.&nbsp;(2004,&nbsp;July).&nbsp;T
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
 <a href="math.html">math</a><br>
-</td><td width="25%" valign=top><a href="multiprocessing.html">multiprocessing</a><br>
-<a href="numpy.html">numpy</a><br>
-</td><td width="25%" valign=top><a href="networkx.html">networkx</a><br>
-<a href="string.html">string</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="networkx.html">networkx</a><br>
+</td><td width="25%" valign=top><a href="string.html">string</a><br>
+<a href="warnings.html">warnings</a><br>
 </td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
@@ -115,12 +115,14 @@ Data descriptors defined here:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where&nbsp;word&nbsp;cooccur&nbsp;can&nbsp;be&nbsp;computed&nbsp;from<br>
 :rtype:&nbsp;<a href="#Vertex">Vertex</a><br>
 :return:&nbsp;<a href="#Vertex">Vertex</a>&nbsp;with&nbsp;co-occurrences</tt></dd></dl>
- <dl><dt><a name="-_draw_edges"><strong>_draw_edges</strong></a>(vertices)</dt><dd><tt>draw&nbsp;edges&nbsp;to&nbsp;make&nbsp;connections&nbsp;between&nbsp;co-occurred&nbsp;word&nbsp;types&nbsp;(i.e.,&nbsp;normalised&nbsp;word&nbsp;surface&nbsp;form)<br>
+ <dl><dt><a name="-_draw_edges"><strong>_draw_edges</strong></a>(vertices, weight=1.0)</dt><dd><tt>draw&nbsp;edges&nbsp;to&nbsp;make&nbsp;connections&nbsp;between&nbsp;co-occurred&nbsp;word&nbsp;types&nbsp;(i.e.,&nbsp;normalised&nbsp;word&nbsp;surface&nbsp;form)<br>
+the&nbsp;co-occur&nbsp;edge&nbsp;weight&nbsp;is&nbsp;default&nbsp;to&nbsp;1.0<br>
 &nbsp;<br>
 see&nbsp;also&nbsp;&lt;link&nbsp;href="<a href="http://stackoverflow.com/questions/9136539/how-do-weighted-edges-affect-pagerank-in-networkx&quot;/">http://stackoverflow.com/questions/9136539/how-do-weighted-edges-affect-pagerank-in-networkx&quot;/</a>&gt;<br>
 &nbsp;<br>
 :param&nbsp;vertices:&nbsp;vertices&nbsp;to&nbsp;be&nbsp;loaded<br>
 :return:&nbsp;edges&nbsp;tuple&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-_gaussian_normalise"><strong>_gaussian_normalise</strong></a>(base_score, mu, sigma, unit_size)</dt></dl>
  <dl><dt><a name="-_get_cooccurs"><strong>_get_cooccurs</strong></a>(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_context_tokens=None, window_size=2)</dt><dd><tt>get&nbsp;word&nbsp;co-occurrence&nbsp;from&nbsp;filtered&nbsp;context<br>
 &nbsp;<br>
 :param&nbsp;syntactic_unit:&nbsp;word&nbsp;(i.e.,&nbsp;vertex)&nbsp;surface&nbsp;form<br>
@@ -146,6 +148,83 @@ This&nbsp;implementation&nbsp;is&nbsp;default&nbsp;with&nbsp;forward&nbsp;and&nb
 :param&nbsp;collapsed_term:&nbsp;Single-word&nbsp;term&nbsp;or&nbsp;Multi-word&nbsp;Term<br>
 :param&nbsp;top_t_vertices:&nbsp;top&nbsp;T&nbsp;weighted&nbsp;vertices<br>
 :return:&nbsp;True&nbsp;if&nbsp;the&nbsp;input&nbsp;contains&nbsp;any&nbsp;of&nbsp;top&nbsp;T&nbsp;vertex</tt></dd></dl>
+ <dl><dt><a name="-_keywords_extraction_from_preprocessed_context"><strong>_keywords_extraction_from_preprocessed_context</strong></a>(preprocessed_corpus_context, top_p=0.3, top_t=None, window=2, directed=False, weighted=False, conn_with_original_ctx=True, max_iter=100, tol=1e-06, solver='pagerank', weight_comb='norm_max', mu=5)</dt><dd><tt>:type&nbsp;preprocessed_corpus_context:&nbsp;generator&nbsp;or&nbsp;list/iterable<br>
+:param&nbsp;preprocessed_corpus_context:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;context&nbsp;text<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;the&nbsp;corresponding&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter<br>
+:type&nbsp;top_p:&nbsp;float,&nbsp;optional<br>
+:param&nbsp;top_p:&nbsp;the&nbsp;top&nbsp;Percentage&nbsp;of&nbsp;vertices&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing,&nbsp;default&nbsp;as&nbsp;1/3&nbsp;of&nbsp;all&nbsp;vertices<br>
+:type&nbsp;top_t:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;top_t:&nbsp;the&nbsp;top&nbsp;T&nbsp;vertices&nbsp;in&nbsp;the&nbsp;ranking&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing<br>
+:type&nbsp;window:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context)<br>
+:type&nbsp;directed:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph&nbsp;(a&nbsp;preserved&nbsp;parameters)<br>
+:type&nbsp;weighted:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;weighted:&nbsp;default&nbsp;as&nbsp;unweighted&nbsp;graph,&nbsp;Custom&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More&nbsp;vertices&nbsp;connection&nbsp;can&nbsp;be&nbsp;built&nbsp;if&nbsp;'conn_with_original_ctx'&nbsp;is&nbsp;set&nbsp;to&nbsp;False<br>
+:type&nbsp;max_iter:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;max_iter:&nbsp;number&nbsp;of&nbsp;maximum&nbsp;iteration&nbsp;of&nbsp;pagerank,&nbsp;katz_centrality<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;number&nbsp;of&nbsp;iteration&nbsp;and&nbsp;error&nbsp;tolerance&nbsp;can&nbsp;affect&nbsp;the&nbsp;performance&nbsp;and&nbsp;top&nbsp;N&nbsp;precision&nbsp;of&nbsp;the&nbsp;ranking<br>
+:type&nbsp;tol:&nbsp;float,&nbsp;optional,&nbsp;default&nbsp;1.0e-6<br>
+:param&nbsp;tol:&nbsp;Error&nbsp;tolerance&nbsp;used&nbsp;to&nbsp;check&nbsp;convergence,&nbsp;the&nbsp;value&nbsp;varies&nbsp;for&nbsp;specific&nbsp;solver<br>
+:type&nbsp;solver:&nbsp;string,&nbsp;optional<br>
+:param&nbsp;solver:&nbsp;{'pagerank',&nbsp;'pagerank_numpy',&nbsp;'pagerank_scipy',&nbsp;'betweenness_centrality',&nbsp;'degree_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'hits',&nbsp;'closeness_centrality',&nbsp;'edge_betweenness_centrality',&nbsp;'eigenvector_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'katz_centrality',&nbsp;'communicability_betweenness',&nbsp;'current_flow_closeness',&nbsp;'current_flow_betweenness',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'edge_current_flow_betweenness',&nbsp;'load_centrality',&nbsp;'clustering_coefficient',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'TeRGraph','coreness',&nbsp;'neighborhood_size'},&nbsp;default&nbsp;'pagerank'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PageRank&nbsp;Algorithms&nbsp;supported&nbsp;in&nbsp;networkx&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;vertices&nbsp;ranking.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'betweenness_centrality'&nbsp;computes&nbsp;the&nbsp;shortest-path&nbsp;betweenness&nbsp;centrality&nbsp;of&nbsp;a&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'degree_centrality'&nbsp;computes&nbsp;the&nbsp;degree&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'hits'&nbsp;computes&nbsp;HITS&nbsp;algorithm&nbsp;for&nbsp;a&nbsp;node.&nbsp;The&nbsp;Avg(Authority,&nbsp;Hub)&nbsp;is&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'closeness_centrality'&nbsp;computes&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_betweenness_centrality'&nbsp;computes&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum&nbsp;edge&nbsp;betweenness&nbsp;value&nbsp;in&nbsp;all&nbsp;the&nbsp;possible&nbsp;edge&nbsp;pairs&nbsp;is&nbsp;adopted&nbsp;for&nbsp;each&nbsp;vertex<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'eigenvector_centrality'&nbsp;computes&nbsp;the&nbsp;eigenvector&nbsp;centrality&nbsp;for&nbsp;the&nbsp;cooocurrence&nbsp;graph.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'katz_centrality'&nbsp;computes&nbsp;the&nbsp;Katz&nbsp;centrality&nbsp;for&nbsp;the&nbsp;nodes&nbsp;based&nbsp;on&nbsp;the&nbsp;centrality&nbsp;of&nbsp;its&nbsp;neighbors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'communicability_betweenness'&nbsp;computes&nbsp;subgraph&nbsp;communicability&nbsp;for&nbsp;all&nbsp;pairs&nbsp;of&nbsp;nodes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_closeness'&nbsp;computes&nbsp;current-flow&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'load_centrality'&nbsp;computes&nbsp;edge&nbsp;load.&nbsp;This&nbsp;is&nbsp;a&nbsp;experimental&nbsp;algorithm&nbsp;in&nbsp;nextworkx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;counts&nbsp;the&nbsp;number&nbsp;of&nbsp;shortest&nbsp;paths&nbsp;which&nbsp;cross&nbsp;each&nbsp;edge.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'clustering_coefficient'&nbsp;computes&nbsp;the&nbsp;clustering&nbsp;coefficient&nbsp;for&nbsp;nodes.&nbsp;Only&nbsp;undirected&nbsp;graph&nbsp;is&nbsp;supported.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'TeRGraph'&nbsp;(Lossio-Ventura,&nbsp;2014)&nbsp;computes&nbsp;the&nbsp;TeRGraph&nbsp;weights&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;solver&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;isolated&nbsp;nodes&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'coreness'&nbsp;(Batagelj&nbsp;&amp;&nbsp;Zaversnik,&nbsp;2003)&nbsp;measures&nbsp;how&nbsp;"deep"&nbsp;a&nbsp;node(word/phrase)&nbsp;is&nbsp;in&nbsp;the&nbsp;co-occurrence&nbsp;network.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;indicates&nbsp;how&nbsp;strongly&nbsp;the&nbsp;node&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;network.&nbsp;The&nbsp;"deeper"&nbsp;a&nbsp;word,&nbsp;the&nbsp;more&nbsp;it&nbsp;is&nbsp;important.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;metric&nbsp;is&nbsp;not&nbsp;suitable&nbsp;for&nbsp;ranking&nbsp;terms&nbsp;directly,&nbsp;but&nbsp;it&nbsp;is&nbsp;proved&nbsp;as&nbsp;useful&nbsp;feature&nbsp;for&nbsp;keywords&nbsp;extraction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;self-loops&nbsp;edges&nbsp;(e.g.,"again,&nbsp;again&nbsp;and&nbsp;again")&nbsp;will&nbsp;be&nbsp;removed.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'neighborhood_size'&nbsp;computes&nbsp;the&nbsp;number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;Centrality&nbsp;measures&nbsp;(such&nbsp;as&nbsp;"current&nbsp;flow&nbsp;betweeness",&nbsp;"current&nbsp;flow&nbsp;closeness",&nbsp;"communicability_betweenness")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;support&nbsp;loosely&nbsp;connected&nbsp;graph&nbsp;and&nbsp;betweeness&nbsp;centrality&nbsp;measures&nbsp;cannot&nbsp;compute&nbsp;on&nbsp;single&nbsp;isolated&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;recommended&nbsp;to&nbsp;re-consider&nbsp;the&nbsp;graph&nbsp;construction&nbsp;method&nbsp;or&nbsp;increase&nbsp;context&nbsp;window&nbsp;size&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ensure&nbsp;a&nbsp;(strongly)&nbsp;connected&nbsp;graph.<br>
+&nbsp;<br>
+:type&nbsp;weight_comb:&nbsp;str,&nbsp;optional<br>
+:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;avg,&nbsp;norm_avg,&nbsp;log_norm_avg,&nbsp;gaussian_norm_avg,&nbsp;sum,&nbsp;norm_sum,&nbsp;log_norm_sum,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gaussian_norm_sum,&nbsp;max,&nbsp;norm_max,&nbsp;log_norm_max,&nbsp;gaussian_norm_max<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*'&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:rtype:&nbsp;tuple&nbsp;(dict,list)<br>
+:return:&nbsp;weighted&nbsp;terms,&nbsp;top&nbsp;vertices</tt></dd></dl>
+ <dl><dt><a name="-_load_preprocessed_corpus_context"><strong>_load_preprocessed_corpus_context</strong></a>(tagged_corpus_context, pos_filter=None, stop_words_filter=None, lemma=False)</dt><dd><tt>load&nbsp;preprocessed&nbsp;corpus&nbsp;context(a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;context&nbsp;and&nbsp;PoS&nbsp;tagged&nbsp;context)&nbsp;from&nbsp;tagged&nbsp;corpus&nbsp;context<br>
+&nbsp;<br>
+:type&nbsp;tagged_corpus_context:&nbsp;list[tuple[string,string]]|generator,&nbsp;required<br>
+:param&nbsp;tagged_corpus_context:&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;corpus&nbsp;textual&nbsp;context<br>
+:rtype:&nbsp;generator[tuple[list[string],list[tuple[string,string]]]]<br>
+:return:&nbsp;preprocessed&nbsp;corpus&nbsp;context&nbsp;(tokenised_context,&nbsp;syntactic&nbsp;filtered&nbsp;context)</tt></dd></dl>
  <dl><dt><a name="-_log_normalise"><strong>_log_normalise</strong></a>(base_score, mu, unit_size)</dt></dl>
  <dl><dt><a name="-_pos_tagging_tokenised_corpus_context"><strong>_pos_tagging_tokenised_corpus_context</strong></a>(tokenised_corpus_context, lemma=False)</dt><dd><tt>:type&nbsp;tokenised_corpus_context:&nbsp;generator&nbsp;or&nbsp;iterable&nbsp;<a href="builtins.html#object">object</a><br>
 :param&nbsp;tokenised_corpus_context:&nbsp;generator&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;as&nbsp;sentences)<br>
@@ -164,10 +243,24 @@ repeated&nbsp;vertex&nbsp;(i.e.,&nbsp;syntactic&nbsp;unit&nbsp;or&nbsp;single&nb
 :type&nbsp;all_vertices:&nbsp;list&nbsp;[of&nbsp;tuple]<br>
 :param&nbsp;all_vertices:&nbsp;all&nbsp;the&nbsp;weighted&nbsp;top&nbsp;T&nbsp;vertices<br>
 :type&nbsp;weight_comb:&nbsp;str<br>
-:param&nbsp;weight_comb:&nbsp;&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;MWT&nbsp;candidate&nbsp;terms<br>
+:param&nbsp;weight_comb:&nbsp;&nbsp;{'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'},&nbsp;default&nbsp;'norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms&nbsp;weighing.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;avg,&nbsp;norm_avg,&nbsp;log_norm_avg,&nbsp;gaussian_norm_avg,&nbsp;sum,&nbsp;norm_sum,&nbsp;log_norm_sum,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gaussian_norm_sum,&nbsp;max,&nbsp;norm_max,&nbsp;log_norm_max,&nbsp;gaussian_norm_max<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'max'&nbsp;:&nbsp;maximum&nbsp;value&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'avg'&nbsp;:&nbsp;avarage&nbsp;vertices&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'sum'&nbsp;:&nbsp;sum&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_max'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_avg'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_sum'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_max'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_avg'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_sum'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_max'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_avg'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_sum'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
 :type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
 :param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
@@ -183,7 +276,7 @@ Best&nbsp;result&nbsp;is&nbsp;observed&nbsp;for&nbsp;nouns&nbsp;and&nbsp;adjecti
 :param&nbsp;stop_words_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;token&nbsp;tuple&nbsp;list<br>
 :rtype:&nbsp;generator&nbsp;[of&nbsp;list&nbsp;[of&nbsp;tuple]]<br>
 :return:&nbsp;filtered&nbsp;context&nbsp;taggged&nbsp;with&nbsp;pos&nbsp;categories</tt></dd></dl>
- <dl><dt><a name="-_syntactic_filter_context"><strong>_syntactic_filter_context</strong></a>(pos_tagged_tokens, pos_filter=None, stop_words_filter=None, punc_filter=&lt;function &lt;lambda&gt; at 0x000001ADC33FAA60&gt;)</dt><dd><tt>syntactic&nbsp;filtering&nbsp;for&nbsp;single&nbsp;context(default&nbsp;as&nbsp;single&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;sentence)<br>
+ <dl><dt><a name="-_syntactic_filter_context"><strong>_syntactic_filter_context</strong></a>(pos_tagged_tokens, pos_filter=None, stop_words_filter=None, punc_filter=&lt;function &lt;lambda&gt; at 0x000001A37356C7B8&gt;)</dt><dd><tt>syntactic&nbsp;filtering&nbsp;for&nbsp;single&nbsp;context(default&nbsp;as&nbsp;single&nbsp;PoS&nbsp;tagged&nbsp;tokenised&nbsp;sentence)<br>
 &nbsp;<br>
 all&nbsp;lexical&nbsp;units&nbsp;that&nbsp;pass&nbsp;the&nbsp;syntactic&nbsp;filter&nbsp;will&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;graph<br>
 &nbsp;<br>
@@ -196,7 +289,7 @@ Best&nbsp;result&nbsp;is&nbsp;observed&nbsp;for&nbsp;nouns&nbsp;and&nbsp;adjecti
 :param&nbsp;punc_filter:&nbsp;filter&nbsp;function&nbsp;to&nbsp;remove&nbsp;punctuation&nbsp;from&nbsp;the&nbsp;syntactic&nbsp;context&nbsp;in&nbsp;the&nbsp;case&nbsp;of&nbsp;mistagged&nbsp;PoS&nbsp;category<br>
 :return:&nbsp;filtered&nbsp;context&nbsp;taggged&nbsp;with&nbsp;pos&nbsp;categories</tt></dd></dl>
  <dl><dt><a name="-_term_size_normalize"><strong>_term_size_normalize</strong></a>(base_score, unit_size)</dt></dl>
- <dl><dt><a name="-build_cooccurrence_graph"><strong>build_cooccurrence_graph</strong></a>(preprocessed_context, directed=False, conn_with_original_ctx=True, window=2)</dt><dd><tt>build&nbsp;cooccurrence&nbsp;graph&nbsp;from&nbsp;filtered&nbsp;context<br>
+ <dl><dt><a name="-build_cooccurrence_graph"><strong>build_cooccurrence_graph</strong></a>(preprocessed_context, directed=False, weighted=False, conn_with_original_ctx=True, window=2)</dt><dd><tt>build&nbsp;cooccurrence&nbsp;graph&nbsp;from&nbsp;filtered&nbsp;context<br>
 and&nbsp;only&nbsp;consider&nbsp;single&nbsp;words&nbsp;as&nbsp;candidates&nbsp;for&nbsp;addition&nbsp;to&nbsp;the&nbsp;graph<br>
 &nbsp;<br>
 prepare&nbsp;vertex&nbsp;representation&nbsp;-&gt;&nbsp;add&nbsp;vertex&nbsp;&gt;&nbsp;add&nbsp;edges<br>
@@ -207,9 +300,9 @@ co-occurring&nbsp;words."<br>
 :type&nbsp;preprocessed_context:&nbsp;generator&nbsp;or&nbsp;list/iterable<br>
 :param&nbsp;preprocessed_context:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;and&nbsp;PoS&nbsp;tagged&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter<br>
 :type&nbsp;directed:&nbsp;bool<br>
+:type&nbsp;weighted:&nbsp;bool.&nbsp;Not&nbsp;supported&nbsp;yet<br>
 :param&nbsp;directed:&nbsp;default&nbsp;as&nbsp;False,&nbsp;best&nbsp;results&nbsp;observed&nbsp;with&nbsp;undirected&nbsp;graph;<br>
-&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:TODO:&nbsp;for&nbsp;directed&nbsp;graph,&nbsp;need&nbsp;to&nbsp;define&nbsp;forward&nbsp;co-occurrence&nbsp;and&nbsp;backward&nbsp;co-occurrence<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:TODO:&nbsp;for&nbsp;directed&nbsp;graph,&nbsp;not&nbsp;fully&nbsp;supported&nbsp;yet&nbsp;and&nbsp;need&nbsp;to&nbsp;define&nbsp;forward&nbsp;co-occurrence&nbsp;and&nbsp;backward&nbsp;co-occurrence<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For&nbsp;directed&nbsp;graph,&nbsp;a&nbsp;direction&nbsp;should&nbsp;be&nbsp;set&nbsp;following&nbsp;the&nbsp;natural&nbsp;flow&nbsp;of&nbsp;the&nbsp;text<br>
 :type&nbsp;conn_with_original_ctx:&nbsp;bool<br>
 :param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
@@ -219,10 +312,178 @@ co-occurring&nbsp;words."<br>
 :param&nbsp;window_size:&nbsp;a&nbsp;window&nbsp;of&nbsp;N&nbsp;words<br>
 :rtype:&nbsp;tuple[of&nbsp;[nx.graph,&nbsp;list]]<br>
 :return:&nbsp;(networkx)&nbsp;graph&nbsp;<a href="builtins.html#object">object</a>&nbsp;readily&nbsp;to&nbsp;score&nbsp;along&nbsp;with&nbsp;all&nbsp;tokenised&nbsp;raw&nbsp;text&nbsp;splitted&nbsp;by&nbsp;context</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_corpus_directory"><strong>keywords_extraction_from_corpus_directory</strong></a>(corpus_dir, encoding='utf-8', window=2, top_p=0.3, top_t=100, directed=False, weighted=False, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', workers=1)</dt><dd><tt>:type&nbsp;corpus_dir:&nbsp;string<br>
+ <dl><dt><a name="-compute_TeRGraph"><strong>compute_TeRGraph</strong></a>(term_graph)</dt><dd><tt>compute&nbsp;graph&nbsp;vertices&nbsp;with&nbsp;TeRGraph&nbsp;algorithms<br>
+&nbsp;<br>
+This&nbsp;algorithm&nbsp;is&nbsp;based&nbsp;on&nbsp;the&nbsp;assumption&nbsp;that&nbsp;term&nbsp;representativeness&nbsp;in&nbsp;a&nbsp;graph&nbsp;for&nbsp;a&nbsp;specific&nbsp;domain&nbsp;depends&nbsp;on<br>
+the&nbsp;number&nbsp;of&nbsp;neighbors&nbsp;that&nbsp;it&nbsp;has,&nbsp;and&nbsp;the&nbsp;number&nbsp;of&nbsp;neighbors&nbsp;of&nbsp;its&nbsp;neighbors.&nbsp;A&nbsp;term&nbsp;with&nbsp;more&nbsp;neighbors&nbsp;is<br>
+less&nbsp;representative&nbsp;of&nbsp;the&nbsp;specific&nbsp;domain.<br>
+&nbsp;<br>
+Original&nbsp;paper&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;this&nbsp;method&nbsp;will&nbsp;set&nbsp;isolated&nbsp;nodes&nbsp;to&nbsp;0&nbsp;(by&nbsp;default).<br>
+&nbsp;<br>
+Lossio-Ventura,&nbsp;J.&nbsp;A.,&nbsp;Jonquet,&nbsp;C.,&nbsp;Roche,&nbsp;M.,&nbsp;&amp;&nbsp;Teisseire,&nbsp;M.&nbsp;(2014,&nbsp;September).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Yet&nbsp;another&nbsp;ranking&nbsp;function&nbsp;for&nbsp;automatic&nbsp;multiword&nbsp;term&nbsp;extraction.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;International&nbsp;Conference&nbsp;on&nbsp;Natural&nbsp;Language&nbsp;Processing&nbsp;(pp.&nbsp;52-64).&nbsp;Springer,&nbsp;Cham.<br>
+&nbsp;<br>
+:param&nbsp;term_graph:&nbsp;NetworkX&nbsp;graph<br>
+:return:&nbsp;dict,&nbsp;all&nbsp;nodes&nbsp;weighted&nbsp;with&nbsp;TeRGraph&nbsp;metric</tt></dd></dl>
+ <dl><dt><a name="-compute_neighborhood_size"><strong>compute_neighborhood_size</strong></a>(term_cooccur_graph)</dt><dd><tt>Number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node<br>
+&nbsp;<br>
+a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops&nbsp;(e.g.,&nbsp;"again,&nbsp;again,&nbsp;again")<br>
+&nbsp;<br>
+:param&nbsp;term_graph:&nbsp;NetworkX&nbsp;graph<br>
+:return:&nbsp;dict,&nbsp;all&nbsp;nodes&nbsp;weighted&nbsp;with&nbsp;neighborhood&nbsp;size</tt></dd></dl>
+ <dl><dt><a name="-keywords_extraction"><strong>keywords_extraction</strong></a>(text, window=2, top_p=1, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False, solver='pagerank', max_iter=100, tol=1e-06, weight_comb='norm_max', mu=5, workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;unstructured&nbsp;text<br>
+&nbsp;<br>
+:type&nbsp;text:&nbsp;string,&nbsp;required<br>
+:param&nbsp;text:&nbsp;textual&nbsp;data&nbsp;for&nbsp;keywords&nbsp;extraction<br>
+:type&nbsp;window:&nbsp;int,&nbsp;required<br>
+:param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Recommend:&nbsp;2-10<br>
+:type&nbsp;top_t:&nbsp;float&nbsp;or&nbsp;None,&nbsp;optional<br>
+:param&nbsp;top_t:&nbsp;the&nbsp;top&nbsp;T&nbsp;vertices&nbsp;in&nbsp;the&nbsp;ranking&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Top&nbsp;T&nbsp;is&nbsp;computed&nbsp;from&nbsp;Top&nbsp;p&nbsp;if&nbsp;value&nbsp;is&nbsp;none<br>
+:type&nbsp;top_p:&nbsp;float&nbsp;or&nbsp;None,&nbsp;optional<br>
+:param&nbsp;top_p:&nbsp;the&nbsp;top&nbsp;Percentage(P)&nbsp;of&nbsp;vertices&nbsp;are&nbsp;retained&nbsp;for&nbsp;post-processing.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Top&nbsp;1/3&nbsp;of&nbsp;all&nbsp;vertices&nbsp;is&nbsp;recommended&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;directed:&nbsp;bool,&nbsp;required<br>
+:param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph&nbsp;(a&nbsp;preserved&nbsp;parameters)<br>
+:type&nbsp;weighted:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;Custom&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+&nbsp;<br>
+:type&nbsp;conn_with_original_ctx:&nbsp;bool,&nbsp;optional<br>
+:param&nbsp;conn_with_original_ctx:&nbsp;whether&nbsp;build&nbsp;vertices&nbsp;connections&nbsp;from&nbsp;original&nbsp;context&nbsp;or&nbsp;filtered&nbsp;context,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context&nbsp;by&nbsp;syntactic&nbsp;rule<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More&nbsp;vertices&nbsp;connections&nbsp;can&nbsp;be&nbsp;built&nbsp;if&nbsp;'conn_with_original_ctx'&nbsp;is&nbsp;set&nbsp;to&nbsp;False<br>
+:type&nbsp;syntactic_categories:&nbsp;set&nbsp;[of&nbsp;string],&nbsp;required<br>
+:param&nbsp;syntactic_categories:&nbsp;Default&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Syntactic&nbsp;categories&nbsp;(default&nbsp;as&nbsp;Part-Of-Speech(PoS)&nbsp;tags)&nbsp;is&nbsp;defined&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter&nbsp;accepted&nbsp;graph&nbsp;vertices&nbsp;(default&nbsp;with&nbsp;word-based&nbsp;tokens&nbsp;as&nbsp;single&nbsp;syntactic&nbsp;unit).<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Any&nbsp;word&nbsp;that&nbsp;is&nbsp;not&nbsp;matched&nbsp;with&nbsp;the&nbsp;predefined&nbsp;categories&nbsp;will&nbsp;be&nbsp;removed&nbsp;based&nbsp;on&nbsp;corresponding&nbsp;the&nbsp;PoS&nbsp;tag.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;noun&nbsp;and&nbsp;adjective&nbsp;categories&nbsp;only&nbsp;in&nbsp;original&nbsp;paper.<br>
+:type&nbsp;stop_words:&nbsp;set&nbsp;of&nbsp;[string&nbsp;{‘english’}],&nbsp;or&nbsp;None&nbsp;(default),&nbsp;Optional<br>
+:param&nbsp;stop_words:&nbsp;&nbsp;remove&nbsp;stopwords&nbsp;from&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;(token&nbsp;tuple&nbsp;list).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;stop&nbsp;words&nbsp;are&nbsp;considered&nbsp;as&nbsp;noisy&nbsp;common/function&nbsp;words.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;provide&nbsp;a&nbsp;list&nbsp;of&nbsp;stop&nbsp;words&nbsp;can&nbsp;improve&nbsp;vertices&nbsp;network&nbsp;connectivity<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;increase&nbsp;weights&nbsp;to&nbsp;more&nbsp;meaningful&nbsp;words.<br>
+:type&nbsp;lemma:&nbsp;bool<br>
+:param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
+:type&nbsp;solver:&nbsp;string,&nbsp;optional<br>
+:param&nbsp;solver:&nbsp;{'pagerank',&nbsp;'pagerank_numpy',&nbsp;'pagerank_scipy',&nbsp;'betweenness_centrality',&nbsp;'degree_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'hits',&nbsp;'closeness_centrality',&nbsp;'edge_betweenness_centrality',&nbsp;'eigenvector_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'katz_centrality',&nbsp;'communicability_betweenness',&nbsp;'current_flow_closeness',&nbsp;'current_flow_betweenness',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'edge_current_flow_betweenness',&nbsp;'load_centrality',&nbsp;'clustering_coefficient',&nbsp;'TeRGraph',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'coreness',&nbsp;'neighborhood_size'},&nbsp;default&nbsp;'pagerank'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PageRank&nbsp;Algorithms&nbsp;supported&nbsp;in&nbsp;networkx&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;vertices&nbsp;ranking.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'pagerank'&nbsp;networkx&nbsp;pagerank&nbsp;implementation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'pagerank_numpy'&nbsp;numpy&nbsp;pagerank&nbsp;implementation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'pagerank_scipy'&nbsp;scipy&nbsp;pagerank&nbsp;implementation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'betweenness_centrality'&nbsp;computes&nbsp;the&nbsp;shortest-path&nbsp;betweenness&nbsp;centrality&nbsp;of&nbsp;a&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'degree_centrality'&nbsp;computes&nbsp;the&nbsp;degree&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'hits'&nbsp;computes&nbsp;HITS&nbsp;algorithm&nbsp;for&nbsp;a&nbsp;node.&nbsp;The&nbsp;avg.&nbsp;of&nbsp;Authority&nbsp;value&nbsp;and&nbsp;Hub&nbsp;value&nbsp;is&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'closeness_centrality'&nbsp;computes&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_betweenness_centrality'&nbsp;computes&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum&nbsp;edge&nbsp;betweenness&nbsp;value&nbsp;in&nbsp;all&nbsp;the&nbsp;possible&nbsp;edge&nbsp;pairs&nbsp;is&nbsp;adopted&nbsp;for&nbsp;each&nbsp;vertex<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'eigenvector_centrality'&nbsp;computes&nbsp;the&nbsp;eigenvector&nbsp;centrality&nbsp;for&nbsp;the&nbsp;cooocurrence&nbsp;graph.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'katz_centrality'&nbsp;computes&nbsp;the&nbsp;Katz&nbsp;centrality&nbsp;for&nbsp;the&nbsp;nodes&nbsp;based&nbsp;on&nbsp;the&nbsp;centrality&nbsp;of&nbsp;its&nbsp;neighbors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'communicability_betweenness'&nbsp;computes&nbsp;subgraph&nbsp;communicability&nbsp;for&nbsp;all&nbsp;pairs&nbsp;of&nbsp;nodes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_closeness'&nbsp;computes&nbsp;current-flow&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'load_centrality'&nbsp;computes&nbsp;edge&nbsp;load.&nbsp;This&nbsp;is&nbsp;a&nbsp;experimental&nbsp;algorithm&nbsp;in&nbsp;nextworkx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;counts&nbsp;the&nbsp;number&nbsp;of&nbsp;shortest&nbsp;paths&nbsp;which&nbsp;cross&nbsp;each&nbsp;edge.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'clustering_coefficient'&nbsp;computes&nbsp;the&nbsp;clustering&nbsp;coefficient&nbsp;for&nbsp;nodes.&nbsp;Only&nbsp;undirected&nbsp;graph&nbsp;is&nbsp;supported.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'TeRGraph':&nbsp;computes&nbsp;the&nbsp;TeRGraph&nbsp;(Lossio-Ventura,&nbsp;2014)&nbsp;weights&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;solver&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;isolated&nbsp;nodes&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'coreness'&nbsp;(Batagelj&nbsp;&amp;&nbsp;Zaversnik,&nbsp;2003)&nbsp;measures&nbsp;how&nbsp;"deep"&nbsp;a&nbsp;node(word/phrase)&nbsp;is&nbsp;in&nbsp;the&nbsp;co-occurrence&nbsp;network.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;indicates&nbsp;how&nbsp;strongly&nbsp;the&nbsp;node&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;network.&nbsp;The&nbsp;"deeper"&nbsp;a&nbsp;word,&nbsp;the&nbsp;more&nbsp;it&nbsp;is&nbsp;important.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;metric&nbsp;is&nbsp;not&nbsp;suitable&nbsp;for&nbsp;ranking&nbsp;terms&nbsp;directly,&nbsp;but&nbsp;it&nbsp;is&nbsp;proved&nbsp;as&nbsp;useful&nbsp;feature&nbsp;for&nbsp;keywords&nbsp;extraction<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'neighborhood_size'&nbsp;computes&nbsp;the&nbsp;number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;Centrality&nbsp;measures&nbsp;(such&nbsp;as&nbsp;"current&nbsp;flow&nbsp;betweeness",&nbsp;"current&nbsp;flow&nbsp;closeness",&nbsp;"communicability_betweenness")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;support&nbsp;loosely&nbsp;connected&nbsp;graph&nbsp;and&nbsp;betweeness&nbsp;centrality&nbsp;measures&nbsp;cannot&nbsp;compute&nbsp;on&nbsp;single&nbsp;isolated&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;recommended&nbsp;to&nbsp;re-consider&nbsp;the&nbsp;graph&nbsp;construction&nbsp;method&nbsp;or&nbsp;increase&nbsp;context&nbsp;window&nbsp;size&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ensure&nbsp;a&nbsp;(strongly)&nbsp;connected&nbsp;graph.<br>
+:type&nbsp;max_iter:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;max_iter:&nbsp;number&nbsp;of&nbsp;maximum&nbsp;iteration&nbsp;of&nbsp;pagerank,&nbsp;katz_centrality<br>
+:type&nbsp;tol:&nbsp;float,&nbsp;optional,&nbsp;default&nbsp;1.0e-6<br>
+:param&nbsp;tol:&nbsp;Error&nbsp;tolerance&nbsp;used&nbsp;to&nbsp;check&nbsp;convergence,&nbsp;the&nbsp;value&nbsp;varies&nbsp;for&nbsp;specific&nbsp;solver<br>
+:type&nbsp;weight_comb:&nbsp;str<br>
+:param&nbsp;weight_comb:&nbsp;{'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'},&nbsp;default&nbsp;'norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms&nbsp;weighing.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'max'&nbsp;:&nbsp;maximum&nbsp;value&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'avg'&nbsp;:&nbsp;avarage&nbsp;vertices&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'sum'&nbsp;:&nbsp;sum&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_max'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_avg'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_sum'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_max'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_avg'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_sum'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_max'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_avg'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_sum'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+:type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;MWT&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;methods<br>
+:type&nbsp;workers:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;workers:&nbsp;number&nbsp;of&nbsp;workers&nbsp;(CPU&nbsp;cores)<br>
+&nbsp;<br>
+:rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
+:return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices<br>
+:raise:&nbsp;ValueError</tt></dd></dl>
+ <dl><dt><a name="-keywords_extraction_from_corpus_directory"><strong>keywords_extraction_from_corpus_directory</strong></a>(corpus_dir, encoding='utf-8', solver='pagerank', max_iter=100, tol=0.0001, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', workers=1)</dt><dd><tt>:type&nbsp;corpus_dir:&nbsp;string<br>
 :param&nbsp;corpus_dir:&nbsp;corpus&nbsp;directory&nbsp;where&nbsp;text&nbsp;files&nbsp;are&nbsp;located&nbsp;and&nbsp;will&nbsp;be&nbsp;read&nbsp;and&nbsp;processed<br>
 :type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
 :param&nbsp;encoding:&nbsp;encoding&nbsp;of&nbsp;the&nbsp;text,&nbsp;default&nbsp;as&nbsp;'utf-8',<br>
+:type&nbsp;solver:&nbsp;string,&nbsp;optional<br>
+:param&nbsp;solver:&nbsp;{'pagerank',&nbsp;'pagerank_numpy',&nbsp;'pagerank_scipy',&nbsp;'betweenness_centrality',&nbsp;'degree_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'hits',&nbsp;'closeness_centrality',&nbsp;'edge_betweenness_centrality',&nbsp;'eigenvector_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'katz_centrality',&nbsp;'communicability_betweenness',&nbsp;'current_flow_closeness',&nbsp;'current_flow_betweenness',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'edge_current_flow_betweenness',&nbsp;'load_centrality',&nbsp;'clustering_coefficient',&nbsp;'TeRGraph',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'coreness'},&nbsp;default&nbsp;'pagerank'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PageRank&nbsp;Algorithms&nbsp;supported&nbsp;in&nbsp;networkx&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;vertices&nbsp;ranking.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'betweenness_centrality'&nbsp;computes&nbsp;the&nbsp;shortest-path&nbsp;betweenness&nbsp;centrality&nbsp;of&nbsp;a&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'degree_centrality'&nbsp;computes&nbsp;the&nbsp;degree&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'hits'&nbsp;computes&nbsp;HITS&nbsp;algorithm&nbsp;for&nbsp;a&nbsp;node.&nbsp;The&nbsp;avg.&nbsp;of&nbsp;Authority&nbsp;value&nbsp;and&nbsp;Hub&nbsp;value&nbsp;is&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'closeness_centrality'&nbsp;computes&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_betweenness_centrality'&nbsp;computes&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum&nbsp;edge&nbsp;betweenness&nbsp;value&nbsp;in&nbsp;all&nbsp;the&nbsp;possible&nbsp;edge&nbsp;pairs&nbsp;is&nbsp;adopted&nbsp;for&nbsp;each&nbsp;vertex<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'eigenvector_centrality'&nbsp;computes&nbsp;the&nbsp;eigenvector&nbsp;centrality&nbsp;for&nbsp;the&nbsp;cooocurrence&nbsp;graph.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'katz_centrality'&nbsp;computes&nbsp;the&nbsp;Katz&nbsp;centrality&nbsp;for&nbsp;the&nbsp;nodes&nbsp;based&nbsp;on&nbsp;the&nbsp;centrality&nbsp;of&nbsp;its&nbsp;neighbors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'communicability_betweenness'&nbsp;computes&nbsp;subgraph&nbsp;communicability&nbsp;for&nbsp;all&nbsp;pairs&nbsp;of&nbsp;nodes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_closeness'&nbsp;computes&nbsp;current-flow&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'load_centrality'&nbsp;computes&nbsp;edge&nbsp;load.&nbsp;This&nbsp;is&nbsp;a&nbsp;experimental&nbsp;algorithm&nbsp;in&nbsp;nextworkx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;counts&nbsp;the&nbsp;number&nbsp;of&nbsp;shortest&nbsp;paths&nbsp;which&nbsp;cross&nbsp;each&nbsp;edge.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'clustering_coefficient'&nbsp;computes&nbsp;the&nbsp;clustering&nbsp;coefficient&nbsp;for&nbsp;nodes.&nbsp;Only&nbsp;undirected&nbsp;graph&nbsp;is&nbsp;supported.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'TeRGraph':&nbsp;computes&nbsp;the&nbsp;TeRGraph&nbsp;(Lossio-Ventura,&nbsp;2014)&nbsp;weights&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;solver&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;isolated&nbsp;nodes&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'coreness'&nbsp;(Batagelj&nbsp;&amp;&nbsp;Zaversnik,&nbsp;2003)&nbsp;measures&nbsp;how&nbsp;"deep"&nbsp;a&nbsp;node(word/phrase)&nbsp;is&nbsp;in&nbsp;the&nbsp;co-occurrence&nbsp;network.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;indicates&nbsp;how&nbsp;strongly&nbsp;the&nbsp;node&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;network.&nbsp;The&nbsp;"deeper"&nbsp;a&nbsp;word,&nbsp;the&nbsp;more&nbsp;it&nbsp;is&nbsp;important.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;metric&nbsp;is&nbsp;not&nbsp;suitable&nbsp;for&nbsp;ranking&nbsp;terms&nbsp;directly,&nbsp;but&nbsp;it&nbsp;is&nbsp;proved&nbsp;as&nbsp;useful&nbsp;feature&nbsp;for&nbsp;keywords&nbsp;extraction<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'neighborhood_size'&nbsp;computes&nbsp;the&nbsp;number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;Centrality&nbsp;measures&nbsp;(such&nbsp;as&nbsp;"current&nbsp;flow&nbsp;betweeness",&nbsp;"current&nbsp;flow&nbsp;closeness",&nbsp;"communicability_betweenness")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;support&nbsp;loosely&nbsp;connected&nbsp;graph&nbsp;and&nbsp;betweeness&nbsp;centrality&nbsp;measures&nbsp;cannot&nbsp;compute&nbsp;on&nbsp;single&nbsp;isolated&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;recommended&nbsp;to&nbsp;re-consider&nbsp;the&nbsp;graph&nbsp;construction&nbsp;method&nbsp;or&nbsp;increase&nbsp;context&nbsp;window&nbsp;size&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ensure&nbsp;a&nbsp;(strongly)&nbsp;connected&nbsp;graph.<br>
+:type&nbsp;max_iter:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;max_iter:&nbsp;number&nbsp;of&nbsp;maximum&nbsp;iteration&nbsp;of&nbsp;pagerank,&nbsp;katz_centrality<br>
+:type&nbsp;tol:&nbsp;float,&nbsp;optional,&nbsp;default&nbsp;1e-4<br>
+:param&nbsp;tol:&nbsp;Error&nbsp;tolerance&nbsp;used&nbsp;to&nbsp;check&nbsp;convergence,&nbsp;the&nbsp;value&nbsp;varies&nbsp;for&nbsp;specific&nbsp;solver<br>
 :type&nbsp;window:&nbsp;int,&nbsp;required<br>
 :param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
 :type&nbsp;top_p:&nbsp;float,&nbsp;required<br>
@@ -253,12 +514,24 @@ co-occurring&nbsp;words."<br>
 :type&nbsp;lemma:&nbsp;bool<br>
 :param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
 :type&nbsp;weight_comb:&nbsp;str<br>
-:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+:param&nbsp;weight_comb:&nbsp;{'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'},&nbsp;default&nbsp;'norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms&nbsp;weighing.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'max'&nbsp;:&nbsp;maximum&nbsp;value&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'avg'&nbsp;:&nbsp;avarage&nbsp;vertices&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'sum'&nbsp;:&nbsp;sum&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_max'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_avg'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_sum'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_max'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_avg'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_sum'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_max'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_avg'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_sum'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
 :type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
 :param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
@@ -272,7 +545,7 @@ co-occurring&nbsp;words."<br>
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores&nbsp;that&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;parallelize&nbsp;co-occurrence&nbsp;computation<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_segmented_corpus"><strong>keywords_extraction_from_segmented_corpus</strong></a>(segmented_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;context&nbsp;of&nbsp;tokenised&nbsp;textual&nbsp;corpus.<br>
+ <dl><dt><a name="-keywords_extraction_from_segmented_corpus"><strong>keywords_extraction_from_segmented_corpus</strong></a>(segmented_corpus_context, solver='pagerank', max_iter=100, tol=1e-06, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;context&nbsp;of&nbsp;tokenised&nbsp;textual&nbsp;corpus.<br>
 This&nbsp;method&nbsp;allows&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
 or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
 &nbsp;<br>
@@ -288,6 +561,45 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;context_2&nbsp;=&nbsp;["The",&nbsp;"cow",&nbsp;"jumped",&nbsp;"over",&nbsp;"the",&nbsp;"moon",".",&nbsp;"The",&nbsp;"little",&nbsp;"dog",&nbsp;"laughted",&nbsp;"to",&nbsp;"see","such",&nbsp;"fun",&nbsp;"."]<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;segmented_corpus_context&nbsp;=&nbsp;[context_1,&nbsp;context_2]<br>
+:type&nbsp;solver:&nbsp;string,&nbsp;optional<br>
+:param&nbsp;solver:&nbsp;{'pagerank',&nbsp;'pagerank_numpy',&nbsp;'pagerank_scipy',&nbsp;'betweenness_centrality',&nbsp;'degree_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'hits',&nbsp;'closeness_centrality',&nbsp;'edge_betweenness_centrality',&nbsp;'eigenvector_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'katz_centrality',&nbsp;'communicability_betweenness',&nbsp;'current_flow_closeness',&nbsp;'current_flow_betweenness',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'edge_current_flow_betweenness',&nbsp;'load_centrality',&nbsp;'clustering_coefficient',&nbsp;'TeRGraph',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'coreness'},&nbsp;default&nbsp;'pagerank'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PageRank&nbsp;Algorithms&nbsp;supported&nbsp;in&nbsp;networkx&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;vertices&nbsp;ranking.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'betweenness_centrality'&nbsp;computes&nbsp;the&nbsp;shortest-path&nbsp;betweenness&nbsp;centrality&nbsp;of&nbsp;a&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'degree_centrality'&nbsp;computes&nbsp;the&nbsp;degree&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'hits'&nbsp;computes&nbsp;HITS&nbsp;algorithm&nbsp;for&nbsp;a&nbsp;node.&nbsp;The&nbsp;avg.&nbsp;of&nbsp;Authority&nbsp;value&nbsp;and&nbsp;Hub&nbsp;value&nbsp;is&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'closeness_centrality'&nbsp;computes&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_betweenness_centrality'&nbsp;computes&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum&nbsp;edge&nbsp;betweenness&nbsp;value&nbsp;in&nbsp;all&nbsp;the&nbsp;possible&nbsp;edge&nbsp;pairs&nbsp;is&nbsp;adopted&nbsp;for&nbsp;each&nbsp;vertex<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'eigenvector_centrality'&nbsp;computes&nbsp;the&nbsp;eigenvector&nbsp;centrality&nbsp;for&nbsp;the&nbsp;cooocurrence&nbsp;graph.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'katz_centrality'&nbsp;computes&nbsp;the&nbsp;Katz&nbsp;centrality&nbsp;for&nbsp;the&nbsp;nodes&nbsp;based&nbsp;on&nbsp;the&nbsp;centrality&nbsp;of&nbsp;its&nbsp;neighbors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'communicability_betweenness'&nbsp;computes&nbsp;subgraph&nbsp;communicability&nbsp;for&nbsp;all&nbsp;pairs&nbsp;of&nbsp;nodes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_closeness'&nbsp;computes&nbsp;current-flow&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'load_centrality'&nbsp;computes&nbsp;edge&nbsp;load.&nbsp;This&nbsp;is&nbsp;a&nbsp;experimental&nbsp;algorithm&nbsp;in&nbsp;nextworkx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;counts&nbsp;the&nbsp;number&nbsp;of&nbsp;shortest&nbsp;paths&nbsp;which&nbsp;cross&nbsp;each&nbsp;edge.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'clustering_coefficient'&nbsp;computes&nbsp;the&nbsp;clustering&nbsp;coefficient&nbsp;for&nbsp;nodes.&nbsp;Only&nbsp;undirected&nbsp;graph&nbsp;is&nbsp;supported.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'TeRGraph':&nbsp;computes&nbsp;the&nbsp;TeRGraph&nbsp;(Lossio-Ventura,&nbsp;2014)&nbsp;weights&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;solver&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;isolated&nbsp;nodes&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'coreness'&nbsp;(Batagelj&nbsp;&amp;&nbsp;Zaversnik,&nbsp;2003)&nbsp;measures&nbsp;how&nbsp;"deep"&nbsp;a&nbsp;node(word/phrase)&nbsp;is&nbsp;in&nbsp;the&nbsp;co-occurrence&nbsp;network.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;indicates&nbsp;how&nbsp;strongly&nbsp;the&nbsp;node&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;network.&nbsp;The&nbsp;"deeper"&nbsp;a&nbsp;word,&nbsp;the&nbsp;more&nbsp;it&nbsp;is&nbsp;important.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;metric&nbsp;is&nbsp;not&nbsp;suitable&nbsp;for&nbsp;ranking&nbsp;terms&nbsp;directly,&nbsp;but&nbsp;it&nbsp;is&nbsp;proved&nbsp;as&nbsp;useful&nbsp;feature&nbsp;for&nbsp;keywords&nbsp;extraction<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'neighborhood_size'&nbsp;computes&nbsp;the&nbsp;number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;Centrality&nbsp;measures&nbsp;(such&nbsp;as&nbsp;"current&nbsp;flow&nbsp;betweeness",&nbsp;"current&nbsp;flow&nbsp;closeness",&nbsp;"communicability_betweenness")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;support&nbsp;loosely&nbsp;connected&nbsp;graph&nbsp;and&nbsp;betweeness&nbsp;centrality&nbsp;measures&nbsp;cannot&nbsp;compute&nbsp;on&nbsp;single&nbsp;isolated&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;recommended&nbsp;to&nbsp;re-consider&nbsp;the&nbsp;graph&nbsp;construction&nbsp;method&nbsp;or&nbsp;increase&nbsp;context&nbsp;window&nbsp;size&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ensure&nbsp;a&nbsp;(strongly)&nbsp;connected&nbsp;graph.<br>
+:type&nbsp;max_iter:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;max_iter:&nbsp;number&nbsp;of&nbsp;maximum&nbsp;iteration&nbsp;of&nbsp;pagerank,&nbsp;katz_centrality<br>
+:type&nbsp;tol:&nbsp;float,&nbsp;optional,&nbsp;default&nbsp;1.0e-6<br>
+:param&nbsp;tol:&nbsp;Error&nbsp;tolerance&nbsp;used&nbsp;to&nbsp;check&nbsp;convergence,&nbsp;the&nbsp;value&nbsp;varies&nbsp;for&nbsp;specific&nbsp;solver<br>
 :type&nbsp;window:&nbsp;int,&nbsp;required<br>
 :param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
 :type&nbsp;top_p:&nbsp;float,&nbsp;optional<br>
@@ -297,8 +609,13 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :type&nbsp;directed:&nbsp;bool,&nbsp;required<br>
 :param&nbsp;directed:&nbsp;directed&nbsp;or&nbsp;undirected&nbsp;graph,&nbsp;best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;undirected&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper.&nbsp;Default&nbsp;as&nbsp;False<br>
 :type&nbsp;weighted:&nbsp;bool,&nbsp;required<br>
-:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
+:param&nbsp;weighted:&nbsp;weighted&nbsp;or&nbsp;unweighted,&nbsp;Custom&nbsp;weighted&nbsp;graph&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet,&nbsp;Default&nbsp;as&nbsp;False<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Best&nbsp;result&nbsp;is&nbsp;found&nbsp;with&nbsp;unweighted&nbsp;graph&nbsp;in&nbsp;the&nbsp;original&nbsp;paper<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When&nbsp;this&nbsp;is&nbsp;set&nbsp;to&nbsp;True,&nbsp;graph&nbsp;construction&nbsp;component&nbsp;will&nbsp;try&nbsp;to&nbsp;construct&nbsp;a&nbsp;fully-connected&nbsp;graph<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;connecting&nbsp;isolated&nbsp;nodes&nbsp;(due&nbsp;to&nbsp;small&nbsp;context&nbsp;window)&nbsp;with&nbsp;low&nbsp;weight&nbsp;(default&nbsp;to&nbsp;0.001)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please&nbsp;check&nbsp;if&nbsp;the&nbsp;ranking&nbsp;algorithm&nbsp;supports&nbsp;weighted&nbsp;graph<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;custom&nbsp;weights&nbsp;is&nbsp;not&nbsp;supported&nbsp;yet.<br>
+&nbsp;<br>
 :type&nbsp;conn_with_original_ctx:&nbsp;bool,&nbsp;optional<br>
 :param&nbsp;conn_with_original_ctx:&nbsp;True&nbsp;if&nbsp;checking&nbsp;two&nbsp;vertices&nbsp;co-occurrence&nbsp;link&nbsp;from&nbsp;original&nbsp;context<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;checking&nbsp;connections&nbsp;from&nbsp;filtered&nbsp;context<br>
@@ -320,12 +637,24 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :type&nbsp;lemma:&nbsp;bool<br>
 :param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
 :type&nbsp;weight_comb:&nbsp;str<br>
-:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+:param&nbsp;weight_comb:&nbsp;{'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'},&nbsp;default&nbsp;'norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms&nbsp;weighing.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'max'&nbsp;:&nbsp;maximum&nbsp;value&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'avg'&nbsp;:&nbsp;avarage&nbsp;vertices&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'sum'&nbsp;:&nbsp;sum&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_max'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_avg'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_sum'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_max'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_avg'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_sum'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_max'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_avg'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_sum'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
 :type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
 :param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
@@ -341,13 +670,52 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-keywords_extraction_from_tagged_corpus"><strong>keywords_extraction_from_tagged_corpus</strong></a>(tagged_corpus_context, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;pos&nbsp;tagged&nbsp;corpus&nbsp;context&nbsp;list<br>
+ <dl><dt><a name="-keywords_extraction_from_tagged_corpus"><strong>keywords_extraction_from_tagged_corpus</strong></a>(tagged_corpus_context, solver='pagerank', max_iter=100, tol=1e-06, window=2, top_p=0.3, top_t=None, directed=False, weighted=False, conn_with_original_ctx=True, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False, weight_comb='norm_max', mu=5, export=False, export_format='csv', export_path='', encoding='utf-8', workers=1)</dt><dd><tt>TextRank&nbsp;keywords&nbsp;extraction&nbsp;for&nbsp;pos&nbsp;tagged&nbsp;corpus&nbsp;context&nbsp;list<br>
 &nbsp;<br>
 This&nbsp;method&nbsp;allows&nbsp;to&nbsp;use&nbsp;external&nbsp;Part-of-Speech&nbsp;tagging,&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;keyword&nbsp;co-occurrence&nbsp;context&nbsp;criteria&nbsp;(e.g.,&nbsp;sentence,&nbsp;or&nbsp;paragraph,<br>
 or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;any&nbsp;pre-defined&nbsp;word&nbsp;segmentation<br>
 &nbsp;<br>
 :type&nbsp;tagged_corpus_context:&nbsp;list[list[tuple[string,&nbsp;string]]]&nbsp;or&nbsp;generator<br>
 :param&nbsp;tagged_corpus_context:&nbsp;pre-tagged&nbsp;corpus&nbsp;in&nbsp;the&nbsp;form&nbsp;of&nbsp;tuple<br>
+:type&nbsp;solver:&nbsp;string,&nbsp;optional<br>
+:param&nbsp;solver:&nbsp;{'pagerank',&nbsp;'pagerank_numpy',&nbsp;'pagerank_scipy',&nbsp;'betweenness_centrality',&nbsp;'degree_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'hits',&nbsp;'closeness_centrality',&nbsp;'edge_betweenness_centrality',&nbsp;'eigenvector_centrality',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'katz_centrality',&nbsp;'communicability_betweenness',&nbsp;'current_flow_closeness',&nbsp;'current_flow_betweenness',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'edge_current_flow_betweenness',&nbsp;'load_centrality',&nbsp;'clustering_coefficient',&nbsp;'TeRGraph',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'coreness'},&nbsp;default&nbsp;'pagerank'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PageRank&nbsp;Algorithms&nbsp;supported&nbsp;in&nbsp;networkx&nbsp;to&nbsp;use&nbsp;in&nbsp;the&nbsp;vertices&nbsp;ranking.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'betweenness_centrality'&nbsp;computes&nbsp;the&nbsp;shortest-path&nbsp;betweenness&nbsp;centrality&nbsp;of&nbsp;a&nbsp;node<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'degree_centrality'&nbsp;computes&nbsp;the&nbsp;degree&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'hits'&nbsp;computes&nbsp;HITS&nbsp;algorithm&nbsp;for&nbsp;a&nbsp;node.&nbsp;The&nbsp;avg.&nbsp;of&nbsp;Authority&nbsp;value&nbsp;and&nbsp;Hub&nbsp;value&nbsp;is&nbsp;computed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'closeness_centrality'&nbsp;computes&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_betweenness_centrality'&nbsp;computes&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Maximum&nbsp;edge&nbsp;betweenness&nbsp;value&nbsp;in&nbsp;all&nbsp;the&nbsp;possible&nbsp;edge&nbsp;pairs&nbsp;is&nbsp;adopted&nbsp;for&nbsp;each&nbsp;vertex<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'eigenvector_centrality'&nbsp;computes&nbsp;the&nbsp;eigenvector&nbsp;centrality&nbsp;for&nbsp;the&nbsp;cooocurrence&nbsp;graph.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'katz_centrality'&nbsp;computes&nbsp;the&nbsp;Katz&nbsp;centrality&nbsp;for&nbsp;the&nbsp;nodes&nbsp;based&nbsp;on&nbsp;the&nbsp;centrality&nbsp;of&nbsp;its&nbsp;neighbors.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'communicability_betweenness'&nbsp;computes&nbsp;subgraph&nbsp;communicability&nbsp;for&nbsp;all&nbsp;pairs&nbsp;of&nbsp;nodes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_closeness'&nbsp;computes&nbsp;current-flow&nbsp;closeness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'edge_current_flow_betweenness'&nbsp;computes&nbsp;current-flow&nbsp;betweenness&nbsp;centrality&nbsp;for&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'load_centrality'&nbsp;computes&nbsp;edge&nbsp;load.&nbsp;This&nbsp;is&nbsp;a&nbsp;experimental&nbsp;algorithm&nbsp;in&nbsp;nextworkx<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that&nbsp;counts&nbsp;the&nbsp;number&nbsp;of&nbsp;shortest&nbsp;paths&nbsp;which&nbsp;cross&nbsp;each&nbsp;edge.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'clustering_coefficient'&nbsp;computes&nbsp;the&nbsp;clustering&nbsp;coefficient&nbsp;for&nbsp;nodes.&nbsp;Only&nbsp;undirected&nbsp;graph&nbsp;is&nbsp;supported.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'TeRGraph':&nbsp;computes&nbsp;the&nbsp;TeRGraph&nbsp;(Lossio-Ventura,&nbsp;2014)&nbsp;weights&nbsp;for&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;solver&nbsp;requires&nbsp;a&nbsp;connected&nbsp;graph&nbsp;and&nbsp;isolated&nbsp;nodes&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;0.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'coreness'&nbsp;(Batagelj&nbsp;&amp;&nbsp;Zaversnik,&nbsp;2003)&nbsp;measures&nbsp;how&nbsp;"deep"&nbsp;a&nbsp;node(word/phrase)&nbsp;is&nbsp;in&nbsp;the&nbsp;co-occurrence&nbsp;network.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;indicates&nbsp;how&nbsp;strongly&nbsp;the&nbsp;node&nbsp;is&nbsp;connected&nbsp;to&nbsp;the&nbsp;network.&nbsp;The&nbsp;"deeper"&nbsp;a&nbsp;word,&nbsp;the&nbsp;more&nbsp;it&nbsp;is&nbsp;important.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;metric&nbsp;is&nbsp;not&nbsp;suitable&nbsp;for&nbsp;ranking&nbsp;terms&nbsp;directly,&nbsp;but&nbsp;it&nbsp;is&nbsp;proved&nbsp;as&nbsp;useful&nbsp;feature&nbsp;for&nbsp;keywords&nbsp;extraction<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'neighborhood_size'&nbsp;computes&nbsp;the&nbsp;number&nbsp;of&nbsp;immediate&nbsp;neighbors&nbsp;to&nbsp;a&nbsp;node.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;a&nbsp;version&nbsp;of&nbsp;node&nbsp;degree&nbsp;that&nbsp;disregards&nbsp;self-loops<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Note:&nbsp;Centrality&nbsp;measures&nbsp;(such&nbsp;as&nbsp;"current&nbsp;flow&nbsp;betweeness",&nbsp;"current&nbsp;flow&nbsp;closeness",&nbsp;"communicability_betweenness")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;does&nbsp;not&nbsp;support&nbsp;loosely&nbsp;connected&nbsp;graph&nbsp;and&nbsp;betweeness&nbsp;centrality&nbsp;measures&nbsp;cannot&nbsp;compute&nbsp;on&nbsp;single&nbsp;isolated&nbsp;nodes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;It&nbsp;is&nbsp;recommended&nbsp;to&nbsp;re-consider&nbsp;the&nbsp;graph&nbsp;construction&nbsp;method&nbsp;or&nbsp;increase&nbsp;context&nbsp;window&nbsp;size&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ensure&nbsp;a&nbsp;(strongly)&nbsp;connected&nbsp;graph.<br>
+:type&nbsp;max_iter:&nbsp;int,&nbsp;optional<br>
+:param&nbsp;max_iter:&nbsp;number&nbsp;of&nbsp;maximum&nbsp;iteration&nbsp;of&nbsp;pagerank,&nbsp;katz_centrality<br>
+:type&nbsp;tol:&nbsp;float,&nbsp;optional,&nbsp;default&nbsp;1e4<br>
+:param&nbsp;tol:&nbsp;Error&nbsp;tolerance&nbsp;used&nbsp;to&nbsp;check&nbsp;convergence,&nbsp;the&nbsp;value&nbsp;varies&nbsp;for&nbsp;specific&nbsp;solver<br>
 :type&nbsp;window:&nbsp;int,&nbsp;required<br>
 :param&nbsp;window:&nbsp;co-occurrence&nbsp;window&nbsp;size&nbsp;(default&nbsp;with&nbsp;forward&nbsp;and&nbsp;backward&nbsp;context).&nbsp;Default&nbsp;value:&nbsp;2<br>
 :type&nbsp;top_p:&nbsp;float,&nbsp;optional<br>
@@ -380,19 +748,32 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :type&nbsp;lemma:&nbsp;bool<br>
 :param&nbsp;lemma:&nbsp;if&nbsp;lemmatize&nbsp;text<br>
 :type&nbsp;weight_comb:&nbsp;str<br>
-:param&nbsp;weight_comb:&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms.<br>
+:param&nbsp;weight_comb:&nbsp;{'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'},&nbsp;default&nbsp;'norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;weight&nbsp;combination&nbsp;method&nbsp;for&nbsp;multi-word&nbsp;candidate&nbsp;terms&nbsp;weighing.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Options:&nbsp;'avg',&nbsp;'norm_avg',&nbsp;'log_norm_avg',&nbsp;'gaussian_norm_avg',&nbsp;'sum',&nbsp;'norm_sum',&nbsp;'log_norm_sum',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'gaussian_norm_sum',&nbsp;'max',&nbsp;'norm_max',&nbsp;'log_norm_max',&nbsp;'gaussian_norm_max'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'max'&nbsp;:&nbsp;maximum&nbsp;value&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'avg'&nbsp;:&nbsp;avarage&nbsp;vertices&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'sum'&nbsp;:&nbsp;sum&nbsp;of&nbsp;vertices&nbsp;weights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_max'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_avg'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'norm_sum'&nbsp;:&nbsp;MWT&nbsp;unit&nbsp;size&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_max'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_avg'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'log_norm_sum'&nbsp;:&nbsp;logarithm&nbsp;based&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_max'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'max'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_avg'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'avg'&nbsp;weight<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;'gaussian_norm_sum'&nbsp;:&nbsp;gaussian&nbsp;normalisation&nbsp;of&nbsp;'sum'&nbsp;weight<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NOTE:&nbsp;\*_norm_\*"&nbsp;penalises&nbsp;longer&nbsp;term&nbsp;(than&nbsp;default&nbsp;5&nbsp;token&nbsp;size)<br>
 :type&nbsp;mu:&nbsp;int,&nbsp;optional<br>
 :param&nbsp;mu:&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;and&nbsp;effective&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
 :type&nbsp;export:&nbsp;bool<br>
 :param&nbsp;export:&nbsp;True&nbsp;if&nbsp;export&nbsp;result&nbsp;else&nbsp;False<br>
 :type&nbsp;export_format:&nbsp;string<br>
-:param&nbsp;export_format:&nbsp;export&nbsp;file&nbsp;format.Support&nbsp;options:&nbsp;"csv"|"json".&nbsp;Default&nbsp;with&nbsp;"csv"<br>
+:param&nbsp;export_format:&nbsp;{'csv',&nbsp;'json'},&nbsp;default&nbsp;'csv'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;export&nbsp;file&nbsp;format<br>
 :type&nbsp;export_path:&nbsp;string<br>
 :param&nbsp;export_path:&nbsp;file&nbsp;path&nbsp;where&nbsp;the&nbsp;result&nbsp;will&nbsp;be&nbsp;exported&nbsp;to<br>
 :type&nbsp;encoding:&nbsp;string,&nbsp;required<br>
@@ -401,7 +782,7 @@ or&nbsp;section,&nbsp;or&nbsp;a&nbsp;user-defined&nbsp;segment)&nbsp;and&nbsp;an
 :param&nbsp;workers:&nbsp;available&nbsp;CPU&nbsp;cores,&nbsp;default&nbsp;to&nbsp;use&nbsp;all&nbsp;the&nbsp;available&nbsp;CPU&nbsp;cores<br>
 :rtype:&nbsp;tuple&nbsp;[list[tuple[string,float]],&nbsp;dict[string:float]]<br>
 :return:&nbsp;keywords:&nbsp;sorted&nbsp;keywords&nbsp;with&nbsp;weights&nbsp;along&nbsp;with&nbsp;Top&nbsp;T&nbsp;weighted&nbsp;vertices</tt></dd></dl>
- <dl><dt><a name="-preprocessing"><strong>preprocessing</strong></a>(text, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;pipeline:&nbsp;sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenisation&nbsp;-&gt;<br>
+ <dl><dt><a name="-preprocessing"><strong>preprocessing</strong></a>(text, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;pipeline:&nbsp;sentence&nbsp;splitting&nbsp;-&gt;&nbsp;tokenisation&nbsp;-&gt;<br>
 Part-of-Speech(PoS)&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
 &nbsp;<br>
 Text&nbsp;segmentation:&nbsp;using&nbsp;NLTK's&nbsp;recommended&nbsp;English&nbsp;word&nbsp;tokenizer&nbsp;(currently&nbsp;an&nbsp;improved&nbsp;:class:`.TreebankWordTokenizer`<br>
@@ -433,7 +814,7 @@ You&nbsp;can&nbsp;download&nbsp;both&nbsp;via<br>
 :rtype:&nbsp;generatorType&nbsp;(of&nbsp;tuple)<br>
 :return:&nbsp;result:&nbsp;a&nbsp;tuple&nbsp;list&nbsp;of&nbsp;tokenised&nbsp;context(default&nbsp;in&nbsp;sentence&nbsp;level)&nbsp;text<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and&nbsp;the&nbsp;corresponding&nbsp;PoS&nbsp;tagged&nbsp;context&nbsp;text&nbsp;filtered&nbsp;by&nbsp;syntactic&nbsp;filter</tt></dd></dl>
- <dl><dt><a name="-preprocessing_tokenised_context"><strong>preprocessing_tokenised_context</strong></a>(tokenised_context, syntactic_categories={'NN', 'JJ', 'NNS', 'NNP'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;tokenised&nbsp;corpus&nbsp;context&nbsp;(recommend&nbsp;as&nbsp;sentences)<br>
+ <dl><dt><a name="-preprocessing_tokenised_context"><strong>preprocessing_tokenised_context</strong></a>(tokenised_context, syntactic_categories={'NNP', 'JJ', 'NNS', 'NN'}, stop_words=None, lemma=False)</dt><dd><tt>pre-processing&nbsp;tokenised&nbsp;corpus&nbsp;context&nbsp;(recommend&nbsp;as&nbsp;sentences)<br>
 &nbsp;<br>
 pipeline:&nbsp;&nbsp;Part-of-Speech&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;filtering&nbsp;(default&nbsp;with&nbsp;sentential&nbsp;context)<br>
 &nbsp;<br>
@@ -461,7 +842,7 @@ pipeline:&nbsp;&nbsp;Part-of-Speech&nbsp;tagging&nbsp;-&gt;&nbsp;syntactic&nbsp;
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>__all__</strong> = ['Vertex', 'preprocessing', 'preprocessing_tokenised_context', '_pos_tagging_tokenised_corpus_context', '_syntactic_filter', '_syntactic_filter_context', '_is_multiple_context', '_get_cooccurs', '_get_cooccurs_from_single_context', '_build_vertices_representations', '_compute_vertex', 'build_cooccurrence_graph', '_draw_edges', '_is_top_t_vertices_connection', '_reweight_filtered_terms', '_term_size_normalize', '_log_normalise', '_gaussian_normalise_keywords_extraction_from_preprocessed_context', '_collapse_adjacent_keywords', '_load_preprocessed_corpus_contextkeywords_extraction', ...]</td></tr></table><p>
+<td width="100%"><strong>__all__</strong> = ['Vertex', 'preprocessing', 'preprocessing_tokenised_context', '_pos_tagging_tokenised_corpus_context', '_syntactic_filter', '_syntactic_filter_context', '_is_multiple_context', '_get_cooccurs', '_get_cooccurs_from_single_context', '_build_vertices_representations', '_compute_vertex', 'build_cooccurrence_graph', '_draw_edges', '_is_top_t_vertices_connection', '_reweight_filtered_terms', '_term_size_normalize', '_log_normalise', '_gaussian_normalise', '_keywords_extraction_from_preprocessed_context', '_collapse_adjacent_keywords', ...]</td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#7799ee">
 <td colspan=3 valign=bottom>&nbsp;<br>
