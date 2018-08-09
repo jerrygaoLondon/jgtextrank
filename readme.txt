@@ -139,7 +139,7 @@ To install from source
 
     * 12 MWTs weighting methods
 
-    * 4 pagerank implementations and 14 additional graph ranking algorithms
+    * 3 pagerank implementations and > 15 additional graph ranking algorithms
 
     * Parallelisation  of vertices co-occurrence computation (allow to set number of available worker instances)
 
@@ -182,7 +182,7 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
 ### history ###
 * 0.1.2 Beta version - Aug 2018
     * bug fixes
-    * 14 additional graph ranking algorithms
+    * 15 additional graph ranking algorithms
 * 0.1.1 Alpha version - 1st Jan 2018
 
 ### Donation ###
