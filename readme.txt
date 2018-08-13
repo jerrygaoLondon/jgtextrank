@@ -137,9 +137,9 @@ To install from source
 
     * Support directed/undirected and unweighted graph
 
-    * 12 MWTs weighting methods
+    * >12 MWTs weighting methods
 
-    * 3 pagerank implementations and > 15 additional graph ranking algorithms
+    * 3 pagerank implementations and >15 additional graph ranking algorithms
 
     * Parallelisation  of vertices co-occurrence computation (allow to set number of available worker instances)
 
