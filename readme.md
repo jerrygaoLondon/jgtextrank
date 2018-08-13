@@ -137,7 +137,7 @@ To install from source
 
     * Support directed/undirected and unweighted graph
 
-    * >12 MWTs weighting methods
+    * \>12 MWTs weighting methods
 
     * 3 pagerank implementations and >15 additional graph ranking algorithms
 
