@@ -735,7 +735,6 @@ class TestTextRank(unittest.TestCase):
         assert mean_coreness_results_dict['linear diophantine equations'] == 2
 
 
-
         with self.assertRaises(ValueError) as context:
             keywords_extraction(example_abstract, top_p = 0.3, solver="my_pagerank")
 
@@ -953,6 +952,40 @@ class TestTextRank(unittest.TestCase):
         assert "minimal supporting set" == term_list[6]
         assert "minimal" == term_list[7]
         assert "algorithms" == term_list[8] or "corresponding algorithms" == term_list[8]
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, weight_comb="len_log_norm_max")
+        print("extracted keywords with len_log_norm_max weighting:"+ str(results))
+        term_list = [term[0] for term in results]
+        assert "linear diophantine equations" == term_list[0]
+        assert "minimal supporting set" == term_list[1]
+        assert "linear constraints" == term_list[2]
+        assert "types systems" == term_list[3]
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, weight_comb="len_log_norm_avg")
+        print("extracted keywords with len_log_norm_avg weighting:"+ str(results))
+        term_list = [term[0] for term in results]
+        assert "linear diophantine equations" == term_list[0]
+        assert "minimal supporting set" == term_list[1]
+        assert "minimal set" == term_list[2]
+        assert "types systems" == term_list[3]
+
+        results, top_vertices = keywords_extraction(example_abstract, top_p = 0.3, weight_comb="len_log_norm_sum")
+        print("extracted keywords with len_log_norm_sum weighting:"+ str(results))
+        term_list = [term[0] for term in results]
+        assert "linear diophantine equations" == term_list[0]
+        assert "minimal supporting set" == term_list[1]
+        assert "minimal set" == term_list[2]
+        assert "types systems" == term_list[3]
+        assert "linear constraints" == term_list[4]
+
+        with self.assertRaises(ValueError) as context:
+            keywords_extraction(example_abstract, top_p = 0.3, weight_comb="my_norm")
+
+            self.assertTrue("Unspported weight_comb 'my_norm'! "
+                            "Options are 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', "
+                            "'norm_sum', 'log_norm_sum', 'gaussian_norm_sum', 'max', 'norm_max',"
+                            " 'log_norm_max', 'gaussian_norm_max', "
+                            "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'. " in context.exception)
 
     def test_keywords_extraction_from_segmented_corpus(self):
         example_user_defined_context_corpus = [["Compatibility", "of", "systems", "of", "linear", "constraints",

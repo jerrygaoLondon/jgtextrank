@@ -91,7 +91,7 @@ You can try to visualize your co-occurrence network with your sample dataset in 
     >>> preprocessed_context = preprocessing(example_abstract, stop_words=stop_list, lemma=True)
     >>> cooccurrence_graph, context_tokens = build_cooccurrence_graph(preprocessed_context, window=2)
     >>> pos = nx.spring_layout(cooccurrence_graph,k=0.20,iterations=20)
-    >>> nx.draw_networkx(cooccurrence_graph, pos=pos, arrows=True, with_labels=True)
+    >>> nx.draw_networkx(cooccurrence_graph, pos=pos, arrows=True, with_requets labels=True)
     >>> plt.savefig("my_sample_cooccurrence_graph.png")
     >>> plt.show()
 
@@ -139,7 +139,7 @@ To install from source
 
     * 12 MWTs weighting methods
 
-    * 4 pagerank implementations and > 15 additional graph ranking algorithms
+    * 3 pagerank implementations and > 15 additional graph ranking algorithms
 
     * Parallelisation  of vertices co-occurrence computation (allow to set number of available worker instances)
 

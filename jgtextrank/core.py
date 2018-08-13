@@ -532,7 +532,8 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
     :param all_vertices: all the weighted top T vertices
     :type weight_comb: str
     :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max',
+                'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'}, default 'norm_max'
             The weight combination method for multi-word candidate terms weighing.
 
             - 'max' : maximum value of vertices weights
@@ -547,66 +548,88 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
             - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
             - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
             - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+            - 'len_log_norm_max': log2(|a| + 0.1) * 'max' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_avg': log2(|a| + 0.1) * 'avg' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_sum': log2(|a| + 0.1) * 'sum' adapted from CValue (Frantzi, 2000) formulate
 
-            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises/smooth the longer term (than default 5 token size)
+                to achieve a saturation level as term size grows
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required for normalisation based MWT weighting method
     :rtype: dict [of term:weight]
     :return: dict with key as term string and value is the weight
     """
+    _logger.info("MWTs weighing ...")
     weighted_terms = dict()
-
+    log2a = 0
+    sigma = 0
     if "norm" in weight_comb:
         sigma = _get_sigma_from_all_candidates(collapsed_terms)
         # print("sigma is ", sigma)
 
     for collapsed_term in collapsed_terms:
         if _is_top_t_vertices_connection(collapsed_term, top_t_vertices):
+            # initialisation
+            final_score = float(0)
+            avg_score = 0
+            sum_score = 0
+            max_score = 0
+
+            # compute term length (i.e.,number of words/tokens)
             all_syntactic_units = collapsed_term.split(' ')
             unit_size = len(all_syntactic_units)
 
-            final_score = float(0)
-            if weight_comb == "avg":
+            if "len_log" in weight_comb:
+                # log(a + 0.1) to smooth unigrams
+                log2a = math.log2(unit_size + 0.1)
+
+            if "avg" in weight_comb:
                 avg_score = _get_average_score(all_syntactic_units, all_vertices, unit_size)
+
+            if "sum" in weight_comb:
+                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
+
+            if "max" in weight_comb:
+                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
+
+            if weight_comb == "avg":
                 final_score = avg_score
             elif weight_comb == "norm_avg":
-                avg_score = _get_average_score(all_syntactic_units, all_vertices, unit_size)
                 final_score = _term_size_normalize(avg_score, unit_size)
             elif weight_comb == "log_norm_avg":
-                avg_score = _get_average_score(all_syntactic_units, all_vertices, unit_size)
                 final_score = _log_normalise(avg_score, mu, unit_size)
             elif weight_comb == "gaussian_norm_avg":
-                avg_score = _get_average_score(all_syntactic_units, all_vertices, unit_size)
                 final_score = _gaussian_normalise(avg_score, mu, sigma, unit_size)
+            elif weight_comb == "len_log_norm_avg":
+                final_score = log2a * avg_score
             elif weight_comb == "sum":
-                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
                 final_score = sum_score
             elif weight_comb == "norm_sum":
-                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
                 final_score = _term_size_normalize(sum_score, unit_size)
             elif weight_comb == "log_norm_sum":
-                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
                 final_score = _log_normalise(sum_score, mu, unit_size)
             elif weight_comb == "gaussian_norm_sum":
-                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
                 final_score = _gaussian_normalise(sum_score, mu, sigma, unit_size)
+            elif weight_comb == "len_log_norm_sum":
+                final_score = log2a * sum_score
             elif weight_comb == "max":
                 max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
                 final_score = max_score
             elif weight_comb == "norm_max":
-                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
                 final_score = _term_size_normalize(max_score, unit_size)
             elif weight_comb == "log_norm_max":
-                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
                 final_score = _log_normalise(max_score, mu, unit_size)
             elif weight_comb == "gaussian_norm_max":
-                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
                 final_score = _gaussian_normalise(max_score, mu, sigma, unit_size)
+            elif weight_comb == "len_log_norm_max":
+                final_score = log2a * max_score
             else:
                 raise ValueError("Unsupported weight combination option: '%s'", weight_comb)
 
             weighted_terms[collapsed_term] = round(final_score, 5)
+
+    _logger.info("done.")
     return weighted_terms
 
 
@@ -1027,6 +1050,7 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
             _current_term = ""
 
     _key_terms.discard('')
+    _logger.info("done.")
     return _key_terms
 
 
@@ -1128,8 +1152,9 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     :type tol: float, optional, default 1.0e-6
     :param tol: Error tolerance used to check convergence, the value varies for specific solver
     :type weight_comb: str
-    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+    :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max',
+                'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'}, default 'norm_max'
             The weight combination method for multi-word candidate terms weighing.
 
             - 'max' : maximum value of vertices weights
@@ -1144,8 +1169,12 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
             - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
             - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
             - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+            - 'len_log_norm_max': log2(|a| + 0.1) * 'max' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_avg': log2(|a| + 0.1) * 'avg' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_sum': log2(|a| + 0.1) * 'sum' adapted from CValue (Frantzi, 2000) formulate
 
-            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises/smooth the longer term (than default 5 token size)
+                to achieve a saturation level as term size grows
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the MWT candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting methods
@@ -1317,8 +1346,9 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+    :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max',
+                'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'}, default 'norm_max'
             The weight combination method for multi-word candidate terms weighing.
 
             - 'max' : maximum value of vertices weights
@@ -1333,8 +1363,12 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="
             - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
             - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
             - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+            - 'len_log_norm_max': log2(|a| + 0.1) * 'max' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_avg': log2(|a| + 0.1) * 'avg' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_sum': log2(|a| + 0.1) * 'sum' adapted from CValue (Frantzi, 2000) formulate
 
-            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises/smooth the longer term (than default 5 token size)
+                to achieve a saturation level as term size grows
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method
@@ -1493,8 +1527,9 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+    :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max',
+                'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'}, default 'norm_max'
             The weight combination method for multi-word candidate terms weighing.
 
             - 'max' : maximum value of vertices weights
@@ -1509,8 +1544,12 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
             - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
             - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
             - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+            - 'len_log_norm_max': log2(|a| + 0.1) * 'max' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_avg': log2(|a| + 0.1) * 'avg' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_sum': log2(|a| + 0.1) * 'sum' adapted from CValue (Frantzi, 2000) formulate
 
-            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises/smooth the longer term (than default 5 token size)
+                to achieve a saturation level as term size grows
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method
@@ -1580,11 +1619,12 @@ def _check_weight_comb_option(weight_comb):
 
     if weight_comb not in ("avg", "norm_avg", "log_norm_avg", "gaussian_norm_avg", "sum", "norm_sum",
                            "log_norm_sum", "gaussian_norm_sum", "max", "norm_max", "log_norm_max",
-                           "gaussian_norm_max"):
+                           "gaussian_norm_max",'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'):
         raise ValueError("Unspported weight_comb '%s'! "
                          "Options are 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', "
                          "'norm_sum', 'log_norm_sum', 'gaussian_norm_sum', 'max', 'norm_max',"
-                         " 'log_norm_max', 'gaussian_norm_max'. " % weight_comb)
+                         " 'log_norm_max', 'gaussian_norm_max', "
+                         "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'. " % weight_comb)
 
 
 def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solver="pagerank",
@@ -1668,8 +1708,9 @@ def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solv
     :type lemma: bool
     :param lemma: if lemmatize text
     :type weight_comb: str
-    :param weight_comb: {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
-                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max'}, default 'norm_max'
+    :param weight_comb:  {'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', 'norm_sum', 'log_norm_sum',
+                'gaussian_norm_sum', 'max', 'norm_max', 'log_norm_max', 'gaussian_norm_max',
+                'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'}, default 'norm_max'
             The weight combination method for multi-word candidate terms weighing.
 
             - 'max' : maximum value of vertices weights
@@ -1684,8 +1725,12 @@ def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solv
             - 'gaussian_norm_max' : gaussian normalisation of 'max' weight
             - 'gaussian_norm_avg' : gaussian normalisation of 'avg' weight
             - 'gaussian_norm_sum' : gaussian normalisation of 'sum' weight
+            - 'len_log_norm_max': log2(|a| + 0.1) * 'max' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_avg': log2(|a| + 0.1) * 'avg' adapted from CValue (Frantzi, 2000) formulate
+            - 'len_log_norm_sum': log2(|a| + 0.1) * 'sum' adapted from CValue (Frantzi, 2000) formulate
 
-            NOTE: \*_norm_\*" penalises longer term (than default 5 token size)
+            NOTE: \*_norm_\*" penalises/smooth the longer term (than default 5 token size)
+                to achieve a saturation level as term size grows
     :type mu: int, optional
     :param mu: mean value to set a center point (default to 5) in order to rank the candidates higher that are near the central point
             This param is only required and effective for normalisation based MWT weighting method

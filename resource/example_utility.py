@@ -7,13 +7,17 @@ punctuation_filter = lambda t : filter(lambda a: a not in string.punctuation, t)
 flatten_list = lambda l: [item for sublist in l for item in sublist]
 
 import spacy
+# python -m spacy download en
 spacy_nlp = spacy.load('en_core_web_sm')
 
 from jgtextrank.preprocessing import segmentation
 
 
-def pre_processing_corpus_with_spacy(corpus_dir, encoding="utf-8", lemma=True):
+def pre_processing_corpus_with_spacy(corpus_dir, encoding="utf-8", lemma=True, default_file_suffix=".txt"):
     for fname in os.listdir(corpus_dir):
+        if default_file_suffix not in fname:
+            continue
+
         doc_content = ""
         for line in open(os.path.join(corpus_dir, fname), encoding=encoding):
             doc_content += line
@@ -72,7 +76,7 @@ def load_genia_gs_terms(fname, is_norm=True):
                                 'familiy':'family',
                                 'frequencie':'frequencies'}
 
-    gs_term_set = load_gs_terms(fname, stopwords=genia_gs_stop_words, normalised_gs_terms = genia_annotation_mapping, is_norm=is_norm)
+    gs_term_set = load_gs_terms_from_file(fname, stopwords=genia_gs_stop_words, normalised_gs_terms = genia_annotation_mapping, is_norm=is_norm)
     normalised_gs_term_list = [synonym_normalisation_4_genia(gs_term) for gs_term in gs_term_set]
 
     normalised_gs_term_list = list(filter(None,normalised_gs_term_list))
@@ -80,7 +84,7 @@ def load_genia_gs_terms(fname, is_norm=True):
     return set(normalised_gs_term_list)
 
 
-def load_gs_terms(fname, stopwords = [], normalised_gs_terms= dict(), is_norm=True):
+def load_gs_terms_from_file(fname, stopwords = [], normalised_gs_terms= dict(), is_norm=True):
     """
     load gs term set (with minimum pre-processing) from a "list" file
 
@@ -91,7 +95,11 @@ def load_gs_terms(fname, stopwords = [], normalised_gs_terms= dict(), is_norm=Tr
     """
     reader = WordListCorpusReader('',fname)
     gs_term_list = reader.words()
+    return load_gs_terms_from_list(gs_term_list, stopwords=stopwords,
+                                   normalised_gs_terms=normalised_gs_terms, is_norm=is_norm)
 
+
+def load_gs_terms_from_list(gs_term_list, stopwords = [], normalised_gs_terms= dict(), is_norm=True):
     print("initially loaded gs terms size: ", len(gs_term_list))
 
     final_gs_terms = set()
@@ -118,6 +126,47 @@ def load_gs_terms(fname, stopwords = [], normalised_gs_terms= dict(), is_norm=Tr
     #print("final loaded valid gs terms size: %s" % len(normalised_gs_terms_list))
     return set(normalised_gs_terms_list)
 
+
+from six import string_types
+from nltk.corpus.reader.util import concat
+
+"""
+def load_raw(fileids=None):
+    if isinstance(fileids, string_types): fileids = [fileids]
+        return concat([self.open(f).read() for f in fileids])
+"""
+
+
+def load_Hulth2003_gs_files(dataset_dir, file_suffix=".uncontr"):
+    fileids = []
+    for fname in os.listdir(dataset_dir):
+        if file_suffix not in fname:
+            continue
+
+        fileids.append(fname)
+    return fileids
+
+
+def load_Hulth2003_gs_terms(dataset_dir, file_suffix=".uncontr"):
+    # 'Hulth2003/Test
+    hulth2003_fileids = load_Hulth2003_gs_files(dataset_dir, ".uncontr")
+    gs_terms_reader = Hulth2003GSReader(dataset_dir, hulth2003_fileids)
+    # load_gs_terms_from_list()
+    terms = load_gs_terms_from_list(gs_terms_reader.words())
+    return terms
+
+class Hulth2003GSReader(WordListCorpusReader):
+    def term_tokenize(self, text, split=";"):
+        return text.split(";")
+
+    def words(self, fileids=None, ignore_lines_startswith='\n'):
+        return [line.strip() for line in self.term_tokenize(self.raw(fileids))
+                if not line.startswith(ignore_lines_startswith)]
+
+    def raw(self, fileids=None):
+        if fileids is None: fileids = self._fileids
+        elif isinstance(fileids, string_types): fileids = [fileids]
+        return concat([self.open(f).read() for f in fileids])
 
 def normalise_term(term_str):
     return remove_punctuations(term_str).lower().strip()
@@ -221,11 +270,15 @@ if __name__ == '__main__':
     #print(gs_terms)
     #result = pre_processing_text_with_spacy("Filarial antigen induces increased expression of alternative activation genes in monocytes from patients with AFI.")
     #print(result)
+
     from jgtextrank import keywords_extraction_from_tagged_corpus
-    pre_processed_corpus = pre_processing_corpus_with_spacy("GENIAcorpus302/text/files")
-    spacy_pos_categories = {'NOUN', 'ADJ'}
-    for sentence in pre_processed_corpus:
-        print(sentence)
+    # pre_processed_corpus = pre_processing_corpus_with_spacy("GENIAcorpus302/text/files")
+    #pre_processed_corpus = pre_processing_corpus_with_spacy("Hulth2003/Test", default_file_suffix=".abstr")
+    #spacy_pos_categories = {'NOUN', 'ADJ'}
+    #for sentence in pre_processed_corpus:
+    #    print(sentence)
+
+
     #results, top_vertices = keywords_extraction_from_tagged_corpus(pre_processed_corpus, top_p = 0.3, syntactic_categories = spacy_pos_categories)
     #print("extracted keywords from pre-tagged content:"+ str(results))
     #print("top_vertices: ", top_vertices)
