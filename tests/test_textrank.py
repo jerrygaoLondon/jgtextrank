@@ -20,8 +20,8 @@ import matplotlib.pyplot as plt
 
 from jgtextrank.utility import sort_dict_by_value, flatten
 from jgtextrank.core import preprocessing, preprocessing_tokenised_context, _syntactic_filter, \
-                                _get_cooccurs_from_single_context, _get_cooccurs, build_cooccurrence_graph, \
-                                _build_vertices_representations, keywords_extraction, _is_top_t_vertices_connection
+    _get_cooccurs_from_single_context, _get_cooccurs, build_cooccurrence_graph, \
+    _build_vertices_representations, keywords_extraction, _is_top_t_vertices_connection, _collapse_adjacent_keywords
 
 
 def ignore_warnings(test_func):
@@ -435,6 +435,108 @@ class TestTextRank(unittest.TestCase):
         term_candidate_10 = "algorithms"
         result_term_candidate_10 = _is_top_t_vertices_connection(term_candidate_10, top_t_vertices)
         assert result_term_candidate_10 is False, "'"+term_candidate_10+"' is NOT a top T vertex connection"
+
+    def test_collapse_adjacent_keywords(self):
+        weighted_keywords = {'sets': 0.03472, 'supporting': 0.03448, 'compatibility': 0.04089,
+                             'components': 0.00643, 'minimal': 0.06524, 'algorithms': 0.05472, 'inequations': 0.04641,
+                             'corresponding': 0.02194, 'numbers': 0.02379, 'systems': 0.083597, 'constraints': 0.02148,
+                             'linear': 0.08849, 'natural': 0.040847, 'diophantine': 0.0370565, 'mixed': 0.03591,
+                             'equations': 0.054968, 'strict': 0.041742, 'set': 0.066734, 'construction': 0.03580,
+                             'system': 0.02148, 'types': 0.03591, 'criteria': 0.02381, 'upper': 0.00643,
+                             'nonstrict': 0.026167, 'solutions': 0.050879}
+        original_tokenised_text= ['compatibility', 'of', 'systems', 'of', 'linear', 'constraints', 'over',
+                                  'the', 'set', 'of', 'natural', 'numbers', '.', 'criteria', 'of', 'compatibility',
+                                  'of', 'a', 'system', 'of', 'linear', 'diophantine', 'equations', ',',
+                                  'strict', 'inequations', ',', 'and', 'nonstrict', 'inequations', 'are',
+                                  'considered', '.', 'upper', 'bounds', 'for', 'components', 'of', 'a',
+                                  'minimal', 'set', 'of', 'solutions', 'and', 'algorithms', 'of',
+                                  'construction', 'of', 'minimal', 'generating', 'sets', 'of', 'solutions',
+                                  'for', 'all', 'types', 'of', 'systems', 'are', 'given', '.', 'these',
+                                  'criteria', 'and', 'the', 'corresponding', 'algorithms', 'for', 'constructing',
+                                  'a', 'minimal', 'supporting', 'set', 'of', 'solutions', 'can', 'be', 'used',
+                                  'in', 'solving', 'all', 'the', 'considered', 'types', 'systems', 'and',
+                                  'systems', 'of', 'mixed', 'types', '.']
+        key_terms = _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text)
+        print("key terms collapsed from context: ", key_terms)
+        assert len(key_terms) == 29
+        assert key_terms[0][0] == 'compatibility'
+        assert key_terms[1][0] == 'systems'
+        assert key_terms[2][0] == 'linear'
+        assert key_terms[2][1] == 'constraints'
+        assert key_terms[3][0] == 'set'
+        assert key_terms[4][0] == 'natural'
+        assert key_terms[4][1] == 'numbers'
+        assert key_terms[5][0] == 'criteria'
+
+        S0021999113005652_weighted_keywords = {'degradation': 0.03048, 'future': 0.004573, 'result': 0.004573,
+                                               'exchange': 0.03367, 'progress': 0.004573, 'important': 0.03048,
+                                               'modelling': 0.030487, 'extensive': 0.03048, 'reynolds': 0.02551,
+                                               'figure': 0.004573170731707318, 'datum': 0.004573, 'impact': 0.03048,
+                                               'study': 0.00457, 'function': 0.004573, 'environmental': 0.0304878,
+                                               'effect': 0.030487, 'air': 0.03070, 'flow': 0.016393,
+                                               'schmidt': 0.02551, 'fig': 0.030487, 'turbulent': 0.004573,
+                                               'rate': 0.024854, 'chemical': 0.03582, 'number': 0.036786,
+                                               'interface': 0.0045731, 'reaction': 0.047672, 'depict': 0.0304878,
+                                               'practical': 0.03048, 'interesting': 0.004573,
+                                               'investigation': 0.0304878, 'concentration': 0.0304878,
+                                               'worth': 0.0045731, 'increase': 0.04951, 'bulk': 0.00457,
+                                               'water': 0.055614, 'efficiency': 0.015095, 'equilibrium': 0.030487,
+                                               'product': 0.030487, 'aquarium': 0.0248545,
+                                               'by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎': 0.030487, 'acidification': 0.016393,
+                                               'gas': 0.018886, 'information': 0.03048}
+        S0021999113005652_tokenised_text = ['it', 'be', 'interesting', 'to', 'quantify', 'the', 'effect',
+                                            'of', 'the', 'schmidt', 'number', 'and', 'the', 'chemical',
+                                            'reaction', 'rate', 'on', 'the', 'bulk', '-', 'mean', 'concentration',
+                                            'of', 'b', 'in', 'water', '.', 'the', 'datum', 'could', 'present',
+                                            'important', 'information', 'on', 'evaluate', 'the', 'environmental',
+                                            'impact', 'of', 'the', 'degradation', 'product', 'of', 'b', ',',
+                                            'as', 'well', 'as', 'acidification', 'of', 'water', 'by', 'the',
+                                            'chemical', 'reaction', '.', 'here', ',', 'the', 'bulk', '-',
+                                            'mean', 'concentration', 'of', 'b', 'be', 'define',
+                                            'by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎', 'fig', '.', '15', 'depict', 'the',
+                                            'effect', 'of', 'the', 'schmidt', 'and', 'the', 'chemical',
+                                            'reaction', 'rate', 'on', 'the', 'bulk', '-', 'mean',
+                                            'concentration', 'cb⁎ .', 'it', 'be', 'worth', 'to', 'mention',
+                                            'here', 'that', 'the', 'bulk', '-', 'mean', 'concentration', 'of',
+                                            'b', 'reach', 'approximately', '0.6', 'as', 'the', 'chemical',
+                                            'reaction', 'rate', 'and', 'the', 'schmidt', 'number', 'increase',
+                                            'to', 'infinite', ',', 'and', 'the', 'concentration', 'be',
+                                            'small', 'than', 'the', 'equilibrium', 'concentration', 'of', 'a',
+                                            'at', 'the', 'interface', '.', 'this', 'figure', 'indicate',
+                                            'that', 'progress', 'of', 'the', 'chemical', 'reaction', 'be',
+                                            'somewhat', 'interfere', 'by', 'turbulent', 'mix', 'in', 'water',
+                                            ',', 'and', 'the', 'efficiency', 'of', 'the', 'chemical',
+                                            'reaction', 'be', 'up', 'to', 'approximately', '60', '%', '.',
+                                            'the', 'efficiency', 'of', 'the', 'chemical', 'reaction', 'in',
+                                            'water', 'will', 'be', 'a', 'function', 'of', 'the', 'reynolds',
+                                            'number', 'of', 'the', 'water', 'flow', ',', 'and', 'the',
+                                            'efficiency', 'could', 'increase', 'as', 'the', 'reynolds',
+                                            'number', 'increase', '.', 'we', 'need', 'an', 'extensive',
+                                            'investigation', 'on', 'the', 'efficiency', 'of', 'the', 'aquarium',
+                                            'chemical', 'reaction', 'in', 'the', 'near', 'future', 'to', 'extend',
+                                            'the', 'result', 'of', 'this', 'study', 'further', 'to', 'establish',
+                                            'practical', 'modelling', 'for', 'the', 'gas', 'exchange',
+                                            'between', 'air', 'and', 'water', '.']
+        S0021999113005652_key_terms = _collapse_adjacent_keywords(S0021999113005652_weighted_keywords, S0021999113005652_tokenised_text)
+        print("S0021999113005652_key_terms: ", S0021999113005652_key_terms)
+        assert len(S0021999113005652_key_terms) == 57
+        assert S0021999113005652_key_terms[0][0] == "interesting"
+        assert S0021999113005652_key_terms[1][0] == "effect"
+        assert S0021999113005652_key_terms[2][0] == "schmidt"
+        assert S0021999113005652_key_terms[2][1] == "number"
+        assert S0021999113005652_key_terms[3][0] == "chemical"
+        assert S0021999113005652_key_terms[3][1] == "reaction"
+        assert S0021999113005652_key_terms[3][2] == "rate"
+        assert S0021999113005652_key_terms[4][0] == "bulk"
+        assert S0021999113005652_key_terms[5][0] == "concentration"
+        assert S0021999113005652_key_terms[6][0] == "water"
+        assert S0021999113005652_key_terms[7][0] == "datum"
+        assert S0021999113005652_key_terms[8][0] == "important"
+        assert S0021999113005652_key_terms[8][1] == "information"
+        assert S0021999113005652_key_terms[9][0] == "environmental"
+        assert S0021999113005652_key_terms[9][1] == "impact"
+        assert S0021999113005652_key_terms[16][0] == "by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎"
+        assert S0021999113005652_key_terms[16][1] == "fig"
 
     @ignore_warnings
     def test_keywords_extraction(self):
@@ -1096,6 +1198,78 @@ class TestTextRank(unittest.TestCase):
         assert "natural number" in term_list
         assert "algorithm" in term_list
         assert "set" in term_list
+
+    def test_kea_with_text_formulate(self):
+        """
+        This is to test the content with formulate
+            where simply splits the term units with space may have the conflicts with the original tokeniser
+        :return:
+        """
+        from jgtextrank.core import _keywords_extraction_from_preprocessed_context
+
+        S0021999113005652_textsnippet = [(['it', 'be', 'interesting', 'to', 'quantify', 'the', 'effect', 'of',
+                                           'the', 'schmidt', 'number', 'and', 'the', 'chemical', 'reaction',
+                                           'rate', 'on', 'the', 'bulk', '-', 'mean', 'concentration', 'of', 'b','in', 'water', '.'],
+                                          [('interesting', 'JJ'), ('effect', 'NNS'), ('schmidt', 'NNP'), ('number', 'NN'),
+                                           ('chemical', 'JJ'), ('reaction', 'NN'), ('rate', 'NN'), ('bulk', 'JJ'),
+                                           ('concentration', 'NN'), ('water', 'NN')]),
+                                         (['the', 'datum', 'could', 'present', 'important', 'information', 'on',
+                                           'evaluate', 'the', 'environmental', 'impact', 'of', 'the', 'degradation',
+                                           'product', 'of', 'b', ',', 'as', 'well', 'as', 'acidification', 'of',
+                                           'water', 'by', 'the', 'chemical', 'reaction', '.'],
+                                          [('datum', 'NNS'), ('important', 'JJ'), ('information', 'NN'),
+                                           ('environmental', 'JJ'), ('impact', 'NNS'), ('degradation', 'NN'), ('product', 'NN'),
+                                           ('acidification', 'NN'), ('water', 'NN'), ('chemical', 'JJ'), ('reaction', 'NN')]),
+                                         (['here', ',', 'the', 'bulk', '-', 'mean', 'concentration', 'of', 'b',
+                                           'be', 'define', 'by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎', 'fig', '.'],
+                                          [('bulk', 'JJ'), ('concentration', 'NN'), ('by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎', 'NNP'), ('fig', 'NNP')]),
+                                         (['15', 'depict', 'the', 'effect', 'of', 'the', 'schmidt', 'and', 'the',
+                                           'chemical', 'reaction', 'rate', 'on', 'the', 'bulk', '-', 'mean', 'concentration', 'cb⁎ .'],
+                                          [('depict', 'NNS'), ('effect', 'NN'), ('schmidt', 'NNP'), ('chemical', 'JJ'),
+                                           ('reaction', 'NN'), ('rate', 'NN'), ('bulk', 'JJ'), ('concentration', 'NN')]),
+                                         (['it', 'be', 'worth', 'to', 'mention', 'here', 'that', 'the', 'bulk', '-', 'mean',
+                                           'concentration', 'of', 'b', 'reach', 'approximately', '0.6', 'as', 'the', 'chemical',
+                                           'reaction', 'rate', 'and', 'the', 'schmidt', 'number', 'increase', 'to',
+                                           'infinite', ',', 'and', 'the', 'concentration', 'be', 'small', 'than', 'the',
+                                           'equilibrium', 'concentration', 'of', 'a', 'at', 'the', 'interface', '.'],
+                                          [('worth', 'JJ'), ('bulk', 'JJ'), ('concentration', 'NN'), ('chemical', 'JJ'),
+                                           ('reaction', 'NN'), ('rate', 'NN'), ('schmidt', 'NNP'), ('number', 'NN'),
+                                           ('increase', 'NN'), ('concentration', 'NN'), ('equilibrium', 'NN'), ('concentration', 'NN'), ('interface', 'NN')]),
+                                         (['this', 'figure', 'indicate', 'that', 'progress', 'of', 'the',
+                                           'chemical', 'reaction', 'be', 'somewhat', 'interfere', 'by', 'turbulent',
+                                           'mix', 'in', 'water', ',', 'and', 'the', 'efficiency', 'of', 'the',
+                                           'chemical', 'reaction', 'be', 'up', 'to', 'approximately', '60', '%', '.'],
+                                          [('figure', 'NN'), ('progress', 'NN'), ('chemical', 'JJ'), ('reaction', 'NN'),
+                                           ('turbulent', 'JJ'), ('water', 'NN'), ('efficiency', 'NN'), ('chemical', 'JJ'), ('reaction', 'NN')]),
+                                         (['the', 'efficiency', 'of', 'the', 'chemical', 'reaction', 'in', 'water',
+                                           'will', 'be', 'a', 'function', 'of', 'the', 'reynolds', 'number', 'of',
+                                           'the', 'water', 'flow', ',', 'and', 'the', 'efficiency', 'could', 'increase',
+                                           'as', 'the', 'reynolds', 'number', 'increase', '.'],
+                                          [('efficiency', 'NN'), ('chemical', 'JJ'), ('reaction', 'NN'), ('water', 'NN'),
+                                           ('function', 'NN'), ('reynolds', 'NNP'), ('number', 'NN'), ('water', 'NN'),
+                                           ('flow', 'NN'), ('efficiency', 'NN'), ('reynolds', 'NNP'), ('number', 'NN'), ('increase', 'NNS')]),
+                                         (['we', 'need', 'an', 'extensive', 'investigation', 'on', 'the', 'efficiency',
+                                           'of', 'the', 'aquarium', 'chemical', 'reaction', 'in', 'the', 'near',
+                                           'future', 'to', 'extend', 'the', 'result', 'of', 'this', 'study',
+                                           'further', 'to', 'establish', 'practical', 'modelling', 'for', 'the',
+                                           'gas', 'exchange', 'between', 'air', 'and', 'water', '.'],
+                                          [('extensive', 'JJ'), ('investigation', 'NN'), ('efficiency', 'NN'),
+                                           ('aquarium', 'JJ'), ('chemical', 'NN'), ('reaction', 'NN'),
+                                           ('future', 'NN'), ('result', 'NNS'), ('study', 'NN'), ('practical', 'JJ'),
+                                           ('modelling', 'NN'), ('gas', 'NN'), ('exchange', 'NN'), ('air', 'NN'), ('water', 'NN')])]
+
+        results, top_vertices = _keywords_extraction_from_preprocessed_context(S0021999113005652_textsnippet, top_p = 1, weight_comb="sum")
+
+        print("extracted keywords from pre-tagged S0021999113005652 text snippet:"+ str(results))
+        print("top_vertices: ", top_vertices)
+        print("total key terms", len(results))
+        assert len(results) == 37
+        assert results["schmidt number"] == 0.06231
+        assert results["chemical reaction rate"] == 0.10836
+        assert results["water"] == 0.05561
+        assert results["by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎ fig"] == 0.06098
+        assert results["water flow"] == 0.07201
+        assert results["aquarium chemical reaction"] == 0.10836
 
     def test_visualise_cooccurrence_graph(self):
         """

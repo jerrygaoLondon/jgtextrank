@@ -508,12 +508,12 @@ def _draw_edges(vertices, weight=1.0):
 def _is_top_t_vertices_connection(collapsed_term, top_t_vertices):
     """
 
-    :type collapsed_term: string
-    :param collapsed_term: Single-word term or Multi-word Term
+    :type collapsed_term: list [of list [of string]]
+    :param collapsed_term: list of tokenised terms collapsed from original context that will form Single-word term or Multi-word Term
     :param top_t_vertices: top T weighted vertices
     :return: True if the input contains any of top T vertex
     """
-    return any(isSubStringOf(top_t_vertex[0], collapsed_term) for top_t_vertex in top_t_vertices)
+    return any(top_t_vertex[0] in collapsed_term for top_t_vertex in top_t_vertices)
 
 
 def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weight_comb="norm_max", mu=5):
@@ -524,8 +524,8 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
 
     repeated vertex (i.e., syntactic unit or single word) will be normalised by occurrence
 
-    :type collapsed_terms: set [of string]
-    :param collapsed_terms: collection of Single-Word or Multi-Word candidate terms
+    :type collapsed_terms: list [of list [of string]]
+    :param collapsed_terms: collection of tokenised Single-Word or Multi-Word candidate terms
     :type top_t_vertices: list [of tuple]
     :param top_t_vertices: weighted top T vertices
     :type all_vertices: list [of tuple]
@@ -577,7 +577,8 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
             max_score = 0
 
             # compute term length (i.e.,number of words/tokens)
-            all_syntactic_units = collapsed_term.split(' ')
+            # all_syntactic_units = collapsed_term.split(' ')
+            all_syntactic_units = collapsed_term
             unit_size = len(all_syntactic_units)
 
             if "len_log" in weight_comb:
@@ -591,7 +592,7 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
                 sum_score = _get_sum_score(all_syntactic_units, all_vertices)
 
             if "max" in weight_comb:
-                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
+                max_score = _get_max_score(all_syntactic_units, all_vertices)
 
             if weight_comb == "avg":
                 final_score = avg_score
@@ -614,7 +615,6 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
             elif weight_comb == "len_log_norm_sum":
                 final_score = log2a * sum_score
             elif weight_comb == "max":
-                max_score = _get_max_score(all_syntactic_units, all_vertices, collapsed_term)
                 final_score = max_score
             elif weight_comb == "norm_max":
                 final_score = _term_size_normalize(max_score, unit_size)
@@ -627,7 +627,8 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
             else:
                 raise ValueError("Unsupported weight combination option: '%s'", weight_comb)
 
-            weighted_terms[collapsed_term] = round(final_score, 5)
+            concatenated_collapsed_term = " ".join(collapsed_term)
+            weighted_terms[concatenated_collapsed_term] = round(final_score, 5)
 
     _logger.info("done.")
     return weighted_terms
@@ -651,7 +652,13 @@ def _term_size_normalize(base_score, unit_size):
 
 
 def _get_sigma_from_all_candidates(collapsed_terms):
-    all_terms_size = [len(collapsed_term.split(' ')) for collapsed_term in collapsed_terms]
+    """
+    compute standard deviation of term length in MWTs
+    :param collapsed_terms: list, list of tokenised terms
+    :rtype: ndarray
+    :return: standard_deviation
+    """
+    all_terms_size = [len(collapsed_term) for collapsed_term in collapsed_terms]
     return np.std(all_terms_size)
 
 
@@ -708,9 +715,17 @@ def _get_plus_score(all_syntactic_units, boosted_term_size_range, boosted_word_l
     return plus_weight
 
 
-def _get_max_score(all_syntactic_units, all_vertices, collapsed_term):
-    max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in
-                     collapsed_term.split(' ')])
+def _get_max_score(all_syntactic_units, all_vertices):
+    """
+    get max term unit score (normalised by term unit frequency in MWTs)
+    :param all_syntactic_units:
+    :param all_vertices:
+    :return:
+    """
+    # print("all_vertices: ", all_vertices)
+    # print("collapsed_term: ", collapsed_term)
+    # max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in collapsed_term.split(' ')])
+    max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
     return max_score
 
 
@@ -1023,10 +1038,11 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
     :param weighted_keywords: keywords (key head words), weight pair
     :type original_tokenised_text: list [of string]
     :param original_tokenised_text: tokenised original raw text
-    :rtype: set [of string]
-    :return: keywords including single-word term and multi-word term
+    :rtype: list [of list [of string]]
+    :return: tokenised keywords from context that will form single-word term and multi-word term
     """
     _logger.info("collapse adjacent keywords ...")
+
     keywords_tmp = [word for word, weight in weighted_keywords.items()]
 
     # normalised_tokenised_context = [token for token in original_tokenised_text]
@@ -1037,19 +1053,18 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
 
     # print("keywords marked text", marked_text_tokens)
 
-    _key_terms = set()
-    _current_term = ""
-    # use space here to construct multi-word term
-    _term_unit_split = " "
+    _key_terms = list()
+    _current_term_units=[]
+    # use space to construct multi-word term later
     for marked_token in marked_text_tokens:
         if marked_token[1] == 'k':
-            _current_term += _term_unit_split + marked_token[0]
+            _current_term_units.append(marked_token[0])
         else:
-            _key_terms.add(_current_term.lstrip(_term_unit_split))
+            if _current_term_units:
+                _key_terms.append(_current_term_units)
             # reset for next term candidate
-            _current_term = ""
+            _current_term_units=[]
 
-    _key_terms.discard('')
     _logger.info("done.")
     return _key_terms
 

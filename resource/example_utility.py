@@ -137,7 +137,7 @@ def load_raw(fileids=None):
 """
 
 
-def load_Hulth2003_gs_files(dataset_dir, file_suffix=".uncontr"):
+def load_gs_files_suffix_filter(dataset_dir, file_suffix=".uncontr"):
     fileids = []
     for fname in os.listdir(dataset_dir):
         if file_suffix not in fname:
@@ -149,11 +149,12 @@ def load_Hulth2003_gs_files(dataset_dir, file_suffix=".uncontr"):
 
 def load_Hulth2003_gs_terms(dataset_dir, file_suffix=".uncontr"):
     # 'Hulth2003/Test
-    hulth2003_fileids = load_Hulth2003_gs_files(dataset_dir, ".uncontr")
+    hulth2003_fileids = load_gs_files_suffix_filter(dataset_dir, ".uncontr")
     gs_terms_reader = Hulth2003GSReader(dataset_dir, hulth2003_fileids)
     # load_gs_terms_from_list()
     terms = load_gs_terms_from_list(gs_terms_reader.words())
     return terms
+
 
 class Hulth2003GSReader(WordListCorpusReader):
     def term_tokenize(self, text, split=";"):
@@ -162,6 +163,37 @@ class Hulth2003GSReader(WordListCorpusReader):
     def words(self, fileids=None, ignore_lines_startswith='\n'):
         return [line.strip() for line in self.term_tokenize(self.raw(fileids))
                 if not line.startswith(ignore_lines_startswith)]
+
+    def raw(self, fileids=None):
+        if fileids is None: fileids = self._fileids
+        elif isinstance(fileids, string_types): fileids = [fileids]
+        return concat([self.open(f).read() for f in fileids])
+
+
+def load_scienceie_test_dataset(dataset_dir, file_suffix=".ann"):
+    semeval_gs_files = load_gs_files_suffix_filter(dataset_dir, file_suffix)
+
+    scienceie_gs_reader = SemEvalTask10GSReader(dataset_dir, semeval_gs_files)
+
+    labelled_terms = load_gs_terms_from_list(scienceie_gs_reader.words())
+    return labelled_terms
+
+import pandas as pd
+from io import StringIO
+
+
+class SemEvalTask10GSReader(WordListCorpusReader):
+    def extract(self, content):
+        df = pd.read_csv(StringIO(content), sep="\t", header=None)
+        labelled_keywords = list(df[df.columns[2]])
+        labelled_keywords = filter(pd.notnull, labelled_keywords)
+        return list(labelled_keywords)
+
+    def words(self, fileids=None, ignore_lines_startswith='\n'):
+        return [terms for terms in self.extract(self.raw(fileids))]
+
+    def all_files(self):
+        return self.fileids()
 
     def raw(self, fileids=None):
         if fileids is None: fileids = self._fileids
@@ -260,6 +292,56 @@ def term_recall(reference, test):
     else:
         return round(len(reference.intersection(test)) / len(reference), 3)
 
+
+def f1_score(precision, recall):
+    return 2 * float((precision * recall) / (precision + recall))
+
+
+def evaluate_results(result_terms, gs_terms, solver_algorithm):
+    print("\nEvaluation Result of %s: " % solver_algorithm)
+    print("\n")
+    all_norm_terms = [normalise_term(weighted_term[0]) for weighted_term in result_terms]
+
+    overall_precision = term_precision(gs_terms, set(all_norm_terms))
+    print("overall precision: ", overall_precision)
+    overall_recall = term_recall(gs_terms, set(all_norm_terms))
+    print("overall recall: ", overall_recall)
+    overall_f1 = f1_score(overall_precision, overall_recall)
+    print("overall F1 score: ", overall_f1)
+
+    top_200_precision = term_precision(gs_terms, set(all_norm_terms[:200]))
+    print("top_200_precision: ", top_200_precision)
+    top_500_precision = term_precision(gs_terms, set(all_norm_terms[:500]))
+    print("top_500_precision: ", top_500_precision)
+    top_1000_precision = term_precision(gs_terms, set(all_norm_terms[:1000]))
+    print("top_1000_precision: ", top_1000_precision)
+    top_2000_precision = term_precision(gs_terms, set(all_norm_terms[:2000]))
+    print("top_2000_precision: ", top_2000_precision)
+    top_3000_precision = term_precision(gs_terms, set(all_norm_terms[:3000]))
+    print("top_3000_precision: ", top_3000_precision)
+    top_5000_precision = term_precision(gs_terms, set(all_norm_terms[:5000]))
+    print("top_5000_precision: ", top_5000_precision)
+
+
+def evaluate_semeval2017_testset():
+    import logging.config
+    logging.config.fileConfig(os.path.join('..', 'logging.conf'))
+
+    import multiprocessing
+    from jgtextrank import keywords_extraction_from_tagged_corpus
+    gs_terms = load_scienceie_test_dataset("semeval_articles_test", file_suffix=".ann")
+    print(len(gs_terms), " gs terms loaded.")
+    reader = WordListCorpusReader('../resource', 'smart-stop-list.txt')
+    stop_list = reader.words()
+    semeval2017_pre_processed_corpus = pre_processing_corpus_with_spacy("semeval_articles_test", default_file_suffix=".txt")
+    semeval2017_keywords_spacy, semeval2017_top_t_vertices_spacy = keywords_extraction_from_tagged_corpus(semeval2017_pre_processed_corpus, window=3,
+                                                                                                          top_p = 1, stop_words=stop_list,
+                                                                                                          weight_comb="norm_max",
+                                                                                                          export=True, export_format="json",
+                                                                                                          export_path="textrank_genia_spacy.json",
+                                                                                                          workers=multiprocessing.cpu_count())
+    evaluate_results(semeval2017_keywords_spacy, gs_terms, "pagerank")
+
 if __name__ == '__main__':
     #gs_terms = load_genia_gs_terms('genia_gs_terms.txt')
     #test_set =  ['natural killer cells activates endothelial cells', 'il 6 induced cells resemble plasma cells', 'human myeloid cell nuclear differentiation antigen gene promoter', 'lipopolysaccharide induced transcription factor regulating tumor necrosis factor alpha gene expression', 'responsive cells blocked il 1 induced gene transcription', 'cell receptor positive cells', 'multipotent eml cells harbor substantial nuclear hormone receptor coactivator activity', 'human gm csf receptor alpha promoter directs reporter gene activity', 'cells contained nuclear stat protein', 'human t cell leukemia line jurkat cells', 'peroxisome proliferator activated receptor activators target human endothelial cells', 'thp 1 cells c jun mrna expression increased', 'protein kinase c depleted endothelial cells', 'human t cell leukemia virus type 1 transformed mt 2 cells', 'cells protein kinase', 'human t cell leukemia virus type i infected cells', 'class ii transactivator independent endothelial cell mhc class ii gene activation induced', 'jurkat t cells induced dramatic cell aggregation', 'cells induces nuclear expression', 'human monocytic m csf receptor promoter directs reporter gene activity', 'human myeloid leukemia cells induced', 'pu 1 promoter directs cell type specific reporter gene expression', 'cells inhibits human immunodeficiency virus replication', 'human myeloid selective ccaat enhancer binding protein gene', 'human il 2 activated nk cells', 'cells expressing macrophage cell surface ags', 'normal human peripheral blood mononuclear cells', 'cell precursor acute lymphoblastic leukemia cells', 'endothelial cells increased expression', 'cell leukemia jurkat cells', 'cells expressing cell surface glycophorin', 'human immunodeficiency virus type 1 infected cells', 'cell prolymphocytic leukemia cells mediated', 'cells demonstrate accelerated cell cycle progression', 'il 1 activated human umbilical vein endothelial cells', 'normal bone marrow cells documents expression', 'cells enhances transcription factor', 'mature cells underwent premature cell death', 'primary human peripheral blood mononuclear cells', 'cells transcription factor', 'mature normal human myeloid cells', 'activated human nk cells', 'human histiocytic u937 cells mrna', 'normal immature human myeloid cells', 'cell transcription factor gata 3 stimulates hiv 1 expression', 'cell lineage cells arrested', 'cells expressing high v abl kinase activity', 'cells selectively enhances il 4 expression relative', 'normal human hematopoietic cells', 'transcription factor nf kappa b endothelial cell activation', 'duffy gene promoter abolishes erythroid gene expression', 'cell hybridoma hs 72 cells', 'transcription factor ccaat enhancer binding protein alpha', 'human peripheral blood nk cells', 'primary human blood mononuclear cells', 'cell surface protein expression', 'human peripheral blood mononuclear cells', 'human hl 60 myeloid leukemia cells differentiate', 'normal human cells', 'human endothelial cells demonstrated', 'stimulated human endothelial cells', 'human thp 1 monocytic leukemia cells cultured', 'transcription factor nf kappab regulates inducible oct 2 gene expression', 'human peripheral blood cells', 'human nk cells activate porcine ec', 'primary human erythroid cells', 'chinese hamster ovary cells expressing human recombinant alphaiibbeta3', 'human blood mononuclear cells cultured', 'cultured human blood mononuclear cells', 'activate human umbilical vein endothelial cells', 'cells decreased pkr expression', 'human cd34 hematopoietic progenitor cells isolated', 'human kg 1 myeloid leukemia cells', 'human monocytic cells results', 'human u 937 leukemia cells differentiate', 'human myeloid leukemia cells', 'treated cytokine stimulated human saphenous vein endothelial cells', 'irf family transcription factor gene expression', 'human cd3 cd16 natural killer cells express', 'human promyelocytic leukemia hl 60 cells', 'human monoblastic leukemia u937 cells', 'cells activates expression', 'human blood mononuclear cells', 'human leukemia u937 cells', 'activate human natural killer cells', 'purified human hematopoietic cells', 'human myeloblastic leukemia hl 60 cells', 'human leukemia hl60 cells respond', 'u 937 human promonocytic leukemia cells', 'human monocytic cells express interleukin 1beta', 'human nk cells provide', 'human u 937 leukemia cells', 'primary human cd34 hemopoietic progenitor cells', 'transfected human monocytic thp 1 cells', 'human red blood cells', 'human hl60 leukemia cells', 'transfected human cells suggests', 'hl60 human leukemia cells', 'human jurkat lymphoblastoid cells', 'cultured human umbilical vein endothelial cells', 'human mononuclear cells isolated', 'blast cells express lineage specific transcription factors', 'human promyelocytic leukemia cells', 'human breast cancer mcf 7 cells', 'cultured human dermal endothelial cells', 'human peripheral mononuclear cells', 'human cd34 erythroid progenitor cells', 'peripheral human mononuclear cells', 'lipopolysaccharide stimulated human monocytic cells treated', 'human leukemic cells studied', 'human myeloblastic leukemia ml 1 cells', 'ml 1 human myeloblastic leukemia cells', 'cultured human endothelial cells', 'resting human umbilical vein endothelial cells', 'human promyeloid leukemia cells', 'human myeloid leukemic cells', 'human leukemia cells', 'human primary haemopoietic cells', 'e1a expression marks cells', 'human purified cd34 cells', '1a9 m cells expressing human bcl2', 'human plasma cells', 'cytokine stimulated human umbilical vein endothelial cells', 'human umbilical arterial endothelial cells', 'tnf treated human umbilical vein endothelial cells', 'long term human lymphoid cells', 'human umbilical vein endothelial cells', 'lncap human prostate cancer cells', 'human myeloid u 937 cells', 'human dermal microvessel endothelial cells', 'human leukemic k562 cells', 'human prostatic cancer lncap cells', 'human cd34 hematopoietic progenitor cells', 'human cd34 hematopoietic stem cells', 'human aortic endothelial cells', 'bipotent human myeloid progenitor cells', 'mature human monocytic cells', 'human endothelial cells', 'human hematopoietic progenitor cells', 'human cancer lncap cells', 'transfected human erythroleukemia cells', 'human monocytic thp 1 cells', 'human thp 1 monocytic cells', 'cells infiltrating human genital herpes lesions', 'hematopoietic human erythroleukemia cells', 'human lymphoid cells', 'human mammary epithelial cells', 'human myeloid cell nuclear differentiation antigen promoter', 'human thp 1 macrophage cells', 'undifferentiated human monocytic cells', 'human hematopoietic cells', 'human natural killer cells', 'human myeloid cells', 'ifn gamma treated human cells infected', 'human intestinal epithelial cells', 'human lymphoma cells', 'human promonocytic u937 cells', 'human u937 promonocytic cells', 'human nk cells', 'human bronchial epithelial cells', 'u937 human monoblastic cells', 'porphyromonas gingivalis lipopolysaccharide stimulated human monocytic cells', 'human leukaemia cells carrying', 'human leukemic cells', 'lipopolysaccharide stimulated human monocytic cells', 'hiv infected human monocytic cells', 'k562 human erythroleukemia cells', 'thp 1 human monocytoid cells', 'transfected human colonic carcinoma cell line ht29 activates transcription', 'cells transcriptional activation', 'human prostatic epithelial cells', 'human monocytic cells', 'human thp 1 promonocytic cells', 'human allergen specific th2 cells', 'human tonsillar mononuclear cells', 'human k562 cells', 'human b lymphocyte precursor cells', 'u 937 human promonocytic cells', 'human promonocytic u 937 cells', 'human mononuclear cells', 'human epithelial cells', 'human th2 cells', 'human naive cells', 'human differentiated cells', 'murine baf3 cells involves activation', 'human lymphoblastoid cells', 'human dendritic cells', 'transcription factor ap 2 activates gene expression', 'human glomerular mesangial cells', 'human glial cells', 'human erythroleukemia cells', 'cotransfected human cells', 'human accessory cells', 'human jurkat t cells', 'ad transformed human cells', 'transcription factor activation protein', 'human nk t cells', 'human t lymphoblastoid cells', 'human monoblastic cells', 'human erythroleukemic cells']
@@ -271,7 +353,6 @@ if __name__ == '__main__':
     #result = pre_processing_text_with_spacy("Filarial antigen induces increased expression of alternative activation genes in monocytes from patients with AFI.")
     #print(result)
 
-    from jgtextrank import keywords_extraction_from_tagged_corpus
     # pre_processed_corpus = pre_processing_corpus_with_spacy("GENIAcorpus302/text/files")
     #pre_processed_corpus = pre_processing_corpus_with_spacy("Hulth2003/Test", default_file_suffix=".abstr")
     #spacy_pos_categories = {'NOUN', 'ADJ'}
@@ -285,3 +366,5 @@ if __name__ == '__main__':
 
     #print(remove_punctuations("STAT and IFN regulatory factor (IRF) family transcription factor"))
     #print(normalise_term("STAT and IFN regulatory factor (IRF) family transcription factor"))
+
+    evaluate_semeval2017_testset()
