@@ -1,6 +1,3 @@
-[![license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
- [![Build Status](https://travis-ci.org/jerrygaoLondon/jgtextrank.svg)](https://travis-ci.org/jerrygaoLondon/jgtextrank)
-
 jgTextRank : Yet another Python implementation of TextRank
 ==========================================================
 This is a parallelisable and highly customisable implementation of the TextRank algorithm [Mihalcea et al., 2004].
@@ -21,9 +18,6 @@ step is post-filtering. Extracted phrases are disambiguated and
 normalized for morpho-syntactic variations and lexical synonymy
 (Csomai and Mihalcea 2007). Adjacent words are also sometimes
 collapsed into phrases, for a more readable output.
-
-![Alt text](sample_cooccurrence_graph.png)
-
 
 Mihalcea, R., & Tarau, P. (2004, July). TextRank: Bringing order into texts. Association for Computational Linguistics.
 
@@ -184,8 +178,3 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
     * bug fixes
     * 15 additional graph ranking algorithms
 * 0.1.1 Alpha version - 1st Jan 2018
-
-### Donation ###
-If this project help you reduce time to develop, you can buy me a cup of coffee :)
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=82K4GF9ZFCD9U)

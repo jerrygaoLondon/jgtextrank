@@ -21,7 +21,7 @@ setup(
 
     # Versions should comply with PEP440.
     # see https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.2',
+    version='0.1.3',
 
     description='Yet another Python implementation of TextRank: package for the creation, manipulation, '
                 'and study of TextRank algorithm based keywords extraction and summarisation',
@@ -39,7 +39,7 @@ setup(
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-      'Development Status :: 3 - Alpha',
+      'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
       'Intended Audience :: Education',
       'Intended Audience :: Information Technology',
