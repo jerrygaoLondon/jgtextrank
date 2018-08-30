@@ -265,7 +265,7 @@ def term_precision(reference, test):
     if len(test) == 0:
         return None
     else:
-        return len(reference.intersection(test)) / len(test)
+        return round(len(reference.intersection(test)) / len(test), 3)
 
 
 def term_recall(reference, test):
@@ -294,7 +294,7 @@ def term_recall(reference, test):
 
 
 def f1_score(precision, recall):
-    return 2 * float((precision * recall) / (precision + recall))
+    return round(2 * float((precision * recall) / (precision + recall)), 3)
 
 
 def evaluate_results(result_terms, gs_terms, solver_algorithm):
@@ -309,18 +309,80 @@ def evaluate_results(result_terms, gs_terms, solver_algorithm):
     overall_f1 = f1_score(overall_precision, overall_recall)
     print("overall F1 score: ", overall_f1)
 
-    top_200_precision = term_precision(gs_terms, set(all_norm_terms[:200]))
-    print("top_200_precision: ", top_200_precision)
-    top_500_precision = term_precision(gs_terms, set(all_norm_terms[:500]))
-    print("top_500_precision: ", top_500_precision)
-    top_1000_precision = term_precision(gs_terms, set(all_norm_terms[:1000]))
-    print("top_1000_precision: ", top_1000_precision)
-    top_2000_precision = term_precision(gs_terms, set(all_norm_terms[:2000]))
-    print("top_2000_precision: ", top_2000_precision)
-    top_3000_precision = term_precision(gs_terms, set(all_norm_terms[:3000]))
-    print("top_3000_precision: ", top_3000_precision)
-    top_5000_precision = term_precision(gs_terms, set(all_norm_terms[:5000]))
-    print("top_5000_precision: ", top_5000_precision)
+    top_50_candidates = set(all_norm_terms[:50])
+    top_50_precision = term_precision(gs_terms, top_50_candidates)
+    top_50_recall = term_recall(gs_terms, top_50_candidates)
+    print("top_50 - precision: ", top_50_precision, " - recall: ", top_50_recall, " - F1: ", f1_score(top_50_precision, top_50_recall))
+
+    top_100_candidates = set(all_norm_terms[:100])
+    top_100_precision = term_precision(gs_terms, top_100_candidates)
+    top_100_recall = term_recall(gs_terms, top_100_candidates)
+    print("top_100 - precision: ", top_100_precision, " - recall: ", top_100_recall, " - F1: ", f1_score(top_100_precision, top_100_recall))
+
+    top_150_candidates = set(all_norm_terms[:150])
+    top_150_precision = term_precision(gs_terms, top_150_candidates)
+    top_150_recall = term_recall(gs_terms, top_150_candidates)
+    print("top_150 - precision: ", top_150_precision, " - recall: ", top_150_recall, " - F1: ", f1_score(top_150_precision, top_150_recall))
+
+    top_200_candidates = set(all_norm_terms[:200])
+    top_200_precision = term_precision(gs_terms, top_200_candidates)
+    top_200_recall = term_recall(gs_terms, top_200_candidates)
+    print("top_200 - precision: ", top_200_precision, " - recall: ", top_200_recall, " - F1: ", f1_score(top_200_precision, top_200_recall))
+
+    top_250_candidates = set(all_norm_terms[:250])
+    top_250_precision = term_precision(gs_terms, top_250_candidates)
+    top_250_recall = term_recall(gs_terms, top_200_candidates)
+    print("top_250 - precision: ", top_250_precision, " - recall: ", top_250_recall, " - F1: ", f1_score(top_250_precision, top_250_recall))
+
+    top_300_candidates = set(all_norm_terms[:300])
+    top_300_precision = term_precision(gs_terms, top_300_candidates)
+    top_300_recall = term_recall(gs_terms, top_300_candidates)
+    print("top_300 - precision: ", top_300_precision, " - recall: ", top_300_recall, " - F1: ", f1_score(top_300_precision, top_300_recall))
+
+    top_350_candidates = set(all_norm_terms[:350])
+    top_350_precision = term_precision(gs_terms, top_350_candidates)
+    top_350_recall = term_recall(gs_terms, top_350_candidates)
+    print("top_350 - precision: ", top_350_precision, " - recall: ", top_350_recall, " - F1: ", f1_score(top_350_precision, top_350_recall))
+
+    top_400_candidates = set(all_norm_terms[:400])
+    top_400_precision = term_precision(gs_terms, top_400_candidates)
+    top_400_recall = term_recall(gs_terms, top_400_candidates)
+    print("top_400 - precision: ", top_400_precision, " - recall: ", top_400_recall, " - F1: ", f1_score(top_400_precision, top_400_recall))
+
+    top_500_candidates = set(all_norm_terms[:500])
+    top_500_precision = term_precision(gs_terms, top_500_candidates)
+    top_500_recall = term_recall(gs_terms, top_500_candidates)
+    print("top_500 - precision: ", top_500_precision, " - recall: ", top_500_recall, " - F1: ", f1_score(top_500_precision, top_500_recall))
+
+    top_1000_candidates = set(all_norm_terms[:1000])
+    top_1000_precision = term_precision(gs_terms, top_1000_candidates)
+    top_1000_recall = term_recall(gs_terms, top_1000_candidates)
+    print("top_1000 - precision: ", top_1000_precision, " - recall: ", top_1000_recall, " - F1: ", f1_score(top_1000_precision, top_1000_recall))
+
+    top_1500_candidates = set(all_norm_terms[:1500])
+    top_1500_precision = term_precision(gs_terms, top_1500_candidates)
+    top_1500_recall = term_recall(gs_terms, top_1500_candidates)
+    print("top_1500 - precision: ", top_1500_precision, " - recall: ", top_1500_recall, " - F1: ", f1_score(top_1500_precision, top_1500_recall))
+
+    top_2000_candidates = set(all_norm_terms[:2000])
+    top_2000_precision = term_precision(gs_terms, top_2000_candidates)
+    top_2000_recall = term_recall(gs_terms, top_2000_candidates)
+    print("top_2000 - precision: ", top_2000_precision, " - recall: ", top_2000_recall, " - F1: ", f1_score(top_2000_precision, top_2000_recall))
+
+    top_3000_candidates = set(all_norm_terms[:3000])
+    top_3000_precision = term_precision(gs_terms, top_3000_candidates)
+    top_3000_recall = term_recall(gs_terms, top_3000_candidates)
+    print("top_3000 - precision: ", top_3000_precision, " - recall: ", top_3000_recall, " - F1: ", f1_score(top_3000_precision, top_3000_recall))
+
+    top_5000_candidates = set(all_norm_terms[:5000])
+    top_5000_precision = term_precision(gs_terms, top_5000_candidates)
+    top_5000_recall = term_recall(gs_terms, top_5000_candidates)
+    print("top_5000 - precision: ", top_5000_precision, " - recall: ", top_5000_recall, " - F1: ", f1_score(top_5000_precision, top_5000_recall))
+
+    top_6000_candidates = set(all_norm_terms[:6000])
+    top_6000_precision = term_precision(gs_terms, top_6000_candidates)
+    top_6000_recall = term_recall(gs_terms, top_6000_candidates)
+    print("top_6000 - precision: ", top_6000_precision, " - recall: ", top_6000_recall, " - F1: ", f1_score(top_6000_precision, top_6000_recall))
 
 
 def evaluate_semeval2017_testset():
@@ -329,18 +391,142 @@ def evaluate_semeval2017_testset():
 
     import multiprocessing
     from jgtextrank import keywords_extraction_from_tagged_corpus
+    import time
     gs_terms = load_scienceie_test_dataset("semeval_articles_test", file_suffix=".ann")
     print(len(gs_terms), " gs terms loaded.")
     reader = WordListCorpusReader('../resource', 'smart-stop-list.txt')
     stop_list = reader.words()
     semeval2017_pre_processed_corpus = pre_processing_corpus_with_spacy("semeval_articles_test", default_file_suffix=".txt")
-    semeval2017_keywords_spacy, semeval2017_top_t_vertices_spacy = keywords_extraction_from_tagged_corpus(semeval2017_pre_processed_corpus, window=3,
+    semeval2017_pre_processed_corpus = list(semeval2017_pre_processed_corpus)
+    start = time.time()
+    semeval2017_keywords, semeval2017_top_t_vertices = keywords_extraction_from_tagged_corpus(semeval2017_pre_processed_corpus, window=3,
                                                                                                           top_p = 1, stop_words=stop_list,
-                                                                                                          weight_comb="norm_max",
-                                                                                                          export=True, export_format="json",
-                                                                                                          export_path="textrank_genia_spacy.json",
-                                                                                                          workers=multiprocessing.cpu_count())
-    evaluate_results(semeval2017_keywords_spacy, gs_terms, "pagerank")
+                                                                                                          weight_comb="avg",
+                                                                                                          export=False,
+                                                                                                          workers=1)
+    end = time.time()
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", semeval2017_keywords[:50])
+    print("\n")
+    evaluate_results(semeval2017_keywords, gs_terms, "pagerank+norm_max")
+
+    start = time.time()
+    semeval2017_gcvalue_keywords, semeval2017_gcvalue_top_t_vertices = keywords_extraction_from_tagged_corpus(semeval2017_pre_processed_corpus, window=3,
+                                                                                              top_p = 1, stop_words=stop_list,
+                                                                                              weight_comb="gcvalue",
+                                                                                              export=False,
+                                                                                              workers=1)
+    end = time.time()
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", semeval2017_gcvalue_keywords[:50])
+    print("\n")
+    evaluate_results(semeval2017_gcvalue_keywords, gs_terms, "pagerank + GC-Value")
+
+
+def evaluate_hulth2003_testset():
+    import logging.config
+    logging.config.fileConfig(os.path.join('..', 'logging.conf'))
+
+    import multiprocessing
+    from jgtextrank import keywords_extraction_from_tagged_corpus
+    import time
+
+    reader = WordListCorpusReader('../resource', 'smart-stop-list.txt')
+    stop_list = reader.words()
+    hulth2003_corpus_directory = os.path.join('Hulth2003', 'Test')
+    hulth2003_gs_terms = load_Hulth2003_gs_terms(hulth2003_corpus_directory)
+
+    hulth2003_corpus_directory = os.path.join('Hulth2003', 'Test')
+    pre_processed_hulth2003_corpus = pre_processing_corpus_with_spacy(hulth2003_corpus_directory,
+                                                                      encoding="utf-8", lemma=True, default_file_suffix=".abstr")
+
+    print("term extraction from spaCy pre-processed hulth2003 corpus [%s] ..." % hulth2003_corpus_directory)
+    pre_processed_hulth2003_corpus = list(pre_processed_hulth2003_corpus)
+
+    start = time.time()
+    hulth2003_keywords, hulth2003_top_t_vertices = keywords_extraction_from_tagged_corpus(pre_processed_hulth2003_corpus,
+                                                                                                      window=3,
+                                                                                                      top_p = 1, stop_words=stop_list,
+                                                                                                      weight_comb="norm_max",
+                                                                                                      export=False,
+                                                                                                      workers=multiprocessing.cpu_count())
+
+    end = time.time()
+
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", hulth2003_keywords[:50])
+    print("\n")
+    evaluate_results(hulth2003_keywords, hulth2003_gs_terms, "hulth2003+pagerank")
+
+    start = time.time()
+    hulth2003_keywords, hulth2003_top_t_vertices = keywords_extraction_from_tagged_corpus(pre_processed_hulth2003_corpus,
+                                                                                          window=2,
+                                                                                          top_p = 1, stop_words=stop_list,
+                                                                                          weight_comb="gcvalue",
+                                                                                          export=False,
+                                                                                          workers=multiprocessing.cpu_count())
+
+    end = time.time()
+
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", hulth2003_keywords[:50])
+    print("\n")
+    evaluate_results(hulth2003_keywords, hulth2003_gs_terms, "hulth2003+pagerank+gcvalue")
+
+def evaluate_genia_dataset():
+    import logging.config
+    logging.config.fileConfig(os.path.join('..', 'logging.conf'))
+
+    import multiprocessing
+    from jgtextrank import keywords_extraction_from_tagged_corpus
+    import time
+
+    reader = WordListCorpusReader('../resource', 'smart-stop-list.txt')
+    stop_list = reader.words()
+    gs_terms = load_genia_gs_terms('genia_gs_terms.txt')
+
+    corpus_directory = os.path.join('GENIAcorpus302', 'text', 'files')
+    pre_processed_corpus = pre_processing_corpus_with_spacy(corpus_directory, encoding="utf-8", lemma=True)
+    print("term extraction from spaCy pre-processed corpus [%s] ..." % corpus_directory)
+    pre_processed_corpus = list(pre_processed_corpus)
+    start = time.time()
+    genia_keywords, genia_top_vertices = keywords_extraction_from_tagged_corpus(pre_processed_corpus, window=2,
+                                                                                  top_p = 1, stop_words=stop_list,
+                                                                                  weight_comb="norm_max",
+                                                                                  export=False,
+                                                                                  workers=multiprocessing.cpu_count())
+
+    end = time.time()
+
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", genia_keywords[:50])
+    evaluate_results(genia_keywords, gs_terms, "genia+pagerank")
+
+    start = time.time()
+    genia_gcvalue_keywords, genia_gcvalue_top_vertices = keywords_extraction_from_tagged_corpus(pre_processed_corpus, window=2,
+                                                                                top_p = 1, stop_words=stop_list,
+                                                                                weight_comb="gcvalue",
+                                                                                export=False,
+                                                                                workers=multiprocessing.cpu_count())
+
+    end = time.time()
+
+    print("\n")
+    print("Complete. Wall-clock elapsed time: ", end - start, "s")
+    print("\n")
+    print("top 50 keywords: ", genia_gcvalue_keywords[:50])
+    evaluate_results(genia_gcvalue_keywords, gs_terms, "genia+pagerank+gcvalue")
+
 
 if __name__ == '__main__':
     #gs_terms = load_genia_gs_terms('genia_gs_terms.txt')
@@ -368,3 +554,5 @@ if __name__ == '__main__':
     #print(normalise_term("STAT and IFN regulatory factor (IRF) family transcription factor"))
 
     evaluate_semeval2017_testset()
+    #evaluate_genia_dataset()
+    #evaluate_hulth2003_testset()

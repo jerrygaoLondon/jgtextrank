@@ -48,7 +48,7 @@
 <td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="csv.html">csv</a><br>
 <a href="functools.html">functools</a><br>
 <a href="itertools.html">itertools</a><br>
-</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="multiprocessing.html">multiprocessing</a><br>
 <a href="operator.html">operator</a><br>
 <a href="os.html">os</a><br>
 </td><td width="25%" valign=top><a href="string.html">string</a><br>
@@ -66,6 +66,18 @@
 </font></dt><dd>
 <dl>
 <dt><font face="helvetica, arial"><a href="jgtextrank.utility.html#CorpusContent2RawSentences">CorpusContent2RawSentences</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="multiprocessing.context.html#Process">multiprocessing.context.Process</a>(<a href="multiprocessing.process.html#BaseProcess">multiprocessing.process.BaseProcess</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="jgtextrank.utility.html#NoDaemonProcess">NoDaemonProcess</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="multiprocessing.pool.html#Pool">multiprocessing.pool.Pool</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="jgtextrank.utility.html#MultiprocPool">MultiprocPool</a>
 </font></dt></dl>
 </dd>
 </dl>
@@ -92,6 +104,129 @@ Data descriptors defined here:<br>
 </dl>
 <dl><dt><strong>__weakref__</strong></dt>
 <dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="MultiprocPool">class <strong>MultiprocPool</strong></a>(<a href="multiprocessing.pool.html#Pool">multiprocessing.pool.Pool</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;which&nbsp;supports&nbsp;an&nbsp;async&nbsp;version&nbsp;of&nbsp;applying&nbsp;functions&nbsp;to&nbsp;arguments.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="jgtextrank.utility.html#MultiprocPool">MultiprocPool</a></dd>
+<dd><a href="multiprocessing.pool.html#Pool">multiprocessing.pool.Pool</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>Process</strong> = &lt;class 'jgtextrank.utility.NoDaemonProcess'&gt;</dl>
+
+<hr>
+Methods inherited from <a href="multiprocessing.pool.html#Pool">multiprocessing.pool.Pool</a>:<br>
+<dl><dt><a name="MultiprocPool-__enter__"><strong>__enter__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="MultiprocPool-__exit__"><strong>__exit__</strong></a>(self, exc_type, exc_val, exc_tb)</dt></dl>
+
+<dl><dt><a name="MultiprocPool-__init__"><strong>__init__</strong></a>(self, processes=None, initializer=None, initargs=(), maxtasksperchild=None, context=None)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-__reduce__"><strong>__reduce__</strong></a>(self)</dt><dd><tt>helper&nbsp;for&nbsp;pickle</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-apply"><strong>apply</strong></a>(self, func, args=(), kwds={})</dt><dd><tt>Equivalent&nbsp;of&nbsp;`func(*args,&nbsp;**kwds)`.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-apply_async"><strong>apply_async</strong></a>(self, func, args=(), kwds={}, callback=None, error_callback=None)</dt><dd><tt>Asynchronous&nbsp;version&nbsp;of&nbsp;`<a href="#MultiprocPool-apply">apply</a>()`&nbsp;method.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-close"><strong>close</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="MultiprocPool-imap"><strong>imap</strong></a>(self, func, iterable, chunksize=1)</dt><dd><tt>Equivalent&nbsp;of&nbsp;`<a href="#MultiprocPool-map">map</a>()`&nbsp;--&nbsp;can&nbsp;be&nbsp;MUCH&nbsp;slower&nbsp;than&nbsp;`<a href="multiprocessing.pool.html#Pool">Pool</a>.<a href="#MultiprocPool-map">map</a>()`.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-imap_unordered"><strong>imap_unordered</strong></a>(self, func, iterable, chunksize=1)</dt><dd><tt>Like&nbsp;`<a href="#MultiprocPool-imap">imap</a>()`&nbsp;method&nbsp;but&nbsp;ordering&nbsp;of&nbsp;results&nbsp;is&nbsp;arbitrary.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-join"><strong>join</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="MultiprocPool-map"><strong>map</strong></a>(self, func, iterable, chunksize=None)</dt><dd><tt>Apply&nbsp;`func`&nbsp;to&nbsp;each&nbsp;element&nbsp;in&nbsp;`iterable`,&nbsp;collecting&nbsp;the&nbsp;results<br>
+in&nbsp;a&nbsp;list&nbsp;that&nbsp;is&nbsp;returned.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-map_async"><strong>map_async</strong></a>(self, func, iterable, chunksize=None, callback=None, error_callback=None)</dt><dd><tt>Asynchronous&nbsp;version&nbsp;of&nbsp;`<a href="#MultiprocPool-map">map</a>()`&nbsp;method.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-starmap"><strong>starmap</strong></a>(self, func, iterable, chunksize=None)</dt><dd><tt>Like&nbsp;`<a href="#MultiprocPool-map">map</a>()`&nbsp;method&nbsp;but&nbsp;the&nbsp;elements&nbsp;of&nbsp;the&nbsp;`iterable`&nbsp;are&nbsp;expected&nbsp;to<br>
+be&nbsp;iterables&nbsp;as&nbsp;well&nbsp;and&nbsp;will&nbsp;be&nbsp;unpacked&nbsp;as&nbsp;arguments.&nbsp;Hence<br>
+`func`&nbsp;and&nbsp;(a,&nbsp;b)&nbsp;becomes&nbsp;func(a,&nbsp;b).</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-starmap_async"><strong>starmap_async</strong></a>(self, func, iterable, chunksize=None, callback=None, error_callback=None)</dt><dd><tt>Asynchronous&nbsp;version&nbsp;of&nbsp;`<a href="#MultiprocPool-starmap">starmap</a>()`&nbsp;method.</tt></dd></dl>
+
+<dl><dt><a name="MultiprocPool-terminate"><strong>terminate</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="multiprocessing.pool.html#Pool">multiprocessing.pool.Pool</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NoDaemonProcess">class <strong>NoDaemonProcess</strong></a>(<a href="multiprocessing.context.html#Process">multiprocessing.context.Process</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="multiprocessing.context.html#Process">Process</a>&nbsp;objects&nbsp;represent&nbsp;activity&nbsp;that&nbsp;is&nbsp;run&nbsp;in&nbsp;a&nbsp;separate&nbsp;process<br>
+&nbsp;<br>
+The&nbsp;class&nbsp;is&nbsp;analogous&nbsp;to&nbsp;`threading.Thread`<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="jgtextrank.utility.html#NoDaemonProcess">NoDaemonProcess</a></dd>
+<dd><a href="multiprocessing.context.html#Process">multiprocessing.context.Process</a></dd>
+<dd><a href="multiprocessing.process.html#BaseProcess">multiprocessing.process.BaseProcess</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>daemon</strong></dt>
+</dl>
+<hr>
+Methods inherited from <a href="multiprocessing.process.html#BaseProcess">multiprocessing.process.BaseProcess</a>:<br>
+<dl><dt><a name="NoDaemonProcess-__init__"><strong>__init__</strong></a>(self, group=None, target=None, name=None, args=(), kwargs={}, *, daemon=None)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-__repr__"><strong>__repr__</strong></a>(self)</dt><dd><tt>Return&nbsp;repr(self).</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-is_alive"><strong>is_alive</strong></a>(self)</dt><dd><tt>Return&nbsp;whether&nbsp;process&nbsp;is&nbsp;alive</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-join"><strong>join</strong></a>(self, timeout=None)</dt><dd><tt>Wait&nbsp;until&nbsp;child&nbsp;process&nbsp;terminates</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-run"><strong>run</strong></a>(self)</dt><dd><tt>Method&nbsp;to&nbsp;be&nbsp;run&nbsp;in&nbsp;sub-process;&nbsp;can&nbsp;be&nbsp;overridden&nbsp;in&nbsp;sub-class</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-start"><strong>start</strong></a>(self)</dt><dd><tt>Start&nbsp;child&nbsp;process</tt></dd></dl>
+
+<dl><dt><a name="NoDaemonProcess-terminate"><strong>terminate</strong></a>(self)</dt><dd><tt>Terminate&nbsp;process;&nbsp;sends&nbsp;SIGTERM&nbsp;signal&nbsp;or&nbsp;uses&nbsp;TerminateProcess()</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="multiprocessing.process.html#BaseProcess">multiprocessing.process.BaseProcess</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>authkey</strong></dt>
+</dl>
+<dl><dt><strong>exitcode</strong></dt>
+<dd><tt>Return&nbsp;exit&nbsp;code&nbsp;of&nbsp;process&nbsp;or&nbsp;`None`&nbsp;if&nbsp;it&nbsp;has&nbsp;yet&nbsp;to&nbsp;stop</tt></dd>
+</dl>
+<dl><dt><strong>ident</strong></dt>
+<dd><tt>Return&nbsp;identifier&nbsp;(PID)&nbsp;of&nbsp;process&nbsp;or&nbsp;`None`&nbsp;if&nbsp;it&nbsp;has&nbsp;yet&nbsp;to&nbsp;start</tt></dd>
+</dl>
+<dl><dt><strong>name</strong></dt>
+</dl>
+<dl><dt><strong>pid</strong></dt>
+<dd><tt>Return&nbsp;identifier&nbsp;(PID)&nbsp;of&nbsp;process&nbsp;or&nbsp;`None`&nbsp;if&nbsp;it&nbsp;has&nbsp;yet&nbsp;to&nbsp;start</tt></dd>
+</dl>
+<dl><dt><strong>sentinel</strong></dt>
+<dd><tt>Return&nbsp;a&nbsp;file&nbsp;descriptor&nbsp;(Unix)&nbsp;or&nbsp;handle&nbsp;(Windows)&nbsp;suitable&nbsp;for<br>
+waiting&nbsp;for&nbsp;process&nbsp;termination.</tt></dd>
 </dl>
 </td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -129,7 +264,7 @@ return&nbsp;file&nbsp;content&nbsp;in&nbsp;list&nbsp;of&nbsp;lines</tt></dd></dl
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>package_dir</strong> = r'c:\oak-project\python\github\jgtextrank\jgtextrank'<br>
+<td width="100%"><strong>package_dir</strong> = r'C:\oak-project\python\github\jgtextrank\jgtextrank'<br>
 <strong>stopwords</strong> = &lt;WordListCorpusReader in 'C:\\nltk_data\\corpora\\stopwords'&gt;</td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#7799ee">

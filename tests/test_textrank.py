@@ -21,7 +21,9 @@ import matplotlib.pyplot as plt
 from jgtextrank.utility import sort_dict_by_value, flatten
 from jgtextrank.core import preprocessing, preprocessing_tokenised_context, _syntactic_filter, \
     _get_cooccurs_from_single_context, _get_cooccurs, build_cooccurrence_graph, \
-    _build_vertices_representations, keywords_extraction, _is_top_t_vertices_connection, _collapse_adjacent_keywords
+    _build_vertices_representations, keywords_extraction, _is_top_t_vertices_connection, \
+    _collapse_adjacent_keywords
+from jgtextrank.core import GCValue
 
 
 def ignore_warnings(test_func):
@@ -537,6 +539,42 @@ class TestTextRank(unittest.TestCase):
         assert S0021999113005652_key_terms[9][1] == "impact"
         assert S0021999113005652_key_terms[16][0] == "by(24)cb⁎ =∫01〈cb⁎〉(z⁎)dz⁎"
         assert S0021999113005652_key_terms[16][1] == "fig"
+
+
+    def test_get_longer_terms(self):
+        candidate_term1 = ["real", "time"]
+        candidate_term2 = ["floating", "point"]
+        longer_terms = [["real", "time", "clock"],
+                        ["real", "time", "expert", "system"],
+                        ["real", "time", "image", "generation"],
+                        ["real", "time", "output"],
+                        ["real", "time", "system"],
+                        ["floating", "point", "arithmetic"],
+                        ["floating", "point", "constant"],
+                        ["floating", "point", "operation"],
+                        ["floating", "point", "routine"]]
+
+        candidate_term1_longer_terms = GCValue._get_longer_terms(candidate_term1, longer_terms)
+        assert len(candidate_term1_longer_terms) == 5
+        assert candidate_term1_longer_terms == [['real', 'time', 'clock'],
+                                                ['real', 'time', 'expert', 'system'],
+                                                ['real', 'time', 'image', 'generation'],
+                                                ['real', 'time', 'output'],
+                                                ['real', 'time', 'system']]
+
+        candidate_term2_longer_terms = GCValue._get_longer_terms(candidate_term2, longer_terms)
+        assert len(candidate_term2_longer_terms) == 4
+        assert candidate_term2_longer_terms == [["floating", "point", "arithmetic"],
+                                                ["floating", "point", "constant"],
+                                                ["floating", "point", "operation"],
+                                                ["floating", "point", "routine"]]
+
+
+
+        #gc_value = GCValue()
+        #gc_value.weighing({"real": 1.0, "time":1.2, "clock":2.1, "expert":3.1, "system":4.1, "image":1.12,
+        #                   "generation":1.4, "output":2.1, "floating":0.3, "point": 0.8, "arithmetic": 0.3},
+        #                  longer_terms)
 
     @ignore_warnings
     def test_keywords_extraction(self):
@@ -1088,6 +1126,17 @@ class TestTextRank(unittest.TestCase):
                             "'norm_sum', 'log_norm_sum', 'gaussian_norm_sum', 'max', 'norm_max',"
                             " 'log_norm_max', 'gaussian_norm_max', "
                             "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'. " in context.exception)
+
+    def test_keywords_extraction_with_gcvalue(self):
+        example_abstract = "Compatibility of systems of linear constraints over the set of natural numbers. " \
+                           "Criteria of compatibility of a system of linear Diophantine equations, strict inequations, " \
+                           "and nonstrict inequations are considered. Upper bounds for components of a minimal set of " \
+                           "solutions and algorithms of construction of minimal generating sets of solutions for all " \
+                           "types of systems are given. These criteria and the corresponding algorithms for " \
+                           "constructing a minimal supporting set of solutions can be used in solving all the " \
+                           "considered types systems and systems of mixed types."
+        gcvalue_results, gcvalue_top_vertices = keywords_extraction(example_abstract, top_p = 0.3, weight_comb="gcvalue", workers=2)
+        print("GCValue results: ", gcvalue_results)
 
     def test_keywords_extraction_from_segmented_corpus(self):
         example_user_defined_context_corpus = [["Compatibility", "of", "systems", "of", "linear", "constraints",

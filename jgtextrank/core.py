@@ -58,12 +58,13 @@ from itertools import repeat
 from multiprocessing import Pool
 
 import networkx as nx
-import numpy as np
 
+from jgtextrank.metrics import TermGraphValue, GCValue, _gaussian_normalise, _log_normalise, \
+    _term_size_normalize
 from jgtextrank.preprocessing.normaliser import normalize
 from jgtextrank.preprocessing.segmentation import pos_tagging, word_2_tokenised_sentences
 from jgtextrank.utility import avg_dicts, CorpusContent2RawSentences, get_top_n_from_dict, flatten, is_list_of_list, \
-    sort_dict_by_value, isSubStringOf, export_list_of_tuple_into_csv, export_list_of_tuples_into_json
+    sort_dict_by_value, export_list_of_tuple_into_csv, export_list_of_tuples_into_json
 
 __author__ = 'Jie Gao <j.gao@sheffield.ac.uk>'
 
@@ -79,7 +80,7 @@ __all__ = ["Vertex", "preprocessing", "preprocessing_tokenised_context",
            "keywords_extraction_from_tagged_corpus",
            "keywords_extraction_from_corpus_directory", "compute_TeRGraph", "compute_neighborhood_size"]
 
-_logger = logging.getLogger("textrank")
+_logger = logging.getLogger("jgtextrank.core")
 
 # GLOBAL VARIABLES
 
@@ -420,7 +421,7 @@ def _compute_vertex(syntactic_unit, vertices_cooccur_context_corpus, all_filtere
     :return: Vertex with co-occurrences
     """
     # Tips: search the following printout in either console or log is a simple way to check current progress
-    _logger.info("compute vertex in a single thread ...")
+    _logger.debug("compute vertex [%s] ...", syntactic_unit)
     # vertex = Vertex(syntactic_unit[0], normalize(syntactic_unit[0]), syntactic_unit[1])
     # word and word_type difference are not really useful and implemented from the efficiency consideration
     # if lemmatization is choosed, the syntactic unit and context are expected to be pre-normalised and lemmatised
@@ -431,7 +432,7 @@ def _compute_vertex(syntactic_unit, vertices_cooccur_context_corpus, all_filtere
                                               all_filtered_context_tokens, window_size)
     # print(syntactic_unit, ", cooccured_syntactic_units: ", cooccured_syntactic_units)
     vertex.co_occurs = [syntactic_unit for syntactic_unit in cooccured_syntactic_units]
-
+    _logger.debug("Done.")
     return vertex
 
 
@@ -562,189 +563,18 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
     """
     _logger.info("MWTs weighing ...")
     weighted_terms = dict()
-    log2a = 0
-    sigma = 0
-    if "norm" in weight_comb:
-        sigma = _get_sigma_from_all_candidates(collapsed_terms)
-        # print("sigma is ", sigma)
 
-    for collapsed_term in collapsed_terms:
-        if _is_top_t_vertices_connection(collapsed_term, top_t_vertices):
-            # initialisation
-            final_score = float(0)
-            avg_score = 0
-            sum_score = 0
-            max_score = 0
+    global MAX_PROCESSES
 
-            # compute term length (i.e.,number of words/tokens)
-            # all_syntactic_units = collapsed_term.split(' ')
-            all_syntactic_units = collapsed_term
-            unit_size = len(all_syntactic_units)
-
-            if "len_log" in weight_comb:
-                # log(a + 0.1) to smooth unigrams
-                log2a = math.log2(unit_size + 0.1)
-
-            if "avg" in weight_comb:
-                avg_score = _get_average_score(all_syntactic_units, all_vertices, unit_size)
-
-            if "sum" in weight_comb:
-                sum_score = _get_sum_score(all_syntactic_units, all_vertices)
-
-            if "max" in weight_comb:
-                max_score = _get_max_score(all_syntactic_units, all_vertices)
-
-            if weight_comb == "avg":
-                final_score = avg_score
-            elif weight_comb == "norm_avg":
-                final_score = _term_size_normalize(avg_score, unit_size)
-            elif weight_comb == "log_norm_avg":
-                final_score = _log_normalise(avg_score, mu, unit_size)
-            elif weight_comb == "gaussian_norm_avg":
-                final_score = _gaussian_normalise(avg_score, mu, sigma, unit_size)
-            elif weight_comb == "len_log_norm_avg":
-                final_score = log2a * avg_score
-            elif weight_comb == "sum":
-                final_score = sum_score
-            elif weight_comb == "norm_sum":
-                final_score = _term_size_normalize(sum_score, unit_size)
-            elif weight_comb == "log_norm_sum":
-                final_score = _log_normalise(sum_score, mu, unit_size)
-            elif weight_comb == "gaussian_norm_sum":
-                final_score = _gaussian_normalise(sum_score, mu, sigma, unit_size)
-            elif weight_comb == "len_log_norm_sum":
-                final_score = log2a * sum_score
-            elif weight_comb == "max":
-                final_score = max_score
-            elif weight_comb == "norm_max":
-                final_score = _term_size_normalize(max_score, unit_size)
-            elif weight_comb == "log_norm_max":
-                final_score = _log_normalise(max_score, mu, unit_size)
-            elif weight_comb == "gaussian_norm_max":
-                final_score = _gaussian_normalise(max_score, mu, sigma, unit_size)
-            elif weight_comb == "len_log_norm_max":
-                final_score = log2a * max_score
-            else:
-                raise ValueError("Unsupported weight combination option: '%s'", weight_comb)
-
-            concatenated_collapsed_term = " ".join(collapsed_term)
-            weighted_terms[concatenated_collapsed_term] = round(final_score, 5)
+    if weight_comb == "gcvalue":
+        tg_cvalue = GCValue(weight_comb=weight_comb, mu=mu, parallel_workers=MAX_PROCESSES)
+        weighted_terms = tg_cvalue.weighing(collapsed_terms, all_vertices, top_t_vertices)
+    else:
+        tg_value = TermGraphValue(weight_comb=weight_comb, mu=mu, parallel_workers=MAX_PROCESSES)
+        weighted_terms = tg_value.weighing(collapsed_terms, all_vertices, top_t_vertices)
 
     _logger.info("done.")
     return weighted_terms
-
-
-def _gaussian_normalise(base_score, mu, sigma, unit_size):
-    norm_value = 1 - _probability_density(unit_size, mu, sigma)
-    base_score = base_score * float(norm_value)
-    return base_score
-
-
-def _log_normalise(base_score, mu, unit_size):
-    if unit_size > 1:
-        # print("_log_normalise with mu=", mu, " , unit_size:", unit_size)
-        base_score = base_score / math.log(unit_size, mu)
-    return base_score
-
-
-def _term_size_normalize(base_score, unit_size):
-    return base_score / float(unit_size)
-
-
-def _get_sigma_from_all_candidates(collapsed_terms):
-    """
-    compute standard deviation of term length in MWTs
-    :param collapsed_terms: list, list of tokenised terms
-    :rtype: ndarray
-    :return: standard_deviation
-    """
-    all_terms_size = [len(collapsed_term) for collapsed_term in collapsed_terms]
-    return np.std(all_terms_size)
-
-
-def _probability_density(x_value, mu, sigma):
-    """
-     probability density of the normal distribution
-
-     see also https://en.wikipedia.org/wiki/Normal_distribution
-    :param x_value:
-    :param mu:
-    :param sigma:
-    :return:
-    """
-    pd = (1 / (sigma * np.sqrt(2 * math.pi))) * math.exp(- math.pow((x_value - mu), 2) / (2 * math.pow(sigma, 2)))
-    return pd
-
-
-def _get_plus_score(all_syntactic_units, boosted_term_size_range, boosted_word_length_range, combined_weight,
-                    unit_size):
-    """
-    Experimental weighting method to provide extra small fraction weight to the final score
-
-    More weight can be given to longer term
-
-    :type all_syntactic_units: list (of str)
-    :param all_syntactic_units: all the tokens of a candidate term(SWT or MWT)
-    :type boosted_term_size_range: (int, int) | None
-    :param boosted_term_size_range: range of token size of a candidate term that will be boosted with a small weight fraction
-    :type boosted_word_length_range: (int, int) | None
-    :param boosted_word_length_range: range of word length (number of character) that will be boosted with a small weight fraction
-    :type combined_weight: float
-    :param combined_weight: combined the weight (i.e., 'avg' or 'max') of current candidate term
-            This weight is important and used as base value for final boosted weight
-    :type unit_size: int
-    :param unit_size: token size of current candidate term
-    :return: a small weight fraction that can be added to the final weight
-    """
-    all_syntactic_units_lengths = [len(term_unit) for term_unit in all_syntactic_units]
-    min_word_length = min(all_syntactic_units_lengths)
-    max_word_length = max(all_syntactic_units_lengths)
-    avg_word_length = sum(all_syntactic_units_lengths) / unit_size
-    plus_weight = combined_weight
-    if boosted_word_length_range is not None and boosted_term_size_range is not None \
-            and unit_size in boosted_term_size_range and min_word_length in boosted_word_length_range \
-            and max_word_length in boosted_word_length_range:
-        # add a small fraction to the final weight when all the syntactic unit length in in a normal range
-        plus_weight = combined_weight * math.log(avg_word_length, 2)
-    elif boosted_word_length_range is None and boosted_term_size_range is not None and unit_size in boosted_term_size_range:
-        plus_weight = combined_weight * math.log(avg_word_length, 2)
-    elif boosted_word_length_range is not None and boosted_term_size_range is None and \
-            min_word_length in boosted_word_length_range and max_word_length in boosted_word_length_range:
-        plus_weight = combined_weight * math.log(avg_word_length, 2)
-
-    return plus_weight
-
-
-def _get_max_score(all_syntactic_units, all_vertices):
-    """
-    get max term unit score (normalised by term unit frequency in MWTs)
-    :param all_syntactic_units:
-    :param all_vertices:
-    :return:
-    """
-    # print("all_vertices: ", all_vertices)
-    # print("collapsed_term: ", collapsed_term)
-    # max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in collapsed_term.split(' ')])
-    max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
-    return max_score
-
-
-def _get_average_score(all_syntactic_units, all_vertices, unit_size):
-    """
-    get average score from single candidate term
-
-    :param all_syntactic_units: tokens of single candidate term
-    :param all_vertices: all the vertices used for computing combined weight
-    :param unit_size: size of multi-word candidate term
-    :return:
-    """
-    avg_score = _get_sum_score(all_syntactic_units, all_vertices) / float(unit_size)
-    return avg_score
-
-
-def _get_sum_score(all_syntactic_units, all_vertices):
-    return sum(
-        [all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
 
 
 def _weight_nodes_with_centrality_metrics(scoring_method, cooccurrence_graph):
@@ -974,7 +804,7 @@ def _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
     elif solver == "TeRGraph":
         weighted_nodes = compute_TeRGraph(cooccurrence_graph)
     elif solver == "coreness":
-        #remove self-loops
+        # remove self-loops
         cooccurrence_graph.remove_edges_from(nx.selfloop_edges(cooccurrence_graph))
         weighted_nodes = nx.core_number(cooccurrence_graph)
     elif solver == "neighborhood_size":
@@ -1054,7 +884,7 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
     # print("keywords marked text", marked_text_tokens)
 
     _key_terms = list()
-    _current_term_units=[]
+    _current_term_units = []
     # use space to construct multi-word term later
     for marked_token in marked_text_tokens:
         if marked_token[1] == 'k':
@@ -1063,7 +893,7 @@ def _collapse_adjacent_keywords(weighted_keywords, original_tokenised_text):
             if _current_term_units:
                 _key_terms.append(_current_term_units)
             # reset for next term candidate
-            _current_term_units=[]
+            _current_term_units = []
 
     _logger.info("done.")
     return _key_terms
@@ -1228,7 +1058,8 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
                                                                                        directed=directed,
                                                                                        weighted=weighted,
                                                                                        conn_with_original_ctx=conn_with_original_ctx,
-                                                                                       solver=solver,max_iter=max_iter, tol=tol,
+                                                                                       solver=solver, max_iter=max_iter,
+                                                                                       tol=tol,
                                                                                        weight_comb=weight_comb, mu=mu)
 
     return list(sort_dict_by_value(weighted_keywords).items()), top_t_vertices
@@ -1249,7 +1080,7 @@ def _check_solver_option(solver):
                          " 'current_flow_betweenness', 'edge_current_flow_betweenness', 'load_centrality', "
                          "'clustering_coefficient','TeRGraph','coreness','neighborhood_size' got '%s'"
                          % solver)
-    if solver == "pagerank_numpy" or solver== "katz_centrality":
+    if solver == "pagerank_numpy" or solver == "katz_centrality":
         import pkg_resources
         pkg_resources.require("numpy")
 
@@ -1414,7 +1245,8 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="
     weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(pre_processed_tokenised_context,
                                                                                        solver=solver,
                                                                                        max_iter=max_iter,
-                                                                                       tol=tol, top_p=top_p, top_t=top_t,
+                                                                                       tol=tol, top_p=top_p,
+                                                                                       top_t=top_t,
                                                                                        directed=directed, window=window,
                                                                                        weighted=weighted,
                                                                                        conn_with_original_ctx=conn_with_original_ctx,
@@ -1456,11 +1288,11 @@ def _load_preprocessed_corpus_context(tagged_corpus_context, pos_filter=None, st
 
 
 def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
-                                           solver="pagerank", max_iter=100,tol=1.0e-6,
+                                           solver="pagerank", max_iter=100, tol=1.0e-6,
                                            window=2, top_p=0.3, top_t=None, directed=False, weighted=False,
                                            conn_with_original_ctx=True,
                                            syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                           stop_words=None, lemma=False,weight_comb="norm_max", mu=5,
+                                           stop_words=None, lemma=False, weight_comb="norm_max", mu=5,
                                            export=False, export_format="csv", export_path="", encoding="utf-8",
                                            workers=1):
     """
@@ -1598,8 +1430,10 @@ def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
                                                                     lemma=lemma)
 
     weighted_keywords, top_t_vertices = _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
-                                                                                       window=window, top_p=top_p, top_t=top_t,
-                                                                                       directed=directed,weighted=weighted,
+                                                                                       window=window, top_p=top_p,
+                                                                                       top_t=top_t,
+                                                                                       directed=directed,
+                                                                                       weighted=weighted,
                                                                                        conn_with_original_ctx=conn_with_original_ctx,
                                                                                        solver=solver,
                                                                                        max_iter=max_iter, tol=tol,
@@ -1634,12 +1468,12 @@ def _check_weight_comb_option(weight_comb):
 
     if weight_comb not in ("avg", "norm_avg", "log_norm_avg", "gaussian_norm_avg", "sum", "norm_sum",
                            "log_norm_sum", "gaussian_norm_sum", "max", "norm_max", "log_norm_max",
-                           "gaussian_norm_max",'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'):
+                           "gaussian_norm_max", 'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum', 'gcvalue'):
         raise ValueError("Unspported weight_comb '%s'! "
                          "Options are 'avg', 'norm_avg', 'log_norm_avg', 'gaussian_norm_avg', 'sum', "
                          "'norm_sum', 'log_norm_sum', 'gaussian_norm_sum', 'max', 'norm_max',"
                          " 'log_norm_max', 'gaussian_norm_max', "
-                         "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum'. " % weight_comb)
+                         "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum', 'gcvalue'. " % weight_comb)
 
 
 def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solver="pagerank",

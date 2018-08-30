@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module jgtextrank.metrics</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="jgtextrank.html"><font color="#ffffff">jgtextrank</font></a>.metrics</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:c%3A%5Coak-project%5Cpython%5Cgithub%5Cjgtextrank%5Cjgtextrank%5Cmetrics.py">c:\oak-project\python\github\jgtextrank\jgtextrank\metrics.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-<br>
+#&nbsp;==============================================================================<br>
+#<br>
+#&nbsp;Authors:&nbsp;Jie&nbsp;Gao&nbsp;&lt;j.gao@sheffield.ac.uk&gt;<br>
+#<br>
+#&nbsp;Copyright&nbsp;(c)&nbsp;2017&nbsp;JIE&nbsp;GAO&nbsp;.&nbsp;All&nbsp;Rights&nbsp;Reserved.<br>
+#<br>
+#&nbsp;Permission&nbsp;is&nbsp;hereby&nbsp;granted,&nbsp;free&nbsp;of&nbsp;charge,&nbsp;to&nbsp;any&nbsp;person<br>
+#&nbsp;obtaining&nbsp;a&nbsp;copy&nbsp;of&nbsp;this&nbsp;software&nbsp;and&nbsp;associated&nbsp;documentation<br>
+#&nbsp;files&nbsp;(the&nbsp;"Software"),&nbsp;to&nbsp;deal&nbsp;in&nbsp;the&nbsp;Software&nbsp;without<br>
+#&nbsp;restriction,&nbsp;including&nbsp;without&nbsp;limitation&nbsp;the&nbsp;rights&nbsp;to&nbsp;use,<br>
+#&nbsp;copy,&nbsp;modify,&nbsp;merge,&nbsp;publish,&nbsp;distribute,&nbsp;sublicense,&nbsp;and/or&nbsp;sell<br>
+#&nbsp;copies&nbsp;of&nbsp;the&nbsp;Software,&nbsp;and&nbsp;to&nbsp;permit&nbsp;persons&nbsp;to&nbsp;whom&nbsp;the<br>
+#&nbsp;Software&nbsp;is&nbsp;furnished&nbsp;to&nbsp;do&nbsp;so,&nbsp;subject&nbsp;to&nbsp;the&nbsp;following<br>
+#&nbsp;conditions:<br>
+#<br>
+#&nbsp;The&nbsp;above&nbsp;copyright&nbsp;notice&nbsp;and&nbsp;this&nbsp;permission&nbsp;notice&nbsp;shall&nbsp;be<br>
+#&nbsp;included&nbsp;in&nbsp;all&nbsp;copies&nbsp;or&nbsp;substantial&nbsp;portions&nbsp;of&nbsp;the&nbsp;Software.<br>
+#<br>
+#&nbsp;THE&nbsp;SOFTWARE&nbsp;IS&nbsp;PROVIDED&nbsp;"AS&nbsp;IS",&nbsp;WITHOUT&nbsp;WARRANTY&nbsp;OF&nbsp;ANY&nbsp;KIND,<br>
+#&nbsp;EXPRESS&nbsp;OR&nbsp;IMPLIED,&nbsp;INCLUDING&nbsp;BUT&nbsp;NOT&nbsp;LIMITED&nbsp;TO&nbsp;THE&nbsp;WARRANTIES<br>
+#&nbsp;OF&nbsp;MERCHANTABILITY,&nbsp;FITNESS&nbsp;FOR&nbsp;A&nbsp;PARTICULAR&nbsp;PURPOSE&nbsp;AND<br>
+#&nbsp;NONINFRINGEMENT.&nbsp;IN&nbsp;NO&nbsp;EVENT&nbsp;SHALL&nbsp;THE&nbsp;AUTHORS&nbsp;OR&nbsp;COPYRIGHT<br>
+#&nbsp;HOLDERS&nbsp;BE&nbsp;LIABLE&nbsp;FOR&nbsp;ANY&nbsp;CLAIM,&nbsp;DAMAGES&nbsp;OR&nbsp;OTHER&nbsp;LIABILITY,<br>
+#&nbsp;WHETHER&nbsp;IN&nbsp;AN&nbsp;ACTION&nbsp;OF&nbsp;CONTRACT,&nbsp;TORT&nbsp;OR&nbsp;OTHERWISE,&nbsp;ARISING<br>
+#&nbsp;FROM,&nbsp;OUT&nbsp;OF&nbsp;OR&nbsp;IN&nbsp;CONNECTION&nbsp;WITH&nbsp;THE&nbsp;SOFTWARE&nbsp;OR&nbsp;THE&nbsp;USE&nbsp;OR<br>
+#&nbsp;OTHER&nbsp;DEALINGS&nbsp;IN&nbsp;THE&nbsp;SOFTWARE.<br>
+#<br>
+#&nbsp;==============================================================================</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="jgtextrank.metrics.html#GCValue">GCValue</a>
+</font></dt></dl>
+</dd>
+</dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GCValue">class <strong>GCValue</strong></a>(<a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Experimental&nbsp;metrics&nbsp;to&nbsp;weight&nbsp;MWTs<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="jgtextrank.metrics.html#GCValue">GCValue</a></dd>
+<dd><a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="GCValue-__init__"><strong>__init__</strong></a>(self, weight_comb='len_log_norm_avg', mu=5, parallel_workers=1)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="GCValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="GCValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None)</dt></dl>
+
+<hr>
+Static methods inherited from <a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a>:<br>
+<dl><dt><a name="GCValue-g_value"><strong>g_value</strong></a>(collapsed_term, all_vertices, weight_comb='norm_sum', mu=5, **kwargs)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="TermGraphValue">class <strong>TermGraphValue</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Metrics&nbsp;to&nbsp;weigh&nbsp;Multi-Word&nbsp;Terms(MWTs)<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="TermGraphValue-__init__"><strong>__init__</strong></a>(self, weight_comb='norm_max', mu=5, parallel_workers=1)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="TermGraphValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices)</dt></dl>
+
+<hr>
+Static methods defined here:<br>
+<dl><dt><a name="TermGraphValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None)</dt></dl>
+
+<dl><dt><a name="TermGraphValue-g_value"><strong>g_value</strong></a>(collapsed_term, all_vertices, weight_comb='norm_sum', mu=5, **kwargs)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-_gaussian_normalise"><strong>_gaussian_normalise</strong></a>(base_score, mu, sigma, unit_size)</dt></dl>
+ <dl><dt><a name="-_get_average_score"><strong>_get_average_score</strong></a>(all_syntactic_units, all_vertices, unit_size)</dt><dd><tt>get&nbsp;average&nbsp;score&nbsp;from&nbsp;single&nbsp;candidate&nbsp;term<br>
+&nbsp;<br>
+:param&nbsp;all_syntactic_units:&nbsp;tokens&nbsp;of&nbsp;single&nbsp;candidate&nbsp;term<br>
+:param&nbsp;all_vertices:&nbsp;all&nbsp;the&nbsp;vertices&nbsp;used&nbsp;for&nbsp;computing&nbsp;combined&nbsp;weight<br>
+:param&nbsp;unit_size:&nbsp;size&nbsp;of&nbsp;multi-word&nbsp;candidate&nbsp;term<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-_get_max_score"><strong>_get_max_score</strong></a>(all_syntactic_units, all_vertices)</dt><dd><tt>get&nbsp;max&nbsp;term&nbsp;unit&nbsp;score&nbsp;(normalised&nbsp;by&nbsp;term&nbsp;unit&nbsp;frequency&nbsp;in&nbsp;MWTs)<br>
+:param&nbsp;all_syntactic_units:<br>
+:param&nbsp;all_vertices:<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-_get_plus_score"><strong>_get_plus_score</strong></a>(all_syntactic_units, boosted_term_size_range, boosted_word_length_range, combined_weight, unit_size)</dt><dd><tt>Experimental&nbsp;weighting&nbsp;method&nbsp;to&nbsp;provide&nbsp;extra&nbsp;small&nbsp;fraction&nbsp;weight&nbsp;to&nbsp;the&nbsp;final&nbsp;score<br>
+&nbsp;<br>
+More&nbsp;weight&nbsp;can&nbsp;be&nbsp;given&nbsp;to&nbsp;longer&nbsp;term<br>
+&nbsp;<br>
+:type&nbsp;all_syntactic_units:&nbsp;list&nbsp;(of&nbsp;str)<br>
+:param&nbsp;all_syntactic_units:&nbsp;all&nbsp;the&nbsp;tokens&nbsp;of&nbsp;a&nbsp;candidate&nbsp;term(SWT&nbsp;or&nbsp;MWT)<br>
+:type&nbsp;boosted_term_size_range:&nbsp;(int,&nbsp;int)&nbsp;|&nbsp;None<br>
+:param&nbsp;boosted_term_size_range:&nbsp;range&nbsp;of&nbsp;token&nbsp;size&nbsp;of&nbsp;a&nbsp;candidate&nbsp;term&nbsp;that&nbsp;will&nbsp;be&nbsp;boosted&nbsp;with&nbsp;a&nbsp;small&nbsp;weight&nbsp;fraction<br>
+:type&nbsp;boosted_word_length_range:&nbsp;(int,&nbsp;int)&nbsp;|&nbsp;None<br>
+:param&nbsp;boosted_word_length_range:&nbsp;range&nbsp;of&nbsp;word&nbsp;length&nbsp;(number&nbsp;of&nbsp;character)&nbsp;that&nbsp;will&nbsp;be&nbsp;boosted&nbsp;with&nbsp;a&nbsp;small&nbsp;weight&nbsp;fraction<br>
+:type&nbsp;combined_weight:&nbsp;float<br>
+:param&nbsp;combined_weight:&nbsp;combined&nbsp;the&nbsp;weight&nbsp;(i.e.,&nbsp;'avg'&nbsp;or&nbsp;'max')&nbsp;of&nbsp;current&nbsp;candidate&nbsp;term<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;weight&nbsp;is&nbsp;important&nbsp;and&nbsp;used&nbsp;as&nbsp;base&nbsp;value&nbsp;for&nbsp;final&nbsp;boosted&nbsp;weight<br>
+:type&nbsp;unit_size:&nbsp;int<br>
+:param&nbsp;unit_size:&nbsp;token&nbsp;size&nbsp;of&nbsp;current&nbsp;candidate&nbsp;term<br>
+:return:&nbsp;a&nbsp;small&nbsp;weight&nbsp;fraction&nbsp;that&nbsp;can&nbsp;be&nbsp;added&nbsp;to&nbsp;the&nbsp;final&nbsp;weight</tt></dd></dl>
+ <dl><dt><a name="-_get_sum_score"><strong>_get_sum_score</strong></a>(all_syntactic_units, all_vertices)</dt></dl>
+ <dl><dt><a name="-_log_normalise"><strong>_log_normalise</strong></a>(base_score, mu, unit_size)</dt></dl>
+ <dl><dt><a name="-_probability_density"><strong>_probability_density</strong></a>(x_value, mu, sigma)</dt><dd><tt>&nbsp;probability&nbsp;density&nbsp;of&nbsp;the&nbsp;normal&nbsp;distribution<br>
+&nbsp;<br>
+&nbsp;see&nbsp;also&nbsp;https://en.wikipedia.org/wiki/Normal_distribution<br>
+:param&nbsp;x_value:<br>
+:param&nbsp;mu:<br>
+:param&nbsp;sigma:<br>
+:return:</tt></dd></dl>
+ <dl><dt><a name="-_term_size_normalize"><strong>_term_size_normalize</strong></a>(base_score, unit_size)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>__all__</strong> = ['_get_max_score', '_get_average_score', '_get_sum_score', '_term_size_normalize', '_log_normalise', '_probability_density', '_gaussian_normalise', '_get_plus_score', 'TermGraphValue', 'GCValue']</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#7799ee">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Author</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#7799ee"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Jie&nbsp;Gao&nbsp;&lt;j.gao@sheffield.ac.uk&gt;</td></tr></table>
+</body></html>

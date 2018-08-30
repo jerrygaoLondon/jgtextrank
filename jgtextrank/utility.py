@@ -27,6 +27,8 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 # ==============================================================================
+import multiprocessing.pool
+
 __author__ = 'jieg'
 
 import sys
@@ -55,9 +57,6 @@ _stop_words = stopwords.words('english')
 sent_tokenize = SentenceTokenizer().itokenize
 stop_words_filter = lambda t : filter(lambda a: a not in _stop_words, t)
 punctuation_filter = lambda t : filter(lambda a: a not in string.punctuation, t)
-
-import logging
-_logger = logging.getLogger("utility")
 
 
 class CorpusContent2RawSentences(object):
@@ -202,3 +201,17 @@ def export_list_of_tuples_into_json(output_path, list_tuple_values, encoding='ut
     import json, io
     with io.open(output_path, mode='w', encoding=encoding) as outfile:
         json.dump(dict(list_tuple_values),outfile,ensure_ascii=False)
+
+
+class NoDaemonProcess(multiprocessing.Process):
+    # make 'daemon' attribute always return False
+    def _get_daemon(self):
+        return False
+    def _set_daemon(self, value):
+        pass
+    daemon = property(_get_daemon, _set_daemon)
+
+# We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
+# because the latter is only a wrapper function, not a proper class.
+class MultiprocPool(multiprocessing.pool.Pool):
+    Process = NoDaemonProcess
