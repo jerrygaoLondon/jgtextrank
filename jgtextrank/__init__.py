@@ -51,4 +51,4 @@ __all__=["preprocessing", "preprocessing_tokenised_context", "build_cooccurrence
          "keywords_extraction_from_tagged_corpus",
          "keywords_extraction_from_corpus_directory", "compute_TeRGraph", "compute_neighborhood_size"]
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'

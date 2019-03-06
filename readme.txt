@@ -1,5 +1,6 @@
 jgTextRank : Yet another Python implementation of TextRank
-==========================================================
+
+
 This is a parallelisable and highly customisable implementation of the TextRank algorithm [Mihalcea et al., 2004].
 You can define your own co-occurrence context, syntactic categories(choose either "closed" filters or "open" filters),
 stop words, feed your own pre-segmented/pre-tagged data, and many more. You can also
@@ -18,6 +19,7 @@ step is post-filtering. Extracted phrases are disambiguated and
 normalized for morpho-syntactic variations and lexical synonymy
 (Csomai and Mihalcea 2007). Adjacent words are also sometimes
 collapsed into phrases, for a more readable output.
+
 
 Mihalcea, R., & Tarau, P. (2004, July). TextRank: Bringing order into texts. Association for Computational Linguistics.
 
@@ -141,7 +143,7 @@ To install from source
        co-occurrence window size, options for two co-occurrence context strategies,
        use of custom syntactic filters, use of custom stop words)
 
-    * Keywords extraction from pre-processed (pre-segmented or pre-tagged) corpus/context
+    * Keywords extraction from pre-processed (pre-segmented or pre PoS tagged) corpus/context
 
     * Keywords extraction from a given corpus directory of raw text files
 
@@ -149,32 +151,11 @@ To install from source
 
     * Support visual analytics of vertices network
 
-### Contributions ###
-
-This project welcomes contributions, feature requests and suggestions.
-Please feel free to create issues or send me your
-[pull requests](https://help.github.com/articles/creating-a-pull-request/).
-
-**Important**: By submitting a patch, you agree to allow the project owners
-to license your work under the MIT license.
-
-### To Cite ###
-
-Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
-
-    @Misc{jgTextRank,
-    author =   {Gao, Jie},
-    title =    {jgTextRank: Yet another Python implementation of TextRank},
-    howpublished = {\url{https://github.com/jerrygaoLondon/jgtextrank/}},
-    year = {2017}
-    }
-
-### Who do I talk to? ###
-
-* Jie Gao <j.gao@sheffield.ac.uk>
 
 ### history ###
 * 0.1.2 Beta version - Aug 2018
     * bug fixes
     * 15 additional graph ranking algorithms
 * 0.1.1 Alpha version - 1st Jan 2018
+* 0.1.3 Beta version - March, 2019
+    * minor fixes and documentation improvement

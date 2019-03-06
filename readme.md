@@ -147,7 +147,7 @@ To install from source
        co-occurrence window size, options for two co-occurrence context strategies,
        use of custom syntactic filters, use of custom stop words)
 
-    * Keywords extraction from pre-processed (pre-segmented or pre-tagged) corpus/context
+    * Keywords extraction from pre-processed (pre-segmented or pre PoS tagged) corpus/context
 
     * Keywords extraction from a given corpus directory of raw text files
 

@@ -56,7 +56,10 @@ import string
 import warnings
 from itertools import repeat
 from multiprocessing import Pool
+from types import LambdaType
+from typing import List, Optional, Tuple, Callable, Set, Generator, Dict, Union
 
+import networkx
 import networkx as nx
 
 from jgtextrank.metrics import TermGraphValue, GCValue, _gaussian_normalise, _log_normalise, \
@@ -125,8 +128,9 @@ class Vertex(object):
         return str(self)
 
 
-def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                  stop_words=None, lemma=False):
+def preprocessing(text: str, syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+                  stop_words: Optional[Set[str]] = None,
+                  lemma: bool = False) -> Generator[Tuple[List[str], List[Tuple[str, str]]], None, None]:
     """
     pre-processing pipeline: sentence splitting -> tokenisation ->
     Part-of-Speech(PoS) tagging -> syntactic filtering (default with sentential context)
@@ -144,7 +148,7 @@ def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
 
     :type text: string
     :param text: plain text
-    :type syntactic_categories: set [of string], required
+    :type syntactic_categories: Set [of string], required
     :param syntactic_categories: Default with noun and adjective categories.
                     Syntactic categories (default as Part-Of-Speech(PoS) tags) is defined to
                     filter accepted graph vertices (default with word-based tokens as single syntactic unit).
@@ -152,11 +156,13 @@ def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
                     Any word that is not matched with the predefined categories will be removed based on corresponding the PoS tag.
 
                     Best result is found with noun and adjective categories only in original paper.
-    :type stop_words: set of [string {‘english’}], or None (default), Optional
+    :type stop_words: Set of [string {‘english’}], or None (default), Optional
     :param stop_words:  remove stopwords from PoS tagged context (token tuple list).
                 The stop words are considered as noisy common/function words.
                 By provide a list of stop words can improve vertices network connectivity
                 and increase weights to more meaningful words.
+    :type bool
+    :param lemma: if lemmatize text
     :rtype: generatorType (of tuple)
     :return: result: a tuple list of tokenised context(default in sentence level) text
                             and the corresponding PoS tagged context text filtered by syntactic filter
@@ -168,8 +174,11 @@ def preprocessing(text, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
                                            stop_words=stop_words, lemma=lemma)
 
 
-def preprocessing_tokenised_context(tokenised_context, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                    stop_words=None, lemma=False):
+def preprocessing_tokenised_context(tokenised_context: Union[Generator[List[str], None, None], List[List[str]]],
+                                    syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+                                    stop_words: Optional[Set[str]] = None,
+                                    lemma: bool = False) -> Generator[
+    Tuple[List[str], List[Tuple[str, str]]], None, None]:
     """
     pre-processing tokenised corpus context (recommend as sentences)
 
@@ -190,6 +199,8 @@ def preprocessing_tokenised_context(tokenised_context, syntactic_categories={"NN
                 The stop words are considered as noisy common/function words.
                 By provide a list of stop words can improve vertices network connectivity
                 and increase weights to more meaningful words.
+    :type bool
+    :param lemma: if lemmatize text
     :rtype: generator[of tuple]
     :return: pre-processed raw text tokens splitted with context and filtered text tokens splitted with context
     """
@@ -205,7 +216,9 @@ def preprocessing_tokenised_context(tokenised_context, syntactic_categories={"NN
                                                            stop_words_filter=stop_words_filter)
 
 
-def _pos_tagging_tokenised_corpus_context(tokenised_corpus_context, lemma=False):
+def _pos_tagging_tokenised_corpus_context(tokenised_corpus_context: Generator[List[str], None, None],
+                                          lemma: bool = False) -> Generator[
+    Tuple[List[str], List[Tuple[str, str]]], None, None]:
     """
 
     :type tokenised_corpus_context: generator or iterable object
@@ -223,7 +236,8 @@ def _pos_tagging_tokenised_corpus_context(tokenised_corpus_context, lemma=False)
         yield (sentence_token_list, normed_tagged_sentence_token_list)
 
 
-def _normalise_tagged_token_list(tagged_token_list, lemma=False):
+def _normalise_tagged_token_list(tagged_token_list: List[Tuple[str, str]], lemma: bool = False) -> Tuple[
+    List[str], List[Tuple[str, str]]]:
     """
     :type: list [of tuple [string, string]]
     :param tagged_token_list: tagged and tokenized text list
@@ -237,7 +251,12 @@ def _normalise_tagged_token_list(tagged_token_list, lemma=False):
     return normed_token_list, normed_tagged_token_list
 
 
-def _syntactic_filter(pos_tagged_tokenised_sents, pos_filter=None, stop_words_filter=None):
+def _syntactic_filter(pos_tagged_tokenised_sents: List[List[Tuple[str, str]]],
+                      pos_filter: Optional[Union[Callable[[List[Tuple[str, str]]], Tuple[str, str]],
+                                                 LambdaType]] = None,
+                      stop_words_filter: Optional[Union[Callable[[Tuple[str, str]], Tuple[str, str]],
+                                                        LambdaType]] = None) -> Generator[
+    List[Tuple[str, str]], None, None]:
     """
     all lexical units that pass the syntactic filter will be added to the graph
 
@@ -261,8 +280,14 @@ def _syntactic_filter(pos_tagged_tokenised_sents, pos_filter=None, stop_words_fi
         yield _syntactic_filter_context(pos_tagged_tokenised_sent, pos_filter, stop_words_filter)
 
 
-def _syntactic_filter_context(pos_tagged_tokens, pos_filter=None, stop_words_filter=None,
-                              punc_filter=lambda t: filter(lambda a: a[0] not in string.punctuation, t)):
+def _syntactic_filter_context(pos_tagged_tokens: List[Tuple[str, str]],
+                              pos_filter: Optional[
+                                  Union[Callable[[List[Tuple[str, str]]], Tuple[str, str]], LambdaType]] = None,
+                              stop_words_filter: Optional[
+                                  Union[Callable[[List[Tuple[str, str]]], Tuple[str, str]], LambdaType]] = None,
+                              punc_filter: Union[
+                                  Callable[[List[Tuple[str, str]]], Tuple[str, str]], LambdaType] = lambda t: filter(
+                                  lambda a: a[0] not in string.punctuation, t)) -> List[Tuple[str, str]]:
     """
     syntactic filtering for single context(default as single PoS tagged tokenised sentence)
 
@@ -297,7 +322,8 @@ def _is_multiple_context(corpus_context):
     return is_list_of_list(corpus_context)
 
 
-def _get_cooccurs(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_context_tokens=None, window_size=2):
+def _get_cooccurs(syntactic_unit: str, vertices_cooccur_context_corpus: List[List[str]],
+                  all_filtered_context_tokens: Optional[List[str]] = None, window_size: int = 2) -> Set[str]:
     """
     get word co-occurrence from filtered context
 
@@ -327,16 +353,20 @@ def _get_cooccurs(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_
     return set(flatten_all_cooccurs)
 
 
-def _get_cooccurs_from_single_context(syntactic_unit, tokenised_context, window_size=2):
+def _get_cooccurs_from_single_context(syntactic_unit: str, tokenised_context: Union[List[List[str]], List[str]],
+                                      window_size: int = 2) -> List[
+    str]:
     """
     get co-occurred syntactic units within specific context window by the given unit
 
     This implementation is default with forward and backward context.
+    TODO: this method name is confusing. The implementation now actually supports both single context and multiple context
 
     :type syntactic_unit: string
     :param syntactic_unit: syntactic unit(e.g., token)
-    :type tokenised_context: list [of string]
-    :param tokenised_context: tokensed context with a list of tokenised syntactic units
+    :type tokenised_context: list [of string] or List [of list [of string]]
+    :param tokenised_context: tokensed context with a list of tokenised syntactic units (single context)
+                            or a list of list of tokenised syntactic units (multiple context case)
     :type window_size: int
     :param window_size: context forward and backward window size that is used to compute co-occurrences
     :rtype: list [of string]
@@ -349,6 +379,7 @@ def _get_cooccurs_from_single_context(syntactic_unit, tokenised_context, window_
     all_indices = [i for i, x in enumerate(tokenised_context) if x == syntactic_unit]
 
     candidate_cooccurs = []
+    current_index: int = 0
     for current_index in all_indices:
         context_size = len(tokenised_context)
 
@@ -360,9 +391,6 @@ def _get_cooccurs_from_single_context(syntactic_unit, tokenised_context, window_
                             (current_index + backward + 1) >= 0 and (current_index + backward + 1) <= context_size - 1
                             and (current_index + backward + 1) > current_index]
 
-        # print(syntactic_unit, ", tokenised_context: ", tokenised_context)
-        # print("[%s] backward context: %s" %(syntactic_unit, [tokenised_context[context_index] for context_index in backward_context]))
-
         cooccur_context = forward_context + backward_context
 
         candidate_cooccurs.append([tokenised_context[cooccur_word_index] for cooccur_word_index in cooccur_context])
@@ -370,8 +398,9 @@ def _get_cooccurs_from_single_context(syntactic_unit, tokenised_context, window_
     return flatten(candidate_cooccurs)
 
 
-def _build_vertices_representations(all_tokenised_filtered_context, all_tokenised_context=None,
-                                    conn_with_original_ctx=True, window_size=2):
+def _build_vertices_representations(all_tokenised_filtered_context: Union[List[List[str]], List[str]],
+                                    all_tokenised_context: Optional[List[List[str]]] = None,
+                                    conn_with_original_ctx: bool = True, window_size: int = 2) -> List[Vertex]:
     """
     build vertices representations for graph network
 
@@ -409,20 +438,21 @@ def _build_vertices_representations(all_tokenised_filtered_context, all_tokenise
     return vertices
 
 
-def _compute_vertex(syntactic_unit, vertices_cooccur_context_corpus, all_filtered_context_tokens=None, window_size=2):
+def _compute_vertex(syntactic_unit: str, vertices_cooccur_context_corpus: List[List[str]],
+                    all_filtered_context_tokens: Optional[List[str]] = None, window_size: int = 2):
     """
     :type syntactic_unit: String
     :param syntactic_unit: syntactic filtered (selected) token unit
     :param vertices_cooccur_context_corpus: a list of tokens representing every single context
                 where word cooccur can be computed from
-    :param syntactic_filtered_context: a list of tokens representing every single context of corpus
+    :param all_filtered_context_tokens: a list of tokens representing every single context of corpus
                 where word cooccur can be computed from
-    :rtype: Vertex
-    :return: Vertex with co-occurrences
+    :rtype int
+    :param window_size: default with 2 for forward context and backward context
     """
     # Tips: search the following printout in either console or log is a simple way to check current progress
     _logger.debug("compute vertex [%s] ...", syntactic_unit)
-    # vertex = Vertex(syntactic_unit[0], normalize(syntactic_unit[0]), syntactic_unit[1])
+
     # word and word_type difference are not really useful and implemented from the efficiency consideration
     # if lemmatization is choosed, the syntactic unit and context are expected to be pre-normalised and lemmatised
     vertex = Vertex(syntactic_unit, syntactic_unit)
@@ -436,8 +466,11 @@ def _compute_vertex(syntactic_unit, vertices_cooccur_context_corpus, all_filtere
     return vertex
 
 
-def build_cooccurrence_graph(preprocessed_context, directed=False, weighted=False,
-                             conn_with_original_ctx=True, window=2):
+def build_cooccurrence_graph(preprocessed_context: Generator[Tuple[List[str], List[Tuple[str, str]]], None, None],
+                             directed: bool = False,
+                             weighted: bool = False,
+                             conn_with_original_ctx=True, window: int = 2) -> Tuple[
+    Union[networkx.DiGraph, networkx.Graph], List[List[str]]]:
     """
     build cooccurrence graph from filtered context
     and only consider single words as candidates for addition to the graph
@@ -458,8 +491,8 @@ def build_cooccurrence_graph(preprocessed_context, directed=False, weighted=Fals
     :param conn_with_original_ctx: True if checking two vertices co-occurrence link from original context
                                 else checking connections from filtered context
             More vertices connection can be built if 'conn_with_original_ctx' is set to False
-    :type window_size: int
-    :param window_size: a window of N words
+    :type window: int
+    :param window: a window of N words
     :rtype: tuple[of [nx.graph, list]]
     :return: (networkx) graph object readily to score along with all tokenised raw text splitted by context
 
@@ -487,7 +520,7 @@ def build_cooccurrence_graph(preprocessed_context, directed=False, weighted=Fals
         return cooccurence_graph.to_undirected(), all_tokenised_context
 
 
-def _draw_edges(vertices, weight=1.0):
+def _draw_edges(vertices, weight=1.0) -> List[Tuple[str, str, float]]:
     """
     draw edges to make connections between co-occurred word types (i.e., normalised word surface form)
     the co-occur edge weight is default to 1.0
@@ -506,7 +539,7 @@ def _draw_edges(vertices, weight=1.0):
     return edges
 
 
-def _is_top_t_vertices_connection(collapsed_term, top_t_vertices):
+def _is_top_t_vertices_connection(collapsed_term, top_t_vertices) -> bool:
     """
 
     :type collapsed_term: list [of list [of string]]
@@ -517,7 +550,8 @@ def _is_top_t_vertices_connection(collapsed_term, top_t_vertices):
     return any(top_t_vertex[0] in collapsed_term for top_t_vertex in top_t_vertices)
 
 
-def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weight_comb="norm_max", mu=5):
+def _reweight_filtered_terms(collapsed_terms, top_t_vertices,
+                             all_vertices, weight_comb="norm_max", mu=5) -> Dict[str, float]:
     """
     weight key terms with page rank weights of vertices
 
@@ -577,7 +611,7 @@ def _reweight_filtered_terms(collapsed_terms, top_t_vertices, all_vertices, weig
     return weighted_terms
 
 
-def _weight_nodes_with_centrality_metrics(scoring_method, cooccurrence_graph):
+def _weight_nodes_with_centrality_metrics(scoring_method, cooccurrence_graph) -> Dict[str, float]:
     """
     Centrality measures (such as "current flow betweeness", "current flow closeness", "communicability_betweenness")
         does not support loosely connected graph and betweeness centrality measures cannot compute on single isolated nodes.
@@ -608,7 +642,7 @@ def _weight_nodes_with_centrality_metrics(scoring_method, cooccurrence_graph):
     return weighted_nodes
 
 
-def compute_TeRGraph(term_graph):
+def compute_TeRGraph(term_graph: networkx.Graph) -> Dict[str, float]:
     """
     compute graph vertices with TeRGraph algorithms
 
@@ -651,7 +685,7 @@ def compute_TeRGraph(term_graph):
     return node_weights
 
 
-def compute_neighborhood_size(term_cooccur_graph):
+def compute_neighborhood_size(term_cooccur_graph) -> Dict[str, int]:
     """
     Number of immediate neighbors to a node
 
@@ -674,11 +708,14 @@ def compute_neighborhood_size(term_cooccur_graph):
     return node_weights
 
 
-def _keywords_extraction_from_preprocessed_context(preprocessed_corpus_context,
-                                                   top_p=0.3, top_t=None, window=2, directed=False,
-                                                   weighted=False, conn_with_original_ctx=True,
-                                                   max_iter=100, tol=1.0e-6, solver="pagerank",
-                                                   weight_comb="norm_max", mu=5):
+def _keywords_extraction_from_preprocessed_context(
+        preprocessed_corpus_context: Union[Generator[Tuple[List[str], List[Tuple[str, str]]], None, None], List[
+            Tuple[List[str], List[Tuple[str, str]]]]],
+        top_p: float = 0.3, top_t: Optional[int] = None, window: Optional[int] = 2,
+        directed: bool = False, weighted: bool = False,
+        conn_with_original_ctx: bool = True,
+        max_iter: int = 100, tol: float = 1.0e-6, solver: str = 'pagerank',
+        weight_comb: str = 'norm_max', mu: int = 5) -> Tuple[Dict[str, float], List[Tuple[str, float]]]:
     """
     :type preprocessed_corpus_context: generator or list/iterable
     :param preprocessed_corpus_context: a tuple list of tokenised context text
@@ -908,12 +945,15 @@ def _check_required_values(weighted, syntactic_categories):
         raise ValueError("`syntactic_categories` cannot be None!")
 
 
-def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, weighted=False,
-                        conn_with_original_ctx=True, syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                        stop_words=None, lemma=False,
-                        solver="pagerank", max_iter=100, tol=1.0e-6,
-                        weight_comb="norm_max", mu=5,
-                        workers=1):
+def keywords_extraction(text: str, window: int = 2, top_p: float = 1, top_t: Optional[int] = None,
+                        directed: bool = False,
+                        weighted: bool = False,
+                        conn_with_original_ctx: bool = True,
+                        syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+                        stop_words: Set[str] = None, lemma: bool = False,
+                        solver: str = "pagerank", max_iter: int = 100, tol: float = 1.0e-6,
+                        weight_comb: str = "norm_max", mu: int = 5,
+                        workers: int = 1):
     """
     TextRank keywords extraction for unstructured text
 
@@ -921,7 +961,7 @@ def keywords_extraction(text, window=2, top_p=1, top_t=None, directed=False, wei
     :param text: textual data for keywords extraction
     :type window: int, required
     :param window: co-occurrence window size (default with forward and backward context). Recommend: 2-10
-    :type top_t: float or None, optional
+    :type top_t: int or None, optional
     :param top_t: the top T vertices in the ranking are retained for post-processing
                 Top T is computed from Top p if value is none
     :type top_p: float or None, optional
@@ -1089,23 +1129,26 @@ def _check_solver_option(solver):
         pkg_resources.require("scipy")
 
 
-def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="pagerank",
-                                              max_iter=100, tol=1.0e-6,
-                                              window=2, top_p=0.3, top_t=None,
-                                              directed=False, weighted=False,
-                                              conn_with_original_ctx=True,
-                                              syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                              stop_words=None, lemma=False,
-                                              weight_comb="norm_max", mu=5,
-                                              export=False, export_format="csv", export_path="", encoding="utf-8",
-                                              workers=1):
+def keywords_extraction_from_segmented_corpus(
+        segmented_corpus_context: Union[Generator[List[str], None, None], CorpusContent2RawSentences],
+        solver: str = "pagerank",
+        max_iter: int = 100, tol: float = 1.0e-6,
+        window: int = 2, top_p: float = 0.3, top_t: Optional[int] = None,
+        directed: bool = False, weighted: bool = False,
+        conn_with_original_ctx: bool = True,
+        syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+        stop_words: Set[str] = None, lemma: bool = False,
+        weight_comb: str = "norm_max", mu: int = 5,
+        export: bool = False, export_format: str = "csv", export_path: str = "",
+        encoding: str = "utf-8",
+        workers: int = 1) -> Tuple[List[Tuple[str, float]], Dict[str, float]]:
     """
     TextRank keywords extraction for a list of context of tokenised textual corpus.
     This method allows any pre-defined keyword co-occurrence context criteria (e.g., sentence, or paragraph,
     or section, or a user-defined segment) and any pre-defined word segmentation
 
-    :type tokenised_corpus_context: list|generator, required
-    :param tokenised_corpus_context: pre-tokenised corpus formatted in pre-defined context list.
+    :type segmented_corpus_context: list|generator, required
+    :param segmented_corpus_context: pre-tokenised corpus formatted in pre-defined context list.
             Tokenised sentence list is the recommended(and default) context corpus in TextRank.
             You can also choose your own pre-defined co-occurrence context (e.g., paragraph, entire document, a user-defined segment).
 
@@ -1228,7 +1271,7 @@ def keywords_extraction_from_segmented_corpus(segmented_corpus_context, solver="
     :param encoding: encoding of the text, default as 'utf-8',
     :type workers: int
     :param workers: available CPU cores, default to use all the available CPU cores
-    :rtype: tuple [list[tuple[string,float]], dict[string:float]]
+    :rtype: tuple [list[tuple[string,float]], dict[string, float]]
     :return: keywords: sorted keywords with weights along with Top T weighted vertices
     """
     global MAX_PROCESSES
@@ -1271,7 +1314,12 @@ def _export_result(weighted_term_results, export=False, export_format="csv", exp
         _logger.info("complete result export.")
 
 
-def _load_preprocessed_corpus_context(tagged_corpus_context, pos_filter=None, stop_words_filter=None, lemma=False):
+def _load_preprocessed_corpus_context(
+        tagged_corpus_context: Union[List[List[Tuple[str, str]]], Generator[List[Tuple[str, str]], None, None]],
+        pos_filter: Union[Callable[[List[Tuple[str, str]]], Tuple[str, str]], LambdaType] = None,
+        stop_words_filter: Optional[
+            Callable[[List[Tuple[str, str]]], Tuple[str, str]]] = None,
+        lemma=False) -> Generator[Tuple[List[str], List[Tuple[str, str]]], None, None]:
     """
     load preprocessed corpus context(a tuple list of tokenised context and PoS tagged context) from tagged corpus context
 
@@ -1283,18 +1331,19 @@ def _load_preprocessed_corpus_context(tagged_corpus_context, pos_filter=None, st
     for tagged_context in tagged_corpus_context:
         normed_token_list, normed_tagged_context = _normalise_tagged_token_list(tagged_context, lemma=lemma)
         yield normed_token_list, _syntactic_filter_context(normed_tagged_context, pos_filter, stop_words_filter)
-        # yield [tagged_token[0] for tagged_token in tagged_context], \
-        #      _syntactic_filter_context(tagged_context, pos_filter, stop_words_filter)
 
 
-def keywords_extraction_from_tagged_corpus(tagged_corpus_context,
-                                           solver="pagerank", max_iter=100, tol=1.0e-6,
-                                           window=2, top_p=0.3, top_t=None, directed=False, weighted=False,
-                                           conn_with_original_ctx=True,
-                                           syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                           stop_words=None, lemma=False, weight_comb="norm_max", mu=5,
-                                           export=False, export_format="csv", export_path="", encoding="utf-8",
-                                           workers=1):
+def keywords_extraction_from_tagged_corpus(tagged_corpus_context: List[List[Tuple[str, str]]],
+                                           solver: str = "pagerank", max_iter: int = 100, tol: float = 1.0e-6,
+                                           window: int = 2, top_p: float = 0.3, top_t: Optional[int] = None,
+                                           directed: bool = False, weighted: bool = False,
+                                           conn_with_original_ctx: bool = True,
+                                           syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+                                           stop_words: Set[str] = None,
+                                           lemma: bool = False, weight_comb: str = "norm_max", mu: int = 5,
+                                           export: bool = False, export_format: str = "csv", export_path: str = "",
+                                           encoding: str = "utf-8",
+                                           workers: int = 1) -> Tuple[List[Tuple[str, float]], List[Tuple[str, float]]]:
     """
     TextRank keywords extraction for pos tagged corpus context list
 
@@ -1476,12 +1525,16 @@ def _check_weight_comb_option(weight_comb):
                          "'len_log_norm_max', 'len_log_norm_avg', 'len_log_norm_sum', 'gcvalue'. " % weight_comb)
 
 
-def keywords_extraction_from_corpus_directory(corpus_dir, encoding="utf-8", solver="pagerank",
-                                              max_iter=100, tol=1e-4, window=2,
-                                              top_p=0.3, top_t=None, directed=False, weighted=False,
-                                              syntactic_categories={"NNS", "NNP", "NN", "JJ"},
-                                              stop_words=None, lemma=False, weight_comb="norm_max", mu=5,
-                                              export=False, export_format="csv", export_path="", workers=1):
+def keywords_extraction_from_corpus_directory(corpus_dir: str, encoding: str = "utf-8", solver: str = "pagerank",
+                                              max_iter: int = 100, tol: float = 1e-4, window: int = 2,
+                                              top_p: float = 0.3, top_t: Optional[int] = None, directed: bool = False,
+                                              weighted: bool = False,
+                                              syntactic_categories: Set[str] = {"NNS", "NNP", "NN", "JJ"},
+                                              stop_words: Set[str] = None, lemma: bool = False,
+                                              weight_comb: str = "norm_max", mu: int = 5,
+                                              export: bool = False, export_format: str = "csv",
+                                              export_path: str = "",
+                                              workers: int = 1) -> Tuple[List[Tuple[str, float]], Dict[str, float]]:
     """
 
     :type corpus_dir: string

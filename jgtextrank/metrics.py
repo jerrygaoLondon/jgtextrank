@@ -31,6 +31,8 @@
 
 import logging
 import math
+from typing import Tuple, Dict
+
 import numpy as np
 
 from jgtextrank.utility import MultiprocPool
@@ -43,6 +45,7 @@ __all__ = ["_get_max_score", "_get_average_score", "_get_sum_score", "_term_size
            "_log_normalise", "_probability_density", "_gaussian_normalise", "_get_plus_score",
            "TermGraphValue", "GCValue"]
 
+
 def _get_max_score(all_syntactic_units, all_vertices):
     """
     get max term unit score (normalised by term unit frequency in MWTs)
@@ -53,7 +56,8 @@ def _get_max_score(all_syntactic_units, all_vertices):
     # print("all_vertices: ", all_vertices)
     # print("collapsed_term: ", collapsed_term)
     # max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in collapsed_term.split(' ')])
-    max_score = max([all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
+    max_score = max(
+        [all_vertices[term_unit] / float(all_syntactic_units.count(term_unit)) for term_unit in all_syntactic_units])
     return max_score
 
 
@@ -157,6 +161,7 @@ class TermGraphValue(object):
     """
     Metrics to weigh Multi-Word Terms(MWTs)
     """
+
     def __init__(self, weight_comb="norm_max", mu=5, parallel_workers=1):
         self._logger = logging.getLogger("jgtextrank.metrics")
         self._logger.info(self.__class__.__name__)
@@ -233,7 +238,7 @@ class TermGraphValue(object):
         """
         return any(top_t_vertex[0] in collapsed_term for top_t_vertex in top_t_vertices)
 
-    def _concatenate_terms(self, weighted_candidates):
+    def _concatenate_terms(self, weighted_candidates) -> Dict[str, float]:
         return dict((" ".join(tokenised_term), score) for tokenised_term, score in weighted_candidates)
 
     def _get_sigma_from_all_candidates(self, collapsed_terms):
@@ -246,7 +251,7 @@ class TermGraphValue(object):
         all_terms_size = [len(collapsed_term) for collapsed_term in collapsed_terms]
         return np.std(all_terms_size)
 
-    def weighing(self, all_candidates, all_vertices, top_t_vertices):
+    def weighing(self, all_candidates, all_vertices, top_t_vertices) -> Dict[str, float]:
         if all_candidates is None or len(all_candidates) == 0:
             self._logger.info("No candidate found. Skip weighing.")
             return {}
@@ -265,18 +270,19 @@ class TermGraphValue(object):
                 optional_params["sigma"] = sigma
 
             weighted_all_candidates = pool.starmap(TermGraphValue.calculate,
-                                                   [(candidate,all_candidates, all_vertices, optional_params) for candidate
-                                                    in all_candidates if self._is_top_t_vertices_connection(candidate, top_t_vertices)])
+                                                   [(candidate, all_candidates, all_vertices, optional_params) for
+                                                    candidate
+                                                    in all_candidates if
+                                                    self._is_top_t_vertices_connection(candidate, top_t_vertices)])
 
         return self._concatenate_terms(weighted_all_candidates)
 
-
     @staticmethod
-    def calculate(candidate_term, all_candidates, all_vertices, optional_params=None):
+    def calculate(candidate_term, all_candidates, all_vertices, optional_params=None) -> Tuple[str, float]:
         if optional_params is None:
             optional_params = dict()
 
-        weight_comb="norm_max"
+        weight_comb = "norm_max"
         if "weight_comb" in optional_params:
             weight_comb = optional_params["weight_comb"]
 
@@ -298,6 +304,7 @@ class GCValue(TermGraphValue):
     """
     Experimental metrics to weight MWTs
     """
+
     def __init__(self, weight_comb="len_log_norm_avg", mu=5, parallel_workers=1):
         super().__init__(weight_comb, mu, parallel_workers)
 
@@ -321,7 +328,7 @@ class GCValue(TermGraphValue):
             _logger.error("AttributeError when processing candidate term [%s]", term)
         return []
 
-    def weighing(self, all_candidates, all_vertices, top_t_vertices):
+    def weighing(self, all_candidates, all_vertices, top_t_vertices) -> Dict[str, float]:
         if all_candidates is None or len(all_candidates) == 0:
             self._logger.info("No candidate found. Skip weighing.")
             return {}
@@ -329,18 +336,20 @@ class GCValue(TermGraphValue):
         self._logger.info(" Total [%s] candidates to weigh...", len(all_candidates))
         with MultiprocPool(processes=int(self.parallel_workers)) as pool:
             weighted_all_candidates = pool.starmap(GCValue.calculate,
-                                                   [(candidate,all_candidates, all_vertices) for candidate
-                                                    in all_candidates if self._is_top_t_vertices_connection(candidate, top_t_vertices)])
+                                                   [(candidate, all_candidates, all_vertices) for candidate
+                                                    in all_candidates if
+                                                    self._is_top_t_vertices_connection(candidate, top_t_vertices)])
 
         self._logger.info(" all candidates gc-value computation is completed.")
         return super()._concatenate_terms(weighted_all_candidates)
 
     @staticmethod
     def _sum_ga_candidates(candidate_list, all_vertices):
-        return sum([TermGraphValue.g_value(candidate, all_vertices, weight_comb="len_log_norm_avg") for candidate in candidate_list])
+        return sum([TermGraphValue.g_value(candidate, all_vertices, weight_comb="len_log_norm_avg") for candidate in
+                    candidate_list])
 
     @staticmethod
-    def calculate(candidate_term, all_candidates, all_vertices, optional_params=None):
+    def calculate(candidate_term, all_candidates, all_vertices, optional_params=None) -> Tuple[str, float]:
         if optional_params is None:
             optional_params = dict()
 

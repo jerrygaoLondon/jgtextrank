@@ -1211,6 +1211,7 @@ class TestTextRank(unittest.TestCase):
                              ('systems', 'NNS'), ('of', 'IN'), ('mixed', 'JJ'), ('types', 'NNS'), ('.', '.')]]
 
         results, top_vertices = keywords_extraction_from_tagged_corpus(pos_tagged_corpus, top_p = 0.3, weight_comb="sum")
+        print()
         print("extracted keywords from pre-tagged content:"+ str(results))
         print("top_vertices: ", top_vertices)
 

@@ -93,7 +93,7 @@
 Raw&nbsp;lowercased&nbsp;tokenised&nbsp;sentences&nbsp;are&nbsp;returned.<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
-<dl><dt><a name="CorpusContent2RawSentences-__init__"><strong>__init__</strong></a>(self, dirname, encoding='utf-8', remove_stop_words=False, remove_punc=False)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+<dl><dt><a name="CorpusContent2RawSentences-__init__"><strong>__init__</strong></a>(self, dirname:str, encoding:str='utf-8', remove_stop_words:bool=False, remove_punc:bool=False)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
 
 <dl><dt><a name="CorpusContent2RawSentences-__iter__"><strong>__iter__</strong></a>(self)</dt></dl>
 
@@ -239,23 +239,23 @@ waiting&nbsp;for&nbsp;process&nbsp;termination.</tt></dd>
 :param&nbsp;dict1:<br>
 :param&nbsp;dict2:<br>
 :return:</tt></dd></dl>
- <dl><dt><a name="-concat"><strong>concat</strong></a>(ngram_tuple)</dt></dl>
+ <dl><dt><a name="-concat"><strong>concat</strong></a>(ngram_tuple:Tuple[str, str])</dt></dl>
  <dl><dt><a name="-deprecated"><strong>deprecated</strong></a>(func)</dt><dd><tt>This&nbsp;is&nbsp;a&nbsp;decorator&nbsp;which&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;mark&nbsp;functions<br>
 as&nbsp;deprecated.&nbsp;It&nbsp;will&nbsp;result&nbsp;in&nbsp;a&nbsp;warning&nbsp;being&nbsp;emmitted<br>
 when&nbsp;the&nbsp;function&nbsp;is&nbsp;used.</tt></dd></dl>
  <dl><dt><a name="-export_list_of_tuple_into_csv"><strong>export_list_of_tuple_into_csv</strong></a>(output_path, list_tuple_values, encoding='utf-8', header=None)</dt></dl>
  <dl><dt><a name="-export_list_of_tuples_into_json"><strong>export_list_of_tuples_into_json</strong></a>(output_path, list_tuple_values, encoding='utf-8')</dt></dl>
  <dl><dt><a name="-flatten"><strong>flatten</strong></a>(list_of_items)</dt></dl>
- <dl><dt><a name="-get_top_n_from_dict"><strong>get_top_n_from_dict</strong></a>(dictionary, top_n)</dt></dl>
+ <dl><dt><a name="-get_top_n_from_dict"><strong>get_top_n_from_dict</strong></a>(dictionary:Dict, top_n:int)</dt></dl>
  <dl><dt><a name="-isSubStringOf"><strong>isSubStringOf</strong></a>(term1, term2)</dt><dd><tt>check&nbsp;if&nbsp;term1&nbsp;is&nbsp;a&nbsp;substring&nbsp;of&nbsp;term2&nbsp;on&nbsp;token-level<br>
 :param&nbsp;term1:<br>
 :param&nbsp;term2:<br>
 :return:</tt></dd></dl>
- <dl><dt><a name="-is_list_of_list"><strong>is_list_of_list</strong></a>(list_of_items)</dt></dl>
+ <dl><dt><a name="-is_list_of_list"><strong>is_list_of_list</strong></a>(list_of_items:List)</dt></dl>
  <dl><dt><strong>punctuation_filter</strong> <em>lambda</em> t</dt></dl>
  <dl><dt><a name="-read_by_line"><strong>read_by_line</strong></a>(filePath)</dt><dd><tt>load&nbsp;file&nbsp;content<br>
 return&nbsp;file&nbsp;content&nbsp;in&nbsp;list&nbsp;of&nbsp;lines</tt></dd></dl>
- <dl><dt><a name="-sort_dict_by_value"><strong>sort_dict_by_value</strong></a>(dictionary, reverse=True)</dt></dl>
+ <dl><dt><a name="-sort_dict_by_value"><strong>sort_dict_by_value</strong></a>(dictionary:Dict, reverse=True)</dt></dl>
  <dl><dt><strong>stop_words_filter</strong> <em>lambda</em> t</dt></dl>
 </td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -264,7 +264,7 @@ return&nbsp;file&nbsp;content&nbsp;in&nbsp;list&nbsp;of&nbsp;lines</tt></dd></dl
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>package_dir</strong> = r'C:\oak-project\python\github\jgtextrank\jgtextrank'<br>
+<td width="100%"><strong>package_dir</strong> = r'c:\oak-project\python\github\jgtextrank\jgtextrank'<br>
 <strong>stopwords</strong> = &lt;WordListCorpusReader in 'C:\\nltk_data\\corpora\\stopwords'&gt;</td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#7799ee">

@@ -86,11 +86,11 @@
 Methods defined here:<br>
 <dl><dt><a name="GCValue-__init__"><strong>__init__</strong></a>(self, weight_comb='len_log_norm_avg', mu=5, parallel_workers=1)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
 
-<dl><dt><a name="GCValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices)</dt></dl>
+<dl><dt><a name="GCValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices) -&gt; Dict[str, float]</dt></dl>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="GCValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None)</dt></dl>
+<dl><dt><a name="GCValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None) -&gt; Tuple[str, float]</dt></dl>
 
 <hr>
 Static methods inherited from <a href="jgtextrank.metrics.html#TermGraphValue">TermGraphValue</a>:<br>
@@ -116,11 +116,11 @@ Data descriptors inherited from <a href="jgtextrank.metrics.html#TermGraphValue"
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="TermGraphValue-__init__"><strong>__init__</strong></a>(self, weight_comb='norm_max', mu=5, parallel_workers=1)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
 
-<dl><dt><a name="TermGraphValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices)</dt></dl>
+<dl><dt><a name="TermGraphValue-weighing"><strong>weighing</strong></a>(self, all_candidates, all_vertices, top_t_vertices) -&gt; Dict[str, float]</dt></dl>
 
 <hr>
 Static methods defined here:<br>
-<dl><dt><a name="TermGraphValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None)</dt></dl>
+<dl><dt><a name="TermGraphValue-calculate"><strong>calculate</strong></a>(candidate_term, all_candidates, all_vertices, optional_params=None) -&gt; Tuple[str, float]</dt></dl>
 
 <dl><dt><a name="TermGraphValue-g_value"><strong>g_value</strong></a>(collapsed_term, all_vertices, weight_comb='norm_sum', mu=5, **kwargs)</dt></dl>
 
@@ -139,7 +139,13 @@ Data descriptors defined here:<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-_gaussian_normalise"><strong>_gaussian_normalise</strong></a>(base_score, mu, sigma, unit_size)</dt></dl>
+<td width="100%"><dl><dt><a name="-_gaussian_normalise"><strong>_gaussian_normalise</strong></a>(base_score, mu, sigma, unit_size)</dt><dd><tt>gaussian&nbsp;normalisation&nbsp;of&nbsp;'base'&nbsp;weight<br>
+:param&nbsp;base_score:&nbsp;float,&nbsp;base&nbsp;weight&nbsp;of&nbsp;candidate&nbsp;terms<br>
+:param&nbsp;mu:&nbsp;int,&nbsp;mean&nbsp;value&nbsp;to&nbsp;set&nbsp;a&nbsp;center&nbsp;point&nbsp;(default&nbsp;to&nbsp;5)&nbsp;in&nbsp;order&nbsp;to&nbsp;rank&nbsp;the&nbsp;candidates&nbsp;higher&nbsp;that&nbsp;are&nbsp;near&nbsp;the&nbsp;central&nbsp;point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;param&nbsp;is&nbsp;only&nbsp;required&nbsp;for&nbsp;normalisation&nbsp;based&nbsp;MWT&nbsp;weighting&nbsp;method<br>
+:param&nbsp;sigma:&nbsp;float64,&nbsp;standard&nbsp;deviation&nbsp;of&nbsp;term&nbsp;length&nbsp;in&nbsp;MWTs<br>
+:param&nbsp;unit_size:&nbsp;int,&nbsp;size&nbsp;of&nbsp;MWTs<br>
+:return:float</tt></dd></dl>
  <dl><dt><a name="-_get_average_score"><strong>_get_average_score</strong></a>(all_syntactic_units, all_vertices, unit_size)</dt><dd><tt>get&nbsp;average&nbsp;score&nbsp;from&nbsp;single&nbsp;candidate&nbsp;term<br>
 &nbsp;<br>
 :param&nbsp;all_syntactic_units:&nbsp;tokens&nbsp;of&nbsp;single&nbsp;candidate&nbsp;term<br>

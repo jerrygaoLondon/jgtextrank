@@ -46,6 +46,7 @@ from collections import OrderedDict
 from collections import Counter
 import csv
 
+from typing import Dict, List, Tuple, Generator
 from .preprocessing.segmentation import word_tokenize
 from .preprocessing.segmentation import SentenceTokenizer
 from nltk.corpus import stopwords
@@ -66,7 +67,7 @@ class CorpusContent2RawSentences(object):
     Raw lowercased tokenised sentences are returned.
 
     """
-    def __init__(self, dirname, encoding="utf-8", remove_stop_words=False, remove_punc = False):
+    def __init__(self, dirname: str, encoding: str = "utf-8", remove_stop_words: bool = False, remove_punc: bool = False):
         self.dirname = dirname
         # encoding: iso-8859-1 for ttc corpus
         self.encoding = encoding
@@ -97,13 +98,13 @@ class CorpusContent2RawSentences(object):
                 yield filtered_context
 
 
-def get_top_n_from_dict(dictionary, top_n):
+def get_top_n_from_dict(dictionary: Dict, top_n: int):
     dict_counter = Counter(dictionary)
     top_n_items = dict_counter.most_common(top_n)
     return top_n_items
 
 
-def concat(ngram_tuple):
+def concat(ngram_tuple: Tuple[str, str]):
     ngram_str=""
     for i in range(len(ngram_tuple)):
         ngram_str +=" "+ngram_tuple[i]
@@ -173,11 +174,11 @@ def deprecated(func):
     return new_func
 
 
-def sort_dict_by_value(dictionary, reverse=True):
+def sort_dict_by_value(dictionary : Dict, reverse=True):
     return OrderedDict(sorted(dictionary.items(), key=operator.itemgetter(1), reverse=reverse))
 
 
-def is_list_of_list(list_of_items):
+def is_list_of_list(list_of_items: List):
     return any(isinstance(el, list) for el in list_of_items)
 
 
