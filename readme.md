@@ -184,6 +184,8 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
     * bug fixes
     * 15 additional graph ranking algorithms
 * 0.1.1 Alpha version - 1st Jan 2018
+* 0.1.3 Beta version - March, 2019
+    * minor fixes and documentation improvement
 
 ### Donation ###
 If this project help you reduce time to develop, you can buy me a cup of coffee :)
