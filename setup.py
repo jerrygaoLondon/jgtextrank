@@ -64,9 +64,6 @@ setup(
              'feature extraction, machine learning, graph algorithm, computational linguistics',
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-    include_package_data=True,
-    package_data={
-        '': ['readme.rst','requirements.txt','LICENSE','*.conf']},
     install_requires=[
           'nltk',
           'networkx'

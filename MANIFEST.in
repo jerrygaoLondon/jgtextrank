@@ -1,4 +1,1 @@
-include readme.rst
-include *.conf
-include requirements.txt
-include LICENSE
+include readme.rst LICENSE
