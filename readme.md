@@ -180,7 +180,7 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
 * Jie Gao <j.gao@sheffield.ac.uk>
 
 ### history ###
-* 0.1.2 Beta version - Aug 2018
+* 0.1.2 Beta version - Aug 201Dependencies8
     * bug fixes
     * 15 additional graph ranking algorithms
 * 0.1.1 Alpha version - 1st Jan 2018

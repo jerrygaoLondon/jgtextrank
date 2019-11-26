@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install as _install
 
 def readme():
-    with open('readme.txt') as f:
+    with open('readme.rst') as f:
         return f.read()
 
 
@@ -21,12 +21,13 @@ setup(
 
     # Versions should comply with PEP440.
     # see https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.3',
+    version='0.1.4',
 
     description='Yet another Python implementation of TextRank: package for the creation, manipulation, '
                 'and study of TextRank algorithm based keywords extraction and summarisation',
 
     long_description=readme(),
+    long_description_content_type="text/x-rst",
 
     # The project's main homepage.
     url='https://github.com/jerrygaoLondon/jgtextrank',
@@ -63,7 +64,9 @@ setup(
              'feature extraction, machine learning, graph algorithm, computational linguistics',
 
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
+    include_package_data=True,
+    package_data={
+        '': ['readme.rst','requirements.txt','LICENSE','*.conf']},
     install_requires=[
           'nltk',
           'networkx'
