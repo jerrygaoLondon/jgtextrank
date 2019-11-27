@@ -1,5 +1,6 @@
 [![license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
  [![Build Status](https://travis-ci.org/jerrygaoLondon/jgtextrank.svg)](https://travis-ci.org/jerrygaoLondon/jgtextrank)
+ [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=82K4GF9ZFCD9U)
 
 jgTextRank : Yet another Python implementation of TextRank
 ==========================================================
@@ -186,8 +187,3 @@ Here's a Bibtex entry if you need to cite `jgTextRank` in your research paper:
 * 0.1.1 Alpha version - 1st Jan 2018
 * 0.1.3 Beta version - March, 2019
     * minor fixes and documentation improvement
-
-### Donation ###
-If this project help you reduce time to develop, you can buy me a cup of coffee :)
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=82K4GF9ZFCD9U)
